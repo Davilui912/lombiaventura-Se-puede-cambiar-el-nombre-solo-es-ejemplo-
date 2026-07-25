@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:lombriaventura/screens/juegos/alimenta_lombriz_cayendo.dart';
+import 'package:lombriaventura/screens/juegos/selector_nivel_alimenta.dart';
 import 'package:lombriaventura/screens/login_screen.dart';
 import '../config/theme.dart';
-import '../services/logros_service.dart';
 import '../services/actividad_service.dart';
 import 'chat_ia_screen.dart';
 import 'diario/nueva_entrada.dart';
+import 'juegos/selector_nivel_cayendo.dart';
 import 'juegos/clasifica_residuos.dart';
-import 'juegos/alimenta_lola.dart';
+import 'juegos/alimenta_la_lombriz.dart';
 import 'tienda/ventas_lombrices.dart';
 import 'tienda/ventas_atomizador.dart';
 import 'tienda/ventas_historial.dart';
@@ -19,11 +21,11 @@ import 'logros.dart';
 import 'modulo_educativo.dart';
 import '../services/retos_service.dart'; 
 import 'recordatorios.dart';
+import 'tienda/accesorios_screen.dart';
 import 'avisos.dart';
 import 'tienda/problemas_matematicos.dart';  
 import 'perfil_screen.dart';
 import 'admin_screen.dart';
-import 'diario/compara_composta.dart'; 
 import 'retos_screen.dart';
 import '../services/recordatorios_service.dart';
 
@@ -35,7 +37,6 @@ class MenuPrincipal extends StatefulWidget {
 }
 
 class _MenuPrincipalState extends State<MenuPrincipal> {
-  final LogrosService _logrosService = LogrosService();
   final ActividadService _actividadService = ActividadService();
   
   int _categoriaAbierta = -1;
@@ -211,7 +212,14 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
       );
     }
 
-  Widget _buildOpcionJuego(String titulo, String subtitulo, IconData icon, VoidCallback onTap, Color color) {
+  Widget _buildOpcionJuego(
+      String titulo, 
+      String subtitulo, 
+      IconData? icon, // 1. Le agregamos el '?' para que pueda ser nulo
+      VoidCallback onTap, 
+      Color color, 
+      {Widget? customIcon} // 2. Agregamos el widget personalizado como opción
+    ) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -231,7 +239,10 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                 color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(icon, color: color, size: 20),
+              // 3. Agregamos un Center y le decimos: "¿Hay customIcon? Úsalo. Si no, usa el icono normal"
+              child: Center(
+                child: customIcon ?? Icon(icon, color: color, size: 20),
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -243,7 +254,7 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
-                      color: AppTheme.negro,
+                      color: AppTheme.negro, 
                     ),
                   ),
                   Text(
@@ -266,18 +277,18 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
       ),
     );
   }
-  Widget _buildSubmenuJuegos() {
+Widget _buildSubmenuJuegos() {
     final Color colorJuegos = const Color(0xFF6DB467);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 4),
       decoration: BoxDecoration(
-        //Fondo blanco
+        // Fondo blanco
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        //Borde verde claro más definido
+        // Borde verde claro más definido
         border: Border.all(color: colorJuegos.withValues(alpha: 0.4), width: 1.5),
-        //Sombra suave para darle profundidad
+        // Sombra suave para darle profundidad
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -300,9 +311,12 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
               color: colorJuegos.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(Icons.games, color: colorJuegos, size: 20),
+            // ⬅️ Cambiamos el icono de Flutter por un emoji centrado
+            child: const Center(
+              child: Text('🎮', style: TextStyle(fontSize: 20)),
+            ),
           ),
-          title: Text(
+          title: const Text(
             'Juegos',
             style: TextStyle(
               fontWeight: FontWeight.bold,
@@ -312,26 +326,34 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
           ),
           trailing: Icon(Icons.keyboard_arrow_down, color: colorJuegos),
           children: [
-            _buildOpcionJuego(
+            // ⬅️ Usamos _buildOpcion en lugar de _buildOpcionJuego
+            _buildOpcion(
               'Clasifica residuos',
               'Aprende a separar los residuos',
-              Icons.recycling,
+              '♻️', // Emoji para reciclar
               () => _irAPantalla(const ClasificaResiduosScreen()),
-              colorJuegos,
+              color: colorJuegos,
             ),
-            _buildOpcionJuego(
-              'Alimenta a la lombriz',
-              'Cuida a tu lombriz',
-              Icons.restaurant,
-              () => _irAPantalla(const AlimentaLolaScreen()),
-              colorJuegos,
+            _buildOpcion(
+              'Bocados Sorpresa',
+              'Arrastra a la lombriz para comer los alimentos buenos',
+              '🍎', // Emoji de manzanita
+              () => _irAPantalla(const SelectorNivelAlimentaScreen()),
+              color: colorJuegos,
             ),
-            _buildOpcionJuego(
+            _buildOpcion(
+              'Lluvia Deliciosa',
+              'Atrapa la comida que cae y evita los aparatos electrónicos',
+              '🧺', // Emoji de canasta
+              () => _irAPantalla(const SelectorNivelCayendoScreen()),
+              color: colorJuegos,
+            ),
+            _buildOpcion(
               'Memorama ecológico',
               'Encuentra las parejas',
-              Icons.memory,
+              '🃏', // Emoji de cartas
               () => _irAPantalla(const MemoramaScreen()),
-              colorJuegos,
+              color: colorJuegos,
             ),
           ],
         ),
@@ -506,76 +528,73 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
     );
   }
 
-  Widget _buildOpcion(String titulo, String subtitulo, IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.grey.shade100),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            // ✅ Icono con estilo uniforme (círculo con fondo suave)
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: AppTheme.verde.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(icon, color: AppTheme.verde, size: 24),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    titulo,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                      color: AppTheme.negro,
-                    ),
+  Widget _buildOpcion(
+      String titulo, 
+      String subtitulo, 
+      String emoji, // ⬅️ ¡Ahora pide directamente el emoji!
+      VoidCallback onTap,
+      {Color color = Colors.grey} // Color opcional para los bordes y flecha
+    ) {
+      return GestureDetector(
+        onTap: onTap,
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 6),
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: color.withValues(alpha: 0.15)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Center(
+                  // ⬅️ Aquí mostramos el emoji directamente
+                  child: Text(
+                    emoji, 
+                    style: const TextStyle(fontSize: 22),
                   ),
-                  Text(
-                    subtitulo,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: Colors.grey,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      titulo,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        color: Colors.black87, 
+                      ),
                     ),
-                  ),
-                ],
+                    Text(
+                      subtitulo,
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: AppTheme.verde.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(20),
+              Icon(
+                Icons.play_arrow,
+                color: color,
+                size: 18,
               ),
-              child: const Icon(
-                Icons.arrow_forward_ios,
-                size: 12,
-                color: AppTheme.verde,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
+    }
 
   Widget _buildMenuButton(String label, IconData icon, Color color, VoidCallback onTap) {
     return GestureDetector(
@@ -700,6 +719,7 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                 child: Column(
                   children: [
                     // ==================== APRENDIZAJE ====================
+// ==================== APRENDIZAJE ====================
                     _buildCategoria(
                       titulo: 'Aprendizaje',
                       subtitulo: 'Descubre y aprende',
@@ -708,7 +728,10 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                       iconImage: 'assets/images/icons/icono_aprendizaje.png',
                       index: 0,
                       opciones: [
-                        _buildOpcion('Conoce a las lombrices', 'Aprende sobre Lola y Lalo', Icons.bug_report,
+                        _buildOpcion(
+                          'Conoce a las lombrices', 
+                          'Aprende sobre la lombriz roja californiana',
+                          '🐛', // ⬅️ Emoji directo
                           () => _irAPantalla(ModuloEducativoScreen(
                             titulo: '🪱 Conoce a las lombrices',
                             descripcion: 'Las lombrices son pequeñas pero poderosas aliadas del planeta.',
@@ -747,8 +770,12 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                               {'emoji': '✨', 'titulo': 'Beneficios', 'descripcion': 'Producen humus, el mejor fertilizante natural'},
                             ],
                           )),
+                          color: const Color(0xFF43A047),
                         ),
-                        _buildOpcion('¿Qué es la lombricomposta?', 'Beneficios y proceso', Icons.recycling,
+                        _buildOpcion(
+                          '¿Qué es la lombricomposta?', 
+                          'Beneficios y proceso', 
+                          '♻️', 
                           () => _irAPantalla(ModuloEducativoScreen(
                             titulo: '♻️ ¿Qué es la lombricomposta?',
                             descripcion: 'La lombricomposta es un abono natural creado por lombrices que transforman residuos orgánicos en el mejor fertilizante para las plantas.',
@@ -763,7 +790,10 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                             ],
                           )),
                         ),
-                        _buildOpcion('Aprende a hacerla', 'Paso a paso en casa', Icons.construction,
+                        _buildOpcion(
+                          'Aprende a hacerla', 
+                          'Paso a paso en casa', 
+                          '🛠️', 
                           () => _irAPantalla(ModuloEducativoScreen(
                             titulo: '🛠️ Aprende a hacerla',
                             descripcion: 'Crear tu propia lombricomposta es muy fácil. Solo necesitas seguir estos pasos y tener paciencia.',
@@ -781,7 +811,10 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                             ],
                           )),
                         ),
-                        _buildOpcion('Materiales necesarios', 'Lo que ocupas para empezar', Icons.list_alt,
+                        _buildOpcion(
+                          'Materiales necesarios', 
+                          'Lo que ocupas para empezar', 
+                          '📋', 
                           () => _irAPantalla(ModuloEducativoScreen(
                             titulo: '📋 Materiales necesarios',
                             descripcion: 'No necesitas muchas cosas para empezar tu lombricomposta. ¡Seguro ya tienes varias en casa!',
@@ -797,7 +830,10 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                             ],
                           )),
                         ),
-                        _buildOpcion('Balance 80/20', 'Nitrógeno y carbono', Icons.balance,
+                        _buildOpcion(
+                          'Balance 80/20', 
+                          'Nitrógeno y carbono', 
+                          '⚖️', 
                           () => _irAPantalla(ModuloEducativoScreen(
                             titulo: '⚖️ Balance 80/20',
                             descripcion: 'Para una composta saludable necesitas equilibrar materiales verdes (nitrógeno) y materiales secos (carbono).',
@@ -813,7 +849,10 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                             ],
                           )),
                         ),
-                        _buildOpcion('Lixiviado', 'El oro líquido de la composta', Icons.water_drop,
+                        _buildOpcion(
+                          'Lixiviado', 
+                          'El oro líquido de la composta', 
+                          '💧', 
                           () => _irAPantalla(ModuloEducativoScreen(
                             titulo: '💧 Lixiviado',
                             descripcion: 'El lixiviado es un líquido oscuro que se produce durante la lombricomposta. ¡Es oro líquido para tus plantas!',
@@ -828,7 +867,10 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                             ],
                           )),
                         ),
-                        _buildOpcion('Cuidados', 'Mantén felices a tus lombrices', Icons.favorite,
+                        _buildOpcion(
+                          'Cuidados', 
+                          'Mantén felices a tus lombrices', 
+                          '💚', 
                           () => _irAPantalla(ModuloEducativoScreen(
                             titulo: '💚 Cuidados',
                             descripcion: 'Las lombrices son seres vivos que necesitan cuidados básicos. ¡No te preocupes, es muy sencillo!',
@@ -844,7 +886,10 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                             ],
                           )),
                         ),
-                        _buildOpcion('Emprendimiento', 'Gana dinero ayudando al planeta', Icons.monetization_on,
+                        _buildOpcion(
+                          'Emprendimiento', 
+                          'Gana dinero ayudando al planeta', 
+                          '💰', 
                           () => _irAPantalla(ModuloEducativoScreen(
                             titulo: '💰 Emprendimiento',
                             descripcion: '¿Sabías que puedes ganar dinero con tu lombricomposta? ¡Aprende a vender y ayudar al planeta!',
@@ -864,7 +909,7 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                       ],
                     ),
                     // ==================== MI COMPOSTA ====================  
-                    _buildCategoria(
+                   _buildCategoria(
                       titulo: 'Mi Composta',
                       subtitulo: 'Cuida tu composta',
                       color: const Color(0xFFFFA726),
@@ -872,24 +917,10 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                       iconImage: 'assets/images/icons/icono_composta.png',
                       index: 1,
                       opciones: [
-                        _buildOpcion(
-                          'Mi diario',
-                          'Registra tu avance',
-                          Icons.edit_note,
-                          () => _irAPantalla(const NuevaEntradaScreen()),
-                        ),
-                        _buildOpcion(
-                          'Avisos importantes',
-                          'Cuida a tus lombrices',
-                          Icons.warning_amber,
-                          () => _irAPantalla(const AvisosScreen()),
-                        ),
-                       /* _buildOpcion(
-                          '¿Cómo va mi composta?',
-                          'Compara y revisa tu composta',
-                          Icons.compare_arrows,
-                          () => _irAPantalla(const ComparaCompostaScreen()),
-                        ),*/
+                        _buildOpcion('Mi diario', 'Registra tu avance', '📝', () => _irAPantalla(const NuevaEntradaScreen()), color: const Color(0xFFFFA726)),
+                        _buildOpcion('Avisos importantes', 'Cuida a tus lombrices', '⚠️', () => _irAPantalla(const AvisosScreen()), color: const Color(0xFFFFA726)),
+                        // _buildOpcion('¿Cómo va mi composta?', 'Compara y revisa tu composta', '🔄', () => _irAPantalla(const ComparaCompostaScreen()), color: const Color(0xFFFFA726)),
+                        
                         // ✅ Submenú de juegos (mejorado)
                         _buildSubmenuJuegos(),
                       ],
@@ -903,13 +934,13 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                       iconImage: 'assets/images/icons/icono_progreso.png',
                       index: 2,
                       opciones: [
-                        _buildOpcion('Mis logros', 'Insignias y medallas', Icons.emoji_events, () => _irAPantalla(const LogrosScreen())),
-                        _buildOpcion('Retos', 'Completa los desafíos', Icons.flag, () => _irAPantalla(const RetosScreen())),
-                        _buildOpcion('Recordatorios', 'Alertas y cuidados', Icons.notifications_active, () => _irAPantalla(const RecordatoriosScreen())),
+                        _buildOpcion('Mis logros', 'Insignias y medallas', '🏆', () => _irAPantalla(const LogrosScreen()), color: const Color(0xFF42A5F5)),
+                        _buildOpcion('Retos', 'Completa los desafíos', '🚩', () => _irAPantalla(const RetosScreen()), color: const Color(0xFF42A5F5)),
+                        _buildOpcion('Recordatorios', 'Alertas y cuidados', '🔔', () => _irAPantalla(const RecordatoriosScreen()), color: const Color(0xFF42A5F5)),
                       ],
                     ),
                     // ==================== MI NEGOCIO REAL ====================
-                    _buildCategoria(
+_buildCategoria(
                       titulo: 'Mi negocio real',
                       subtitulo: 'Vende y capacita',
                       color: const Color(0xFFFF7043),
@@ -917,12 +948,13 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                       iconImage: 'assets/images/icons/icono_negocio.png',
                       index: 3,
                       opciones: [
-                        _buildOpcion('Vender lombrices', 'Precio: \$2.50 c/u', Icons.sell, () => _irAPantalla(const VentasLombricesScreen())),
-                        _buildOpcion('Atomizador lixiviado', 'Precio: \$25', Icons.water_drop, () => _irAPantalla(const VentasAtomizadorScreen())),
-                        _buildOpcion('Vender humus', 'Precio: \$10 por bolsita', Icons.agriculture, () => _irAPantalla(const VentasHumusScreen())),
-                        _buildOpcion('Registro de ventas', 'Historial de ingresos', Icons.receipt, () => _irAPantalla(const VentasHistorialScreen())),
-                        _buildOpcion('Capacitación', 'Capacita a otros niños', Icons.school, () => _irAPantalla(const CapacitacionScreen())),
-                        _buildOpcion('Matematicas de negocios', 'Gana monedas resolviendo', Icons.calculate, () => _irAPantalla(const ProblemasMatematicosScreen())),
+                        _buildOpcion('Vender lombrices', 'Precio: \$2.50 c/u', '🏷️', () => _irAPantalla(const VentasLombricesScreen()), color: const Color(0xFFFF7043)),
+                        _buildOpcion('Atomizador lixiviado', 'Precio: \$25', '💦', () => _irAPantalla(const VentasAtomizadorScreen()), color: const Color(0xFFFF7043)),
+                        _buildOpcion('Vender humus', 'Precio: \$10 por bolsita', '🌱', () => _irAPantalla(const VentasHumusScreen()), color: const Color(0xFFFF7043)),
+                        _buildOpcion('Registro de ventas', 'Historial de ingresos', '🧾', () => _irAPantalla(const VentasHistorialScreen()), color: const Color(0xFFFF7043)),
+                        _buildOpcion('Accesorios', 'Personaliza a tu lombriz', '🛍️', () => _irAPantalla(const AccesoriosScreen()), color: const Color(0xFFFF7043)),
+                        _buildOpcion('Capacitación', 'Capacita a otros niños', '🎓', () => _irAPantalla(const CapacitacionScreen()), color: const Color(0xFFFF7043)),
+                        _buildOpcion('Matematicas de negocios', 'Gana monedas resolviendo', '🧮', () => _irAPantalla(const ProblemasMatematicosScreen()), color: const Color(0xFFFF7043)),
                       ],
                     ),
                     const SizedBox(height: 12),
