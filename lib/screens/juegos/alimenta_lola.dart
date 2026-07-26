@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../../config/theme.dart';
 import '../../services/anuncio_service.dart';
+import '../../services/sound_service.dart';
 
 class AlimentaLolaScreen extends StatefulWidget {
   const AlimentaLolaScreen({super.key});
@@ -14,7 +15,7 @@ class AlimentaLolaScreen extends StatefulWidget {
 
 class _AlimentaLolaScreenState extends State<AlimentaLolaScreen> {
   // ========== VARIABLES DEL JUEGO ==========
-  
+
   int _puntuacion = 0;
   int _vidas = 3;
   bool _jugando = false;
@@ -22,11 +23,11 @@ class _AlimentaLolaScreenState extends State<AlimentaLolaScreen> {
   Timer? _timer;
   Timer? _timerComida;
   int _tiempoRestante = 30;
-  
+
   // Posición del personaje (Lola o Lalo)
   double _personajeX = 0.5;
   String _personaje = 'Lola';
-  
+
   // Comida actual
   double _comidaX = 0.5;
   double _comidaY = 0.0;
@@ -52,7 +53,7 @@ class _AlimentaLolaScreenState extends State<AlimentaLolaScreen> {
   ];
 
   // ========== INICIALIZACIÓN ==========
-  
+
   @override
   void initState() {
     super.initState();
@@ -105,7 +106,7 @@ class _AlimentaLolaScreenState extends State<AlimentaLolaScreen> {
       _comidaX = 0.1 + random.nextDouble() * 0.8;
       _comidaY = 0.0;
       _comidaVisible = true;
-      
+
       if (esBuena) {
         _comidaActual = _comidasBuenas[random.nextInt(_comidasBuenas.length)];
         _comidaCorrecta = true;
@@ -134,13 +135,16 @@ class _AlimentaLolaScreenState extends State<AlimentaLolaScreen> {
           // ¡Atrapó la comida! (sin pausa)
           _comidaVisible = false;
           timer.cancel();
-          
+
           if (_comidaCorrecta) {
             final puntos = _comidaActual?['puntos'] ?? 10;
             setState(() {
               _puntuacion += puntos as int;
-              _mensaje = '¡Ñam ñam! ${_comidaActual?['emoji']} +$puntos puntos 😋';
+              _mensaje =
+                  '¡Ñam ñam! ${_comidaActual?['emoji']} +$puntos puntos 😋';
             });
+
+            SoundService.instance.retoCompletado(); // Reproduce sonido de éxito
           } else {
             setState(() {
               _vidas--;
@@ -151,17 +155,16 @@ class _AlimentaLolaScreenState extends State<AlimentaLolaScreen> {
               }
             });
           }
-          
+
           // Generar siguiente comida INMEDIATAMENTE
           if (mounted && _jugando) {
             _generarComida();
           }
-          
         } else if (tocoSuelo && _comidaVisible) {
           // La comida llegó al suelo sin ser atrapada
           _comidaVisible = false;
           timer.cancel();
-          
+
           if (_comidaCorrecta) {
             setState(() {
               _mensaje = '😢 Se perdió la comida buena';
@@ -170,8 +173,9 @@ class _AlimentaLolaScreenState extends State<AlimentaLolaScreen> {
             setState(() {
               _mensaje = '💪 ¡Bien! Esquivaste la comida mala';
             });
+            SoundService.instance.retoCompletado(); // Reproduce sonido de éxito
           }
-          
+
           // Generar siguiente comida INMEDIATAMENTE
           if (mounted && _jugando) {
             _generarComida();
@@ -197,13 +201,19 @@ class _AlimentaLolaScreenState extends State<AlimentaLolaScreen> {
       _juegoTerminado = true;
       _comidaVisible = false;
     });
+
+    if (_vidas > 0 && _puntuacion > 0) {
+      SoundService.instance.monedasGanadas(); // Reproduce sonido de monedas
+    }
   }
+
   Future<void> _salirConAnuncio() async {
     await AnuncioService.mostrarAnuncio(context);
     if (mounted) {
       Navigator.pop(context);
     }
   }
+
   @override
   void dispose() {
     _timer?.cancel();
@@ -216,33 +226,33 @@ class _AlimentaLolaScreenState extends State<AlimentaLolaScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-    appBar: AppBar(
-      title: const Text('🪱 Alimenta a la lombriz'),
-      backgroundColor: AppTheme.verde,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
-        onPressed: _salirConAnuncio,  // ✅ Cambiar aquí
-      ),
-      actions: [
-        Center(
-          child: Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.favorite, color: Colors.red, size: 20),
-                const SizedBox(width: 4),
-                Text('$_vidas', style: const TextStyle(fontSize: 18)),
-                const SizedBox(width: 12),
-                const Icon(Icons.star, color: AppTheme.amarillo, size: 20),
-                const SizedBox(width: 4),
-                Text('$_puntuacion', style: const TextStyle(fontSize: 18)),
-              ],
+      appBar: AppBar(
+        title: const Text('🪱 Alimenta a la lombriz'),
+        backgroundColor: AppTheme.verde,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: _salirConAnuncio, // ✅ Cambiar aquí
+        ),
+        actions: [
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.favorite, color: Colors.red, size: 20),
+                  const SizedBox(width: 4),
+                  Text('$_vidas', style: const TextStyle(fontSize: 18)),
+                  const SizedBox(width: 12),
+                  const Icon(Icons.star, color: AppTheme.amarillo, size: 20),
+                  const SizedBox(width: 4),
+                  Text('$_puntuacion', style: const TextStyle(fontSize: 18)),
+                ],
+              ),
             ),
           ),
-        ),
-      ],
-    ),
+        ],
+      ),
       body: _juegoTerminado ? _buildPantallaFinal() : _buildJuego(),
     );
   }
@@ -258,13 +268,15 @@ class _AlimentaLolaScreenState extends State<AlimentaLolaScreen> {
               width: 120,
               height: 120,
               errorBuilder: (context, error, stackTrace) {
-                return const Icon(Icons.bug_report, size: 80, color: AppTheme.verde);
+                return const Icon(Icons.bug_report,
+                    size: 80, color: AppTheme.verde);
               },
             ),
             const SizedBox(height: 20),
             const Text(
               '¡Alimenta a la lombriz!',
-              style: TextStyle(fontFamily: 'Fredoka', fontSize: 28, color: AppTheme.verde),
+              style: TextStyle(
+                  fontFamily: 'Fredoka', fontSize: 28, color: AppTheme.verde),
             ),
             const SizedBox(height: 10),
             const Padding(
@@ -279,9 +291,11 @@ class _AlimentaLolaScreenState extends State<AlimentaLolaScreen> {
             ElevatedButton(
               onPressed: _iniciarJuego,
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
               ),
-              child: const Text('🎮 ¡Comenzar!', style: TextStyle(fontSize: 24)),
+              child:
+                  const Text('🎮 ¡Comenzar!', style: TextStyle(fontSize: 24)),
             ),
           ],
         ),
@@ -309,7 +323,8 @@ class _AlimentaLolaScreenState extends State<AlimentaLolaScreen> {
           child: Column(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
@@ -322,13 +337,15 @@ class _AlimentaLolaScreenState extends State<AlimentaLolaScreen> {
                       child: LinearProgressIndicator(
                         value: _tiempoRestante / 30,
                         backgroundColor: Colors.grey[200],
-                        valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.verde),
+                        valueColor:
+                            const AlwaysStoppedAnimation<Color>(AppTheme.verde),
                         minHeight: 10,
                         borderRadius: BorderRadius.circular(5),
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text('${_tiempoRestante}s', style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Text('${_tiempoRestante}s',
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
@@ -336,11 +353,12 @@ class _AlimentaLolaScreenState extends State<AlimentaLolaScreen> {
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: _mensaje.contains('NOOO') 
-                          ? Colors.red.withValues(alpha: 0.8) 
-                          : _mensaje.contains('Bien') 
+                      color: _mensaje.contains('NOOO')
+                          ? Colors.red.withValues(alpha: 0.8)
+                          : _mensaje.contains('Bien')
                               ? Colors.green.withValues(alpha: 0.8)
                               : AppTheme.verde.withValues(alpha: 0.8),
                       borderRadius: BorderRadius.circular(15),
@@ -379,7 +397,8 @@ class _AlimentaLolaScreenState extends State<AlimentaLolaScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(_comidaActual!['emoji'], style: const TextStyle(fontSize: 40)),
+                  Text(_comidaActual!['emoji'],
+                      style: const TextStyle(fontSize: 40)),
                   const SizedBox(height: 4),
                   Text(
                     _comidaActual!['nombre'],
@@ -409,7 +428,8 @@ class _AlimentaLolaScreenState extends State<AlimentaLolaScreen> {
                     shape: BoxShape.circle,
                   ),
                   child: const Center(
-                    child: Icon(Icons.bug_report, size: 50, color: Colors.white),
+                    child:
+                        Icon(Icons.bug_report, size: 50, color: Colors.white),
                   ),
                 );
               },
@@ -425,7 +445,8 @@ class _AlimentaLolaScreenState extends State<AlimentaLolaScreen> {
           top: 0,
           child: GestureDetector(
             onHorizontalDragUpdate: (details) {
-              final delta = details.delta.dx / MediaQuery.of(context).size.width;
+              final delta =
+                  details.delta.dx / MediaQuery.of(context).size.width;
               setState(() {
                 _personajeX += delta * 1.5;
                 _personajeX = _personajeX.clamp(0.05, 0.95);
@@ -452,7 +473,8 @@ class _AlimentaLolaScreenState extends State<AlimentaLolaScreen> {
             const SizedBox(height: 20),
             Text(
               ganaste ? '¡Se acabó el tiempo!' : '¡Lombriz cansada!',
-              style: const TextStyle(fontFamily: 'Fredoka', fontSize: 28, color: AppTheme.verde),
+              style: const TextStyle(
+                  fontFamily: 'Fredoka', fontSize: 28, color: AppTheme.verde),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 10),
@@ -470,19 +492,23 @@ class _AlimentaLolaScreenState extends State<AlimentaLolaScreen> {
             ElevatedButton(
               onPressed: _iniciarJuego,
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
               ),
-              child: const Text('🔄 Jugar de nuevo', style: TextStyle(fontSize: 20)),
+              child: const Text('🔄 Jugar de nuevo',
+                  style: TextStyle(fontSize: 20)),
             ),
             // ✅ Botón "Salir" (MUESTRA anuncio)
             const SizedBox(height: 12),
             ElevatedButton(
-              onPressed: _salirConAnuncio,  // ✅ Muestra anuncio
+              onPressed: _salirConAnuncio, // ✅ Muestra anuncio
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                 backgroundColor: Colors.grey.shade300,
               ),
-              child: const Text('🚪 Salir', style: TextStyle(fontSize: 16, color: Colors.black87)),
+              child: const Text('🚪 Salir',
+                  style: TextStyle(fontSize: 16, color: Colors.black87)),
             ),
           ],
         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/api_models.dart';
 import '../services/api_service.dart';
+import '../services/sound_service.dart';
 
 /// Estado global del usuario autenticado.
 /// Úsalo con Provider o con Consumer<UsuarioProvider> en tus widgets.
@@ -22,7 +23,7 @@ class UsuarioProvider extends ChangeNotifier {
   bool _cargando = false;
   String? _error;
 
-  // ─── Getters 
+  // ─── Getters
   Usuario? get usuario => _usuario;
   List<EntradaDiario> get diario => _diario;
   List<Reto> get retos => _retos;
@@ -36,7 +37,7 @@ class UsuarioProvider extends ChangeNotifier {
   // Recordatorios no vistos — útil para mostrar badge de notificación
   int get recordatoriosSinVer => _recordatorios.where((r) => !r.visto).length;
 
-  // ─── Carga de datos 
+  // ─── Carga de datos
   /// Carga el perfil del usuario y todos sus datos desde la API.
   /// Llámalo una vez después del login.
   Future<void> cargarPerfil(String uid) async {
@@ -73,7 +74,7 @@ class UsuarioProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ─── Acciones 
+  // ─── Acciones
 
   Future<String?> agregarEntradaDiario({
     required String uid,
@@ -103,6 +104,9 @@ class UsuarioProvider extends ChangeNotifier {
       // Reemplaza el reto actualizado en la lista local
       _retos = _retos.map((r) => r.id == retoId ? result.data! : r).toList();
       notifyListeners();
+
+      await SoundService.instance.retoCompletado(); // feedback sonoro
+
       return null;
     }
     return result.error;
@@ -136,6 +140,9 @@ class UsuarioProvider extends ChangeNotifier {
     if (result.ok) {
       _ventas = [result.data!, ..._ventas];
       notifyListeners();
+
+      await SoundService.instance.monedasGanadas(); // feedback sonoro
+
       return null;
     }
     return result.error;

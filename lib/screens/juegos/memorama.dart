@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../config/theme.dart';
 import '../../services/logros_service.dart';
 import '../../services/monedas_service.dart';
+import '../../services/sound_service.dart';
 
 class MemoramaScreen extends StatefulWidget {
   const MemoramaScreen({super.key});
@@ -18,10 +19,22 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
     {'imagen': 'assets/images/memorama/Compostaje.png', 'nombre': 'Compostaje'},
     {'imagen': 'assets/images/memorama/Humus.png', 'nombre': 'Humus'},
     {'imagen': 'assets/images/memorama/Lixiviado.png', 'nombre': 'Lixiviado'},
-    {'imagen': 'assets/images/memorama/Lombricultura.png', 'nombre': 'Lombricultura'},
-    {'imagen': 'assets/images/memorama/Materia_organica.png', 'nombre': 'Materia organica'},
-    {'imagen': 'assets/images/memorama/Planta_crecimiento.png', 'nombre': 'Plnata en crecimiento'},
-    {'imagen': 'assets/images/memorama/Composteria.png', 'nombre': 'Composteria'},
+    {
+      'imagen': 'assets/images/memorama/Lombricultura.png',
+      'nombre': 'Lombricultura'
+    },
+    {
+      'imagen': 'assets/images/memorama/Materia_organica.png',
+      'nombre': 'Materia organica'
+    },
+    {
+      'imagen': 'assets/images/memorama/Planta_crecimiento.png',
+      'nombre': 'Plnata en crecimiento'
+    },
+    {
+      'imagen': 'assets/images/memorama/Composteria.png',
+      'nombre': 'Composteria'
+    },
   ];
 
   List<Map<String, dynamic>> _cartas = [];
@@ -81,6 +94,8 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
     final monedasService = MonedasService();
     await monedasService.init();
     await monedasService.agregarMonedas(25);
+    await SoundService.instance.monedasGanadas();
+
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -118,8 +133,8 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
     final carta1 = _cartas[_primeraCarta!];
     final carta2 = _cartas[_segundaCarta!];
 
-    final sonPareja = carta1['parejaId'] == carta2['parejaId'] && 
-                      carta1['tipo'] != carta2['tipo'];
+    final sonPareja = carta1['parejaId'] == carta2['parejaId'] &&
+        carta1['tipo'] != carta2['tipo'];
 
     Future.delayed(const Duration(milliseconds: 800), () async {
       if (!mounted) return;
@@ -147,6 +162,10 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
         _segundaCarta = null;
         _bloqueado = false;
       });
+
+      if (sonPareja) {
+        await SoundService.instance.retoCompletado();
+      }
     });
   }
 
@@ -163,9 +182,11 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.check_circle, color: AppTheme.amarillo, size: 18),
+                  const Icon(Icons.check_circle,
+                      color: AppTheme.amarillo, size: 18),
                   const SizedBox(width: 4),
-                  Text('$_paresEncontrados/${_parejasBase.length}', style: const TextStyle(fontSize: 16)),
+                  Text('$_paresEncontrados/${_parejasBase.length}',
+                      style: const TextStyle(fontSize: 16)),
                 ],
               ),
             ),
@@ -185,8 +206,10 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Text('Intentos: $_intentos', style: const TextStyle(fontSize: 16, fontFamily: 'Fredoka')),
-              const Text('🧠 Encuentra la imagen con su palabra', style: TextStyle(fontSize: 14, color: AppTheme.cafe)),
+              Text('Intentos: $_intentos',
+                  style: const TextStyle(fontSize: 16, fontFamily: 'Fredoka')),
+              const Text('🧠 Encuentra la imagen con su palabra',
+                  style: TextStyle(fontSize: 14, color: AppTheme.cafe)),
             ],
           ),
         ),
@@ -227,17 +250,17 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         decoration: BoxDecoration(
-          color: encontrada 
-              ? AppTheme.verde.withValues(alpha: 0.3) 
-              : volteada 
-                  ? Colors.white 
+          color: encontrada
+              ? AppTheme.verde.withValues(alpha: 0.3)
+              : volteada
+                  ? Colors.white
                   : AppTheme.verde,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: encontrada 
-                ? AppTheme.verde 
-                : volteada 
-                    ? AppTheme.cafe.withValues(alpha: 0.3) 
+            color: encontrada
+                ? AppTheme.verde
+                : volteada
+                    ? AppTheme.cafe.withValues(alpha: 0.3)
                     : AppTheme.verde,
             width: encontrada ? 3 : 2,
           ),
@@ -273,8 +296,7 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
                         color: AppTheme.cafe,
                       ),
                       textAlign: TextAlign.center,
-                    )
-              )
+                    ))
               : (volteada
                   ? (esImagen
                       ? Image.asset(
@@ -298,8 +320,7 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
                             color: AppTheme.cafe,
                           ),
                           textAlign: TextAlign.center,
-                        )
-                    )
+                        ))
                   : const Text(
                       '❓',
                       style: TextStyle(
@@ -307,8 +328,7 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
-                    )
-              ),
+                    )),
         ),
       ),
     );
@@ -326,21 +346,25 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
             const SizedBox(height: 20),
             const Text(
               '¡Completaste el memorama!',
-              style: TextStyle(fontFamily: 'Fredoka', fontSize: 28, color: AppTheme.verde),
+              style: TextStyle(
+                  fontFamily: 'Fredoka', fontSize: 28, color: AppTheme.verde),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
             Text('⭐' * estrellas, style: const TextStyle(fontSize: 40)),
             const SizedBox(height: 20),
-            _buildEstadistica('🧠 Pares encontrados', '$_paresEncontrados/${_parejasBase.length}'),
+            _buildEstadistica('🧠 Pares encontrados',
+                '$_paresEncontrados/${_parejasBase.length}'),
             _buildEstadistica('🎯 Intentos', '$_intentos'),
             const SizedBox(height: 30),
             ElevatedButton(
               onPressed: _iniciarJuego,
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
               ),
-              child: const Text('🔄 Jugar de nuevo', style: TextStyle(fontSize: 20)),
+              child: const Text('🔄 Jugar de nuevo',
+                  style: TextStyle(fontSize: 20)),
             ),
           ],
         ),
@@ -362,7 +386,11 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
               color: AppTheme.verde.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Text(valor, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.verde)),
+            child: Text(valor,
+                style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.verde)),
           ),
         ],
       ),

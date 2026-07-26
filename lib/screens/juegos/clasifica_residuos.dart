@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import '../../config/theme.dart';
 import '../../services/logros_service.dart';
 import '../../services/monedas_service.dart';
+import '../../services/sound_service.dart';
 
 class ClasificaResiduosScreen extends StatefulWidget {
   const ClasificaResiduosScreen({super.key});
 
   @override
-  State<ClasificaResiduosScreen> createState() => _ClasificaResiduosScreenState();
+  State<ClasificaResiduosScreen> createState() =>
+      _ClasificaResiduosScreenState();
 }
 
 class _ClasificaResiduosScreenState extends State<ClasificaResiduosScreen> {
@@ -17,7 +19,7 @@ class _ClasificaResiduosScreenState extends State<ClasificaResiduosScreen> {
   bool _juegoTerminado = false;
   String _mensaje = 'Arrastra cada residuo al contenedor correcto';
   bool _monedasOtorgadas = false;
-  
+
   // Lista de residuos para clasificar
   final List<Map<String, dynamic>> _residuos = [
     {'nombre': 'Cáscara de plátano', 'emoji': '🍌', 'correcto': true},
@@ -45,8 +47,10 @@ class _ClasificaResiduosScreenState extends State<ClasificaResiduosScreen> {
       _ronda++;
       if (_ronda > 3) {
         _juegoTerminado = true;
-        _mensaje = _aciertos >= 6 ? '¡Eres un Lombrikid! 🌟' : '¡Sigue practicando! 💪';
-        
+        _mensaje = _aciertos >= 6
+            ? '¡Eres un Lombrikid! 🌟'
+            : '¡Sigue practicando! 💪';
+
         // ✅ Dar monedas al terminar el juego (si no se dieron antes)
         if (!_monedasOtorgadas && _aciertos >= 6) {
           _otorgarMonedas();
@@ -56,12 +60,14 @@ class _ClasificaResiduosScreenState extends State<ClasificaResiduosScreen> {
       }
     });
   }
-  
+
   Future<void> _otorgarMonedas() async {
     _monedasOtorgadas = true;
     final monedasService = MonedasService();
     await monedasService.init();
     await monedasService.agregarMonedas(15);
+    await SoundService.instance.monedasGanadas();
+
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -72,20 +78,25 @@ class _ClasificaResiduosScreenState extends State<ClasificaResiduosScreen> {
     }
   }
 
-  void _verificarRespuesta(Map<String, dynamic> residuo, bool contenedorComposta) {
+  void _verificarRespuesta(
+      Map<String, dynamic> residuo, bool contenedorComposta) {
     if (residuo['correcto'] == contenedorComposta) {
       setState(() {
         _aciertos++;
         if (_aciertos >= 3) {
-            LogrosService().desbloquearInsignia('clasificador');
+          LogrosService().desbloquearInsignia('clasificador');
         }
-        _mensaje = '✅ ¡Correcto! ${residuo['emoji']} va ${contenedorComposta ? "en la composta" : "en la basura"}';
+        _mensaje =
+            '✅ ¡Correcto! ${residuo['emoji']} va ${contenedorComposta ? "en la composta" : "en la basura"}';
         _residuosPendientes.remove(residuo);
       });
+
+      SoundService.instance.retoCompletado();
     } else {
       setState(() {
         _errores++;
-        _mensaje = '❌ ¡Ups! ${residuo['emoji']} NO va ${contenedorComposta ? "en la composta" : "en la basura"}';
+        _mensaje =
+            '❌ ¡Ups! ${residuo['emoji']} NO va ${contenedorComposta ? "en la composta" : "en la basura"}';
       });
     }
 
@@ -125,7 +136,8 @@ class _ClasificaResiduosScreenState extends State<ClasificaResiduosScreen> {
           child: Text(
             _mensaje,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 18, fontFamily: 'Fredoka', color: AppTheme.cafe),
+            style: const TextStyle(
+                fontSize: 18, fontFamily: 'Fredoka', color: AppTheme.cafe),
           ),
         ),
 
@@ -135,9 +147,11 @@ class _ClasificaResiduosScreenState extends State<ClasificaResiduosScreen> {
           child: Row(
             children: [
               // Contenedor COMPOSTA
-              Expanded(child: _buildContenedor('🪱 Composta', AppTheme.verde, true)),
+              Expanded(
+                  child: _buildContenedor('🪱 Composta', AppTheme.verde, true)),
               // Contenedor BASURA
-              Expanded(child: _buildContenedor('🗑️ Basura', Colors.red, false)),
+              Expanded(
+                  child: _buildContenedor('🗑️ Basura', Colors.red, false)),
             ],
           ),
         ),
@@ -146,7 +160,9 @@ class _ClasificaResiduosScreenState extends State<ClasificaResiduosScreen> {
         Expanded(
           flex: 3,
           child: _residuosPendientes.isEmpty
-              ? const Center(child: Text('¡Ronda completada! 🎉', style: TextStyle(fontSize: 20)))
+              ? const Center(
+                  child: Text('¡Ronda completada! 🎉',
+                      style: TextStyle(fontSize: 20)))
               : Wrap(
                   spacing: 12,
                   runSpacing: 12,
@@ -170,7 +186,9 @@ class _ClasificaResiduosScreenState extends State<ClasificaResiduosScreen> {
         return Container(
           margin: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: tieneCandidatos ? color.withValues(alpha: 0.3) : color.withValues(alpha: 0.1),
+            color: tieneCandidatos
+                ? color.withValues(alpha: 0.3)
+                : color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: tieneCandidatos ? color : color.withValues(alpha: 0.5),
@@ -195,7 +213,8 @@ class _ClasificaResiduosScreenState extends State<ClasificaResiduosScreen> {
               if (tieneCandidatos)
                 const Padding(
                   padding: EdgeInsets.only(top: 8),
-                  child: Text('¡Suelta aquí!', style: TextStyle(fontSize: 14, color: AppTheme.cafe)),
+                  child: Text('¡Suelta aquí!',
+                      style: TextStyle(fontSize: 14, color: AppTheme.cafe)),
                 ),
             ],
           ),
@@ -208,7 +227,8 @@ class _ClasificaResiduosScreenState extends State<ClasificaResiduosScreen> {
     return Draggable<Map<String, dynamic>>(
       data: residuo,
       feedback: _tarjetaResiduo(residuo, true),
-      childWhenDragging: Opacity(opacity: 0.3, child: _tarjetaResiduo(residuo, false)),
+      childWhenDragging:
+          Opacity(opacity: 0.3, child: _tarjetaResiduo(residuo, false)),
       child: _tarjetaResiduo(residuo, false),
     );
   }
@@ -221,8 +241,16 @@ class _ClasificaResiduosScreenState extends State<ClasificaResiduosScreen> {
         color: esFeedback ? AppTheme.amarillo : Colors.white,
         borderRadius: BorderRadius.circular(15),
         boxShadow: esFeedback
-            ? [BoxShadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 5))]
-            : [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 4)],
+            ? [
+                BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5))
+              ]
+            : [
+                BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1), blurRadius: 4)
+              ],
         border: Border.all(color: AppTheme.cafe.withValues(alpha: 0.3)),
       ),
       child: Column(
@@ -252,7 +280,8 @@ class _ClasificaResiduosScreenState extends State<ClasificaResiduosScreen> {
             const SizedBox(height: 20),
             Text(
               _mensaje,
-              style: const TextStyle(fontFamily: 'Fredoka', fontSize: 28, color: AppTheme.verde),
+              style: const TextStyle(
+                  fontFamily: 'Fredoka', fontSize: 28, color: AppTheme.verde),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
@@ -292,7 +321,9 @@ class _ClasificaResiduosScreenState extends State<ClasificaResiduosScreen> {
               color: color.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Text('$valor', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color)),
+            child: Text('$valor',
+                style: TextStyle(
+                    fontSize: 22, fontWeight: FontWeight.bold, color: color)),
           ),
         ],
       ),

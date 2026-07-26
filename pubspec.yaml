@@ -84,3 +84,5 @@ flutter:
     - assets/images/icons/
     - assets/audio/
     - assets/data/
+    - assets/sounds/reto_completado.mp3
+    - assets/sounds/Monedas.mp3
