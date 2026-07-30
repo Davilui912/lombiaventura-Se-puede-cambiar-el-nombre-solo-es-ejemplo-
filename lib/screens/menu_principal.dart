@@ -19,11 +19,11 @@ import '../../services/monedas_service.dart';
 import 'juegos/memorama.dart';
 import 'logros.dart';
 import 'modulo_educativo.dart';
-import '../services/retos_service.dart'; 
+import '../services/retos_service.dart';
 import 'recordatorios.dart';
 import 'tienda/accesorios_screen.dart';
 import 'avisos.dart';
-import 'tienda/problemas_matematicos.dart';  
+import 'tienda/problemas_matematicos.dart';
 import 'perfil_screen.dart';
 import 'admin_screen.dart';
 import 'retos_screen.dart';
@@ -38,7 +38,7 @@ class MenuPrincipal extends StatefulWidget {
 
 class _MenuPrincipalState extends State<MenuPrincipal> {
   final ActividadService _actividadService = ActividadService();
-  
+
   int _categoriaAbierta = -1;
   int _contadorToques = 0;
   bool _mostrarBanner = true;
@@ -48,12 +48,12 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
     super.initState();
     _verificarSesion();
     _actividadService.registrarActividad();
-    
+
     //  Esperar 3 segundos antes de verificar recordatorios
     Future.delayed(const Duration(seconds: 3), () {
       _verificarRecordatorios();
     });
-    
+
     _inicializarRecordatorios();
   }
 
@@ -61,7 +61,7 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
     //  Verificar si el Reto 1 está completado antes de activar recordatorios
     final retosService = RetosService();
     await retosService.init();
-    
+
     if (retosService.estaCompletadoReto1()) {
       final recordatorioService = RecordatoriosService();
       await recordatorioService.init();
@@ -69,14 +69,14 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
       recordatorioService.programarRecordatorioLixiviado();
     }
   }
-  
+
   void _verificarRecordatorios() async {
     //  Verificar si el Reto 1 está completado antes de mostrar recordatorios
     final retosService = RetosService();
     await retosService.init();
-    
+
     if (!retosService.estaCompletadoReto1()) return;
-    
+
     final service = RecordatoriosService();
     await service.init();
     if (service.hayPendientes()) {
@@ -96,7 +96,9 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
           children: [
             Text(rec['icono'], style: const TextStyle(fontSize: 30)),
             const SizedBox(width: 10),
-            Expanded(child: Text(rec['titulo'], style: const TextStyle(fontSize: 18))),
+            Expanded(
+                child:
+                    Text(rec['titulo'], style: const TextStyle(fontSize: 18))),
           ],
         ),
         content: Text(rec['mensaje'], style: const TextStyle(fontSize: 15)),
@@ -129,6 +131,7 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
       MaterialPageRoute(builder: (_) => pantalla),
     );
   }
+
   Future<void> _verificarSesion() async {
     final configBox = await Hive.openBox('configuracion');
     final loginExitoso = configBox.get('login_exitoso', defaultValue: false);
@@ -144,6 +147,7 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
       });
     }
   }
+
   void _abrirPanelAdmin() {
     _contadorToques++;
     if (_contadorToques >= 5) {
@@ -167,59 +171,59 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
     }
   }
 
-    Widget _buildTituloAdmin() {
-      return GestureDetector(
-        onTap: _abrirPanelAdmin,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Text(
-              '¡Hola, Lombrikid!',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-              overflow: TextOverflow.ellipsis,
+  Widget _buildTituloAdmin() {
+    return GestureDetector(
+      onTap: _abrirPanelAdmin,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white,
             ),
-            const SizedBox(width: 8),
-            Container(
-              width: 40,
-              height: 40,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white,
-              ),
-              child: ClipOval(
-                child: Image.asset(
-                  'assets/images/logo_lombriaventura.png',
-                  width: 40,
-                  height: 40,
-                  fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Icon(
-                      Icons.bug_report,
-                      size: 30,
-                      color: AppTheme.verde,
-                    );
-                  },
-                ),
+            child: ClipOval(
+              child: Image.asset(
+                'assets/images/logo_lombriaventura.png',
+                width: 40,
+                height: 40,
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) {
+                  return const Icon(
+                    Icons.bug_report,
+                    size: 30,
+                    color: AppTheme.verde,
+                  );
+                },
               ),
             ),
-          ],
-        ),
-      );
-    }
+          ),
+          const SizedBox(width: 8),
+          const Text(
+            '¡Hola, Lombrikid!',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildOpcionJuego(
-      String titulo, 
-      String subtitulo, 
+      String titulo,
+      String subtitulo,
       IconData? icon, // 1. Le agregamos el '?' para que pueda ser nulo
-      VoidCallback onTap, 
-      Color color, 
+      VoidCallback onTap,
+      Color color,
       {Widget? customIcon} // 2. Agregamos el widget personalizado como opción
-    ) {
+      ) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -254,7 +258,7 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
-                      color: AppTheme.negro, 
+                      color: AppTheme.negro,
                     ),
                   ),
                   Text(
@@ -277,7 +281,8 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
       ),
     );
   }
-Widget _buildSubmenuJuegos() {
+
+  Widget _buildSubmenuJuegos() {
     final Color colorJuegos = const Color(0xFF6DB467);
 
     return Container(
@@ -287,7 +292,8 @@ Widget _buildSubmenuJuegos() {
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
         // Borde verde claro más definido
-        border: Border.all(color: colorJuegos.withValues(alpha: 0.4), width: 1.5),
+        border:
+            Border.all(color: colorJuegos.withValues(alpha: 0.4), width: 1.5),
         // Sombra suave para darle profundidad
         boxShadow: [
           BoxShadow(
@@ -360,6 +366,7 @@ Widget _buildSubmenuJuegos() {
       ),
     );
   }
+
   Widget _buildSubmenu({
     required String titulo,
     required IconData icon,
@@ -403,6 +410,7 @@ Widget _buildSubmenuJuegos() {
       ),
     );
   }
+
   Widget _buildCategoria({
     required String titulo,
     required String subtitulo,
@@ -529,74 +537,75 @@ Widget _buildSubmenuJuegos() {
   }
 
   Widget _buildOpcion(
-      String titulo, 
-      String subtitulo, 
+      String titulo,
+      String subtitulo,
       String emoji, // ⬅️ ¡Ahora pide directamente el emoji!
       VoidCallback onTap,
       {Color color = Colors.grey} // Color opcional para los bordes y flecha
-    ) {
-      return GestureDetector(
-        onTap: onTap,
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 6),
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: color.withValues(alpha: 0.15)),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Center(
-                  // ⬅️ Aquí mostramos el emoji directamente
-                  child: Text(
-                    emoji, 
-                    style: const TextStyle(fontSize: 22),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      titulo,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                        color: Colors.black87, 
-                      ),
-                    ),
-                    Text(
-                      subtitulo,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(
-                Icons.play_arrow,
-                color: color,
-                size: 18,
-              ),
-            ],
-          ),
+      ) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 6),
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withValues(alpha: 0.15)),
         ),
-      );
-    }
+        child: Row(
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(
+                // ⬅️ Aquí mostramos el emoji directamente
+                child: Text(
+                  emoji,
+                  style: const TextStyle(fontSize: 22),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    titulo,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  Text(
+                    subtitulo,
+                    style: const TextStyle(
+                      fontSize: 10,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.play_arrow,
+              color: color,
+              size: 18,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-  Widget _buildMenuButton(String label, IconData icon, Color color, VoidCallback onTap) {
+  Widget _buildMenuButton(
+      String label, IconData icon, Color color, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -622,7 +631,8 @@ Widget _buildSubmenuJuegos() {
             Expanded(
               child: Text(
                 label,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               ),
             ),
             const Icon(Icons.arrow_forward_ios, size: 14, color: AppTheme.cafe),
@@ -638,14 +648,15 @@ Widget _buildSubmenuJuegos() {
       appBar: AppBar(
         title: _buildTituloAdmin(),
         actions: [
-          // ✅ Mostrar monedas en el AppBar
+          // Mostrar monedas en el AppBar
           FutureBuilder<int>(
             future: _obtenerMonedas(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Container(
                   margin: const EdgeInsets.only(right: 8),
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(20),
@@ -665,25 +676,50 @@ Widget _buildSubmenuJuegos() {
               if (snapshot.hasData && snapshot.data! > 0) {
                 return Container(
                   margin: const EdgeInsets.only(right: 8),
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.monetization_on, color: Colors.amber, size: 18),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${snapshot.data}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
+                    //Sombra solida hacia abajo = profundidad 3D
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFB8860B),
+                        offset: const Offset(0, 4),
+                        blurRadius: 0,
                       ),
                     ],
+                  ),
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      //Fondo amarillo dorado
+                      color: const Color(0xFFFFD700),
+                      borderRadius: BorderRadius.circular(20),
+                      //Borde inferior que refuerza la profundidad
+                      border: Border.all(
+                        color: const Color(0xFFB8860B), // dorado oscuro
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.monetization_on,
+                          color: Color(0xFFB8860B), //icono dorado oscuro
+                          size: 18,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${snapshot.data}',
+                          style: const TextStyle(
+                            color: Color(0xFF7B5100), // texto cafe dorado
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Fredoka',
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               }
@@ -691,7 +727,7 @@ Widget _buildSubmenuJuegos() {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.person, color: Colors.white),
+            icon: const Icon(Icons.person_3, color: Colors.white),
             onPressed: () => _irAPantalla(const PerfilScreen()),
             tooltip: 'Mi perfil',
           ),
@@ -729,13 +765,15 @@ Widget _buildSubmenuJuegos() {
                       index: 0,
                       opciones: [
                         _buildOpcion(
-                          'Conoce a las lombrices', 
+                          'Conoce a las lombrices',
                           'Aprende sobre la lombriz roja californiana',
                           '🐛', // ⬅️ Emoji directo
                           () => _irAPantalla(ModuloEducativoScreen(
                             titulo: '🪱 Conoce a las lombrices',
-                            descripcion: 'Las lombrices son pequeñas pero poderosas aliadas del planeta.',
-                            informacion: '🐛 ¡Hola! Soy la lombriz sabia, una lombriz roja californiana. '
+                            descripcion:
+                                'Las lombrices son pequeñas pero poderosas aliadas del planeta.',
+                            informacion:
+                                '🐛 ¡Hola! Soy la lombriz sabia, una lombriz roja californiana. '
                                 'Somos las mejores para hacer composta porque comemos muy rápido.\n\n'
                                 '🌱 ¿CÓMO NACEMOS?\n'
                                 'Nos juntamos en pareja y compartimos una parte de nuestro cuerpo. '
@@ -764,152 +802,344 @@ Widget _buildSubmenuJuegos() {
                                 '• Podemos comer la mitad de nuestro peso cada día\n'
                                 '• Ayudamos a reducir la basura que contamina el agua y el suelo',
                             puntosClave: [
-                              {'emoji': '🪱', 'titulo': 'Lombriz californiana', 'descripcion': 'La especie ideal para compostaje, come su peso en un día'},
-                              {'emoji': '🌍', 'titulo': 'Viven en la tierra', 'descripcion': 'Necesitan humedad y oscuridad para sobrevivir'},
-                              {'emoji': '🍎', 'titulo': 'Qué comen', 'descripcion': 'Restos de frutas, verduras, cáscaras de huevo y café'},
-                              {'emoji': '✨', 'titulo': 'Beneficios', 'descripcion': 'Producen humus, el mejor fertilizante natural'},
+                              {
+                                'emoji': '🪱',
+                                'titulo': 'Lombriz californiana',
+                                'descripcion':
+                                    'La especie ideal para compostaje, come su peso en un día'
+                              },
+                              {
+                                'emoji': '🌍',
+                                'titulo': 'Viven en la tierra',
+                                'descripcion':
+                                    'Necesitan humedad y oscuridad para sobrevivir'
+                              },
+                              {
+                                'emoji': '🍎',
+                                'titulo': 'Qué comen',
+                                'descripcion':
+                                    'Restos de frutas, verduras, cáscaras de huevo y café'
+                              },
+                              {
+                                'emoji': '✨',
+                                'titulo': 'Beneficios',
+                                'descripcion':
+                                    'Producen humus, el mejor fertilizante natural'
+                              },
                             ],
                           )),
                           color: const Color(0xFF43A047),
                         ),
                         _buildOpcion(
-                          '¿Qué es la lombricomposta?', 
-                          'Beneficios y proceso', 
-                          '♻️', 
+                          '¿Qué es la lombricomposta?',
+                          'Beneficios y proceso',
+                          '♻️',
                           () => _irAPantalla(ModuloEducativoScreen(
                             titulo: '♻️ ¿Qué es la lombricomposta?',
-                            descripcion: 'La lombricomposta es un abono natural creado por lombrices que transforman residuos orgánicos en el mejor fertilizante para las plantas.',
-                            informacion: 'La lombricomposta, también llamada vermicomposta, es el resultado de la descomposición de residuos orgánicos por lombrices californianas. '
+                            descripcion:
+                                'La lombricomposta es un abono natural creado por lombrices que transforman residuos orgánicos en el mejor fertilizante para las plantas.',
+                            informacion:
+                                'La lombricomposta, también llamada vermicomposta, es el resultado de la descomposición de residuos orgánicos por lombrices californianas. '
                                 'Estas lombrices comen los restos de comida y los convierten en humus, un abono rico en nutrientes.\n\n'
                                 'Es 100% natural, no contamina y ayuda a reducir la basura que va a los tiraderos.',
                             puntosClave: [
-                              {'emoji': '🪱', 'titulo': 'Hecho por lombrices', 'descripcion': 'Las lombrices californianas son las protagonistas'},
-                              {'emoji': '🌱', 'titulo': 'Abono natural', 'descripcion': 'Aporta nitrógeno, fósforo y potasio a las plantas'},
-                              {'emoji': '♻️', 'titulo': 'Cero contaminación', 'descripcion': 'Reduce hasta 50% de basura orgánica en casa'},
-                              {'emoji': '💧', 'titulo': 'Produce lixiviado', 'descripcion': 'Un líquido nutritivo para regar plantas'},
+                              {
+                                'emoji': '🪱',
+                                'titulo': 'Hecho por lombrices',
+                                'descripcion':
+                                    'Las lombrices californianas son las protagonistas'
+                              },
+                              {
+                                'emoji': '🌱',
+                                'titulo': 'Abono natural',
+                                'descripcion':
+                                    'Aporta nitrógeno, fósforo y potasio a las plantas'
+                              },
+                              {
+                                'emoji': '♻️',
+                                'titulo': 'Cero contaminación',
+                                'descripcion':
+                                    'Reduce hasta 50% de basura orgánica en casa'
+                              },
+                              {
+                                'emoji': '💧',
+                                'titulo': 'Produce lixiviado',
+                                'descripcion':
+                                    'Un líquido nutritivo para regar plantas'
+                              },
                             ],
                           )),
                         ),
                         _buildOpcion(
-                          'Aprende a hacerla', 
-                          'Paso a paso en casa', 
-                          '🛠️', 
+                          'Aprende a hacerla',
+                          'Paso a paso en casa',
+                          '🛠️',
                           () => _irAPantalla(ModuloEducativoScreen(
                             titulo: '🛠️ Aprende a hacerla',
-                            descripcion: 'Crear tu propia lombricomposta es muy fácil. Solo necesitas seguir estos pasos y tener paciencia.',
-                            informacion: 'Puedes hacer lombricomposta de dos formas:\n\n'
+                            descripcion:
+                                'Crear tu propia lombricomposta es muy fácil. Solo necesitas seguir estos pasos y tener paciencia.',
+                            informacion:
+                                'Puedes hacer lombricomposta de dos formas:\n\n'
                                 'Opción 1: Con estiércol de animales herbívoros (conejo, vaca, caballo).\n'
                                 'Opción 2: Con residuos de cocina (cáscaras, restos de frutas y verduras).\n\n'
                                 'En ambos casos necesitas un contenedor con agujeros para ventilación, tierra, fibra de coco y lombrices californianas.',
                             puntosClave: [
-                              {'emoji': '📦', 'titulo': '1. Prepara el contenedor', 'descripcion': 'Haz agujeros para que respiren las lombrices'},
-                              {'emoji': '🥥', 'titulo': '2. Agrega sustrato', 'descripcion': 'Fibra de coco y tierra húmeda como cama'},
-                              {'emoji': '🪱', 'titulo': '3. Coloca las lombrices', 'descripcion': 'Ponlas sobre la cama y deja que se adapten'},
-                              {'emoji': '🍎', 'titulo': '4. Añade residuos', 'descripcion': 'Cáscaras de frutas, verduras y restos de café'},
-                              {'emoji': '💧', 'titulo': '5. Mantén la humedad', 'descripcion': 'Rocía agua para que esté húmedo, no empapado'},
-                              {'emoji': '⏳', 'titulo': '6. Espera 2-3 meses', 'descripcion': 'Cosecha el humus cuando esté oscuro y suave'},
+                              {
+                                'emoji': '📦',
+                                'titulo': '1. Prepara el contenedor',
+                                'descripcion':
+                                    'Haz agujeros para que respiren las lombrices'
+                              },
+                              {
+                                'emoji': '🥥',
+                                'titulo': '2. Agrega sustrato',
+                                'descripcion':
+                                    'Fibra de coco y tierra húmeda como cama'
+                              },
+                              {
+                                'emoji': '🪱',
+                                'titulo': '3. Coloca las lombrices',
+                                'descripcion':
+                                    'Ponlas sobre la cama y deja que se adapten'
+                              },
+                              {
+                                'emoji': '🍎',
+                                'titulo': '4. Añade residuos',
+                                'descripcion':
+                                    'Cáscaras de frutas, verduras y restos de café'
+                              },
+                              {
+                                'emoji': '💧',
+                                'titulo': '5. Mantén la humedad',
+                                'descripcion':
+                                    'Rocía agua para que esté húmedo, no empapado'
+                              },
+                              {
+                                'emoji': '⏳',
+                                'titulo': '6. Espera 2-3 meses',
+                                'descripcion':
+                                    'Cosecha el humus cuando esté oscuro y suave'
+                              },
                             ],
                           )),
                         ),
                         _buildOpcion(
-                          'Materiales necesarios', 
-                          'Lo que ocupas para empezar', 
-                          '📋', 
+                          'Materiales necesarios',
+                          'Lo que ocupas para empezar',
+                          '📋',
                           () => _irAPantalla(ModuloEducativoScreen(
                             titulo: '📋 Materiales necesarios',
-                            descripcion: 'No necesitas muchas cosas para empezar tu lombricomposta. ¡Seguro ya tienes varias en casa!',
-                            informacion: 'Los materiales básicos son económicos y fáciles de conseguir. '
+                            descripcion:
+                                'No necesitas muchas cosas para empezar tu lombricomposta. ¡Seguro ya tienes varias en casa!',
+                            informacion:
+                                'Los materiales básicos son económicos y fáciles de conseguir. '
                                 'Lo más importante son las lombrices californianas, que son diferentes a las lombrices de jardín.',
                             puntosClave: [
-                              {'emoji': '📦', 'titulo': 'Contenedor', 'descripcion': 'De plástico o madera, con agujeros para ventilación'},
-                              {'emoji': '🪱', 'titulo': 'Lombrices californianas', 'descripcion': 'Las mejores para composta, comen su peso en un día'},
-                              {'emoji': '🥥', 'titulo': 'Fibra de coco', 'descripcion': 'Sirve como cama y retiene humedad'},
-                              {'emoji': '🪨', 'titulo': 'Tierra', 'descripcion': 'Tierra de jardín o composta como base'},
-                              {'emoji': '🍂', 'titulo': 'Material seco', 'descripcion': 'Hojas secas, cartón sin tinta, aserrín (carbono)'},
-                              {'emoji': '🍎', 'titulo': 'Residuos orgánicos', 'descripcion': 'Cáscaras, restos de frutas y verduras (nitrógeno)'},
+                              {
+                                'emoji': '📦',
+                                'titulo': 'Contenedor',
+                                'descripcion':
+                                    'De plástico o madera, con agujeros para ventilación'
+                              },
+                              {
+                                'emoji': '🪱',
+                                'titulo': 'Lombrices californianas',
+                                'descripcion':
+                                    'Las mejores para composta, comen su peso en un día'
+                              },
+                              {
+                                'emoji': '🥥',
+                                'titulo': 'Fibra de coco',
+                                'descripcion':
+                                    'Sirve como cama y retiene humedad'
+                              },
+                              {
+                                'emoji': '🪨',
+                                'titulo': 'Tierra',
+                                'descripcion':
+                                    'Tierra de jardín o composta como base'
+                              },
+                              {
+                                'emoji': '🍂',
+                                'titulo': 'Material seco',
+                                'descripcion':
+                                    'Hojas secas, cartón sin tinta, aserrín (carbono)'
+                              },
+                              {
+                                'emoji': '🍎',
+                                'titulo': 'Residuos orgánicos',
+                                'descripcion':
+                                    'Cáscaras, restos de frutas y verduras (nitrógeno)'
+                              },
                             ],
                           )),
                         ),
                         _buildOpcion(
-                          'Balance 80/20', 
-                          'Nitrógeno y carbono', 
-                          '⚖️', 
+                          'Balance 80/20',
+                          'Nitrógeno y carbono',
+                          '⚖️',
                           () => _irAPantalla(ModuloEducativoScreen(
                             titulo: '⚖️ Balance 80/20',
-                            descripcion: 'Para una composta saludable necesitas equilibrar materiales verdes (nitrógeno) y materiales secos (carbono).',
-                            informacion: 'La regla es 80% material seco (carbono) y 20% material verde (nitrógeno).\n\n'
+                            descripcion:
+                                'Para una composta saludable necesitas equilibrar materiales verdes (nitrógeno) y materiales secos (carbono).',
+                            informacion:
+                                'La regla es 80% material seco (carbono) y 20% material verde (nitrógeno).\n\n'
                                 'Demasiado nitrógeno = mal olor y moscas.\n'
                                 'Demasiado carbono = proceso muy lento.\n\n'
                                 'El equilibrio perfecto hace felices a las lombrices y produce el mejor humus.',
                             puntosClave: [
-                              {'emoji': '🍂', 'titulo': '80% CARBONO (seco)', 'descripcion': 'Hojas secas, cartón, aserrín, papel sin tinta'},
-                              {'emoji': '🍎', 'titulo': '20% NITRÓGENO (verde)', 'descripcion': 'Cáscaras, restos de frutas, verduras, café'},
-                              {'emoji': '👃', 'titulo': '¿Huele mal?', 'descripcion': 'Agrega más material seco (carbono)'},
-                              {'emoji': '🐌', 'titulo': '¿Muy lento?', 'descripcion': 'Agrega más material verde (nitrógeno)'},
+                              {
+                                'emoji': '🍂',
+                                'titulo': '80% CARBONO (seco)',
+                                'descripcion':
+                                    'Hojas secas, cartón, aserrín, papel sin tinta'
+                              },
+                              {
+                                'emoji': '🍎',
+                                'titulo': '20% NITRÓGENO (verde)',
+                                'descripcion':
+                                    'Cáscaras, restos de frutas, verduras, café'
+                              },
+                              {
+                                'emoji': '👃',
+                                'titulo': '¿Huele mal?',
+                                'descripcion':
+                                    'Agrega más material seco (carbono)'
+                              },
+                              {
+                                'emoji': '🐌',
+                                'titulo': '¿Muy lento?',
+                                'descripcion':
+                                    'Agrega más material verde (nitrógeno)'
+                              },
                             ],
                           )),
                         ),
                         _buildOpcion(
-                          'Lixiviado', 
-                          'El oro líquido de la composta', 
-                          '💧', 
+                          'Lixiviado',
+                          'El oro líquido de la composta',
+                          '💧',
                           () => _irAPantalla(ModuloEducativoScreen(
                             titulo: '💧 Lixiviado',
-                            descripcion: 'El lixiviado es un líquido oscuro que se produce durante la lombricomposta. ¡Es oro líquido para tus plantas!',
-                            informacion: 'El lixiviado es el exceso de agua que escurre de la composta cargado de nutrientes.\n\n'
+                            descripcion:
+                                'El lixiviado es un líquido oscuro que se produce durante la lombricomposta. ¡Es oro líquido para tus plantas!',
+                            informacion:
+                                'El lixiviado es el exceso de agua que escurre de la composta cargado de nutrientes.\n\n'
                                 'Se recolecta en la parte baja del contenedor y se diluye en agua para regar plantas.\n\n'
                                 'Proporción: 1 parte de lixiviado por 10 partes de agua.',
                             puntosClave: [
-                              {'emoji': '💧', 'titulo': '¿Qué es?', 'descripcion': 'Líquido rico en nutrientes que escurre de la composta'},
-                              {'emoji': '🪣', 'titulo': 'Recolecta', 'descripcion': 'Usa un contenedor con llave en la parte inferior'},
-                              {'emoji': '🧪', 'titulo': 'Diluye', 'descripcion': '1 taza de lixiviado por 10 tazas de agua'},
-                              {'emoji': '🌻', 'titulo': 'Usa en plantas', 'descripcion': 'Riega tus macetas y jardín con esta mezcla'},
+                              {
+                                'emoji': '💧',
+                                'titulo': '¿Qué es?',
+                                'descripcion':
+                                    'Líquido rico en nutrientes que escurre de la composta'
+                              },
+                              {
+                                'emoji': '🪣',
+                                'titulo': 'Recolecta',
+                                'descripcion':
+                                    'Usa un contenedor con llave en la parte inferior'
+                              },
+                              {
+                                'emoji': '🧪',
+                                'titulo': 'Diluye',
+                                'descripcion':
+                                    '1 taza de lixiviado por 10 tazas de agua'
+                              },
+                              {
+                                'emoji': '🌻',
+                                'titulo': 'Usa en plantas',
+                                'descripcion':
+                                    'Riega tus macetas y jardín con esta mezcla'
+                              },
                             ],
                           )),
                         ),
                         _buildOpcion(
-                          'Cuidados', 
-                          'Mantén felices a tus lombrices', 
-                          '💚', 
+                          'Cuidados',
+                          'Mantén felices a tus lombrices',
+                          '💚',
                           () => _irAPantalla(ModuloEducativoScreen(
                             titulo: '💚 Cuidados',
-                            descripcion: 'Las lombrices son seres vivos que necesitan cuidados básicos. ¡No te preocupes, es muy sencillo!',
+                            descripcion:
+                                'Las lombrices son seres vivos que necesitan cuidados básicos. ¡No te preocupes, es muy sencillo!',
                             informacion: 'Los 3 cuidados esenciales:\n\n'
                                 '1. HUMEDAD: La composta debe estar húmeda como una esponja exprimida.\n'
                                 '2. TEMPERATURA: Entre 15°C y 25°C, protegidas del sol directo.\n'
                                 '3. ALIMENTACIÓN: Una vez por semana, en pequeñas cantidades.',
                             puntosClave: [
-                              {'emoji': '💧', 'titulo': 'Humedad ideal', 'descripcion': 'Como esponja exprimida. Rocía agua si está seco'},
-                              {'emoji': '🌡️', 'titulo': 'Temperatura', 'descripcion': '15-25°C. No exponer al sol directo ni frío extremo'},
-                              {'emoji': '🍎', 'titulo': 'Alimentación', 'descripcion': '1 vez por semana. Pica los residuos en trozos pequeños'},
-                              {'emoji': '🚫', 'titulo': 'NO dar', 'descripcion': 'Carne, lácteos, cítricos en exceso, cebolla, ajo, plástico'},
+                              {
+                                'emoji': '💧',
+                                'titulo': 'Humedad ideal',
+                                'descripcion':
+                                    'Como esponja exprimida. Rocía agua si está seco'
+                              },
+                              {
+                                'emoji': '🌡️',
+                                'titulo': 'Temperatura',
+                                'descripcion':
+                                    '15-25°C. No exponer al sol directo ni frío extremo'
+                              },
+                              {
+                                'emoji': '🍎',
+                                'titulo': 'Alimentación',
+                                'descripcion':
+                                    '1 vez por semana. Pica los residuos en trozos pequeños'
+                              },
+                              {
+                                'emoji': '🚫',
+                                'titulo': 'NO dar',
+                                'descripcion':
+                                    'Carne, lácteos, cítricos en exceso, cebolla, ajo, plástico'
+                              },
                             ],
                           )),
                         ),
                         _buildOpcion(
-                          'Emprendimiento', 
-                          'Gana dinero ayudando al planeta', 
-                          '💰', 
+                          'Emprendimiento',
+                          'Gana dinero ayudando al planeta',
+                          '💰',
                           () => _irAPantalla(ModuloEducativoScreen(
                             titulo: '💰 Emprendimiento',
-                            descripcion: '¿Sabías que puedes ganar dinero con tu lombricomposta? ¡Aprende a vender y ayudar al planeta!',
+                            descripcion:
+                                '¿Sabías que puedes ganar dinero con tu lombricomposta? ¡Aprende a vender y ayudar al planeta!',
                             informacion: 'Puedes vender:\n\n'
                                 '• Composta (humus): \$50-100 MXN por kilo\n'
                                 '• Lixiviado: \$30-50 MXN por litro\n'
                                 '• Lombrices: \$100-200 MXN por 100 lombrices\n\n'
                                 'Ideal para vender en tu escuela, colonia o redes sociales.',
                             puntosClave: [
-                              {'emoji': '🛍️', 'titulo': 'Vende composta', 'descripcion': 'Empaca en bolsas de 1kg y vende a vecinos y jardineros'},
-                              {'emoji': '🧴', 'titulo': 'Vende lixiviado', 'descripcion': 'Embasa en botellas recicladas como fertilizante líquido'},
-                              {'emoji': '🪱', 'titulo': 'Vende lombrices', 'descripcion': 'Cuando tengas muchas, separa y vende paquetes'},
-                              {'emoji': '📱', 'titulo': 'Promoción', 'descripcion': 'Toma fotos bonitas y comparte en WhatsApp o Facebook'},
+                              {
+                                'emoji': '🛍️',
+                                'titulo': 'Vende composta',
+                                'descripcion':
+                                    'Empaca en bolsas de 1kg y vende a vecinos y jardineros'
+                              },
+                              {
+                                'emoji': '🧴',
+                                'titulo': 'Vende lixiviado',
+                                'descripcion':
+                                    'Embasa en botellas recicladas como fertilizante líquido'
+                              },
+                              {
+                                'emoji': '🪱',
+                                'titulo': 'Vende lombrices',
+                                'descripcion':
+                                    'Cuando tengas muchas, separa y vende paquetes'
+                              },
+                              {
+                                'emoji': '📱',
+                                'titulo': 'Promoción',
+                                'descripcion':
+                                    'Toma fotos bonitas y comparte en WhatsApp o Facebook'
+                              },
                             ],
                           )),
                         ),
                       ],
                     ),
-                    // ==================== MI COMPOSTA ====================  
-                   _buildCategoria(
+                    // ==================== MI COMPOSTA ====================
+                    _buildCategoria(
                       titulo: 'Mi Composta',
                       subtitulo: 'Cuida tu composta',
                       color: const Color(0xFFFFA726),
@@ -917,10 +1147,17 @@ Widget _buildSubmenuJuegos() {
                       iconImage: 'assets/images/icons/icono_composta.png',
                       index: 1,
                       opciones: [
-                        _buildOpcion('Mi diario', 'Registra tu avance', '📝', () => _irAPantalla(const NuevaEntradaScreen()), color: const Color(0xFFFFA726)),
-                        _buildOpcion('Avisos importantes', 'Cuida a tus lombrices', '⚠️', () => _irAPantalla(const AvisosScreen()), color: const Color(0xFFFFA726)),
+                        _buildOpcion('Mi diario', 'Registra tu avance', '📝',
+                            () => _irAPantalla(const NuevaEntradaScreen()),
+                            color: const Color(0xFFFFA726)),
+                        _buildOpcion(
+                            'Avisos importantes',
+                            'Cuida a tus lombrices',
+                            '⚠️',
+                            () => _irAPantalla(const AvisosScreen()),
+                            color: const Color(0xFFFFA726)),
                         // _buildOpcion('¿Cómo va mi composta?', 'Compara y revisa tu composta', '🔄', () => _irAPantalla(const ComparaCompostaScreen()), color: const Color(0xFFFFA726)),
-                        
+
                         // ✅ Submenú de juegos (mejorado)
                         _buildSubmenuJuegos(),
                       ],
@@ -934,13 +1171,22 @@ Widget _buildSubmenuJuegos() {
                       iconImage: 'assets/images/icons/icono_progreso.png',
                       index: 2,
                       opciones: [
-                        _buildOpcion('Mis logros', 'Insignias y medallas', '🏆', () => _irAPantalla(const LogrosScreen()), color: const Color(0xFF42A5F5)),
-                        _buildOpcion('Retos', 'Completa los desafíos', '🚩', () => _irAPantalla(const RetosScreen()), color: const Color(0xFF42A5F5)),
-                        _buildOpcion('Recordatorios', 'Alertas y cuidados', '🔔', () => _irAPantalla(const RecordatoriosScreen()), color: const Color(0xFF42A5F5)),
+                        _buildOpcion('Mis logros', 'Insignias y medallas', '🏆',
+                            () => _irAPantalla(const LogrosScreen()),
+                            color: const Color(0xFF42A5F5)),
+                        _buildOpcion('Retos', 'Completa los desafíos', '🚩',
+                            () => _irAPantalla(const RetosScreen()),
+                            color: const Color(0xFF42A5F5)),
+                        _buildOpcion(
+                            'Recordatorios',
+                            'Alertas y cuidados',
+                            '🔔',
+                            () => _irAPantalla(const RecordatoriosScreen()),
+                            color: const Color(0xFF42A5F5)),
                       ],
                     ),
                     // ==================== MI NEGOCIO REAL ====================
-_buildCategoria(
+                    _buildCategoria(
                       titulo: 'Mi negocio real',
                       subtitulo: 'Vende y capacita',
                       color: const Color(0xFFFF7043),
@@ -948,13 +1194,43 @@ _buildCategoria(
                       iconImage: 'assets/images/icons/icono_negocio.png',
                       index: 3,
                       opciones: [
-                        _buildOpcion('Vender lombrices', 'Precio: \$2.50 c/u', '🏷️', () => _irAPantalla(const VentasLombricesScreen()), color: const Color(0xFFFF7043)),
-                        _buildOpcion('Atomizador lixiviado', 'Precio: \$25', '💦', () => _irAPantalla(const VentasAtomizadorScreen()), color: const Color(0xFFFF7043)),
-                        _buildOpcion('Vender humus', 'Precio: \$10 por bolsita', '🌱', () => _irAPantalla(const VentasHumusScreen()), color: const Color(0xFFFF7043)),
-                        _buildOpcion('Registro de ventas', 'Historial de ingresos', '🧾', () => _irAPantalla(const VentasHistorialScreen()), color: const Color(0xFFFF7043)),
-                        _buildOpcion('Accesorios', 'Personaliza a tu lombriz', '🛍️', () => _irAPantalla(const AccesoriosScreen()), color: const Color(0xFFFF7043)),
-                        _buildOpcion('Capacitación', 'Capacita a otros niños', '🎓', () => _irAPantalla(const CapacitacionScreen()), color: const Color(0xFFFF7043)),
-                        _buildOpcion('Matematicas de negocios', 'Gana monedas resolviendo', '🧮', () => _irAPantalla(const ProblemasMatematicosScreen()), color: const Color(0xFFFF7043)),
+                        _buildOpcion(
+                            'Vender lombrices',
+                            'Precio: \$2.50 c/u',
+                            '🏷️',
+                            () => _irAPantalla(const VentasLombricesScreen()),
+                            color: const Color(0xFFFF7043)),
+                        _buildOpcion(
+                            'Atomizador lixiviado',
+                            'Precio: \$25',
+                            '💦',
+                            () => _irAPantalla(const VentasAtomizadorScreen()),
+                            color: const Color(0xFFFF7043)),
+                        _buildOpcion('Vender humus', 'Precio: \$10 por bolsita',
+                            '🌱', () => _irAPantalla(const VentasHumusScreen()),
+                            color: const Color(0xFFFF7043)),
+                        _buildOpcion(
+                            'Registro de ventas',
+                            'Historial de ingresos',
+                            '🧾',
+                            () => _irAPantalla(const VentasHistorialScreen()),
+                            color: const Color(0xFFFF7043)),
+                        _buildOpcion('Accesorios', 'Personaliza a tu lombriz',
+                            '🛍️', () => _irAPantalla(const AccesoriosScreen()),
+                            color: const Color(0xFFFF7043)),
+                        _buildOpcion(
+                            'Capacitación',
+                            'Capacita a otros niños',
+                            '🎓',
+                            () => _irAPantalla(const CapacitacionScreen()),
+                            color: const Color(0xFFFF7043)),
+                        _buildOpcion(
+                            'Matematicas de negocios',
+                            'Gana monedas resolviendo',
+                            '🧮',
+                            () => _irAPantalla(
+                                const ProblemasMatematicosScreen()),
+                            color: const Color(0xFFFF7043)),
                       ],
                     ),
                     const SizedBox(height: 12),
@@ -1040,27 +1316,56 @@ _buildCategoria(
           ],
         ),
       ),
-    floatingActionButton: _categoriaAbierta == -1
-        ? Padding(
-            padding: const EdgeInsets.only(bottom: 120.0),
-            child: FloatingActionButton.extended(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const ChatIAScreen()),
-                );
-              },
-              backgroundColor: AppTheme.verde,
-              elevation: 4,
-              icon: const Icon(Icons.chat, color: Colors.white),
-              label: const Text(
-                'Pregúntale a la lombriz',
-                style: TextStyle(color: Colors.white, fontSize: 14),
+      floatingActionButton: _categoriaAbierta == -1
+          ? Padding(
+              padding: const EdgeInsets.only(bottom: 120.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(50),
+                  //Sombra sólida desplazada hacia abajo
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF388E3C), // verde oscuro
+                      offset: const Offset(0, 5), // desplazamiento hacia abajo
+                      blurRadius: 0, // sin difuminado = sombra sólida
+                    ),
+                  ],
+                ),
+                child: FloatingActionButton.extended(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ChatIAScreen()),
+                    );
+                  },
+                  backgroundColor: AppTheme.verde,
+                  elevation: 0, // ← quitamos la sombra original de Flutter
+                  hoverElevation: 0, // ← sin elevación al hacer hover
+                  focusElevation: 0,
+                  highlightElevation: 0, // ← sin elevación al presionar
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(50),
+                    //Borde inferior grueso que refuerza la profundidad
+                    side: const BorderSide(
+                      color: Color(0xFF388E3C), // verde oscuro
+                      width: 0,
+                    ),
+                  ),
+                  icon: const Icon(Icons.chat_sharp, color: Colors.white),
+                  label: const Text(
+                    'Pregúntale a la lombriz',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Fredoka',
+                    ),
+                  ),
+                ),
               ),
-            ),
-          )
-        : null, // ✅ Se oculta cuando una categoría está abierta
-    floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+            )
+          : null,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }

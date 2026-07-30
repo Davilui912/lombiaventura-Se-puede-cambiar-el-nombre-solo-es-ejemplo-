@@ -29,7 +29,9 @@ class SoundService {
 
   Future<void> retoCompletado() => _reproducir('reto_completado.mp3');
 
-  Future<void> monedasGanadas() => _reproducir('monedas.mp3');
+  Future<void> monedasGanadas() => _reproducir('Monedas.mp3');
+
+  Future<void> logroDesbloqueado() => _reproducir('Logro_desbloqueado.mp3');
 
   void dispose() => _player.dispose();
 }

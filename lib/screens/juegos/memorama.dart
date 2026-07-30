@@ -147,6 +147,7 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
 
           if (_paresEncontrados >= 4) {
             LogrosService().desbloquearInsignia('memorion');
+            SoundService.instance.logroDesbloqueado();
           }
 
           if (_paresEncontrados == _parejasBase.length) {
