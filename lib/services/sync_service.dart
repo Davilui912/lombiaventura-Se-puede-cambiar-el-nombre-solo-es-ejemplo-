@@ -14,6 +14,116 @@ class SyncService {
     return result != ConnectivityResult.none;
   }
 
+  // ========== SINCRONIZACIÓN AL INICIAR ==========
+
+  /// ✅ Sincronizar datos al iniciar la app (descarga inicial)
+  Future<void> sincronizarAlIniciar() async {
+    print('🔄 Iniciando sincronización al iniciar la app...');
+
+    if (!await tieneInternet()) {
+      print('🌐 Sin internet, usando datos locales');
+      return;
+    }
+
+    try {
+      await _descargarUsuarios();
+      await _descargarDiario();
+      await _descargarVentas();
+      await _descargarLogros();
+      await _descargarRetos();
+      await _descargarRecordatorios();
+      print('✅ Sincronización al iniciar completada');
+    } catch (e) {
+      print('❌ Error en sincronización al iniciar: $e');
+    }
+  }
+
+  // ========== MÉTODOS DE DESCARGA ==========
+
+  Future<void> _descargarUsuarios() async {
+    try {
+      final result = await ApiService().obtenerTodosUsuarios();
+      if (result.ok && result.data != null) {
+        final box = await Hive.openBox('usuarios');
+        await box.put('lista', result.data!.map((u) => u.toJson()).toList());
+        print('✅ Usuarios descargados: ${result.data!.length}');
+      }
+    } catch (e) {
+      print('❌ Error descargando usuarios: $e');
+    }
+  }
+
+  Future<void> _descargarDiario() async {
+    try {
+      final box = await Hive.openBox('configuracion');
+      final usuarioActual = box.get('usuario_actual');
+      if (usuarioActual != null) {
+        final result = await ApiService().obtenerDiario(usuarioActual);
+        if (result.ok && result.data != null) {
+          final diarioBox = await Hive.openBox('diario');
+          await diarioBox.put('lista', result.data!.map((e) => e.toJson()).toList());
+          print('✅ Diario descargado: ${result.data!.length} entradas');
+        }
+      }
+    } catch (e) {
+      print('❌ Error descargando diario: $e');
+    }
+  }
+
+  Future<void> _descargarVentas() async {
+    try {
+      final result = await ApiService().obtenerTodasVentas();
+      if (result.ok && result.data != null) {
+        final box = await Hive.openBox('historial_ventas');
+        await box.put('lista', result.data!.map((v) => v.toJson()).toList());
+        print('✅ Ventas descargadas: ${result.data!.length}');
+      }
+    } catch (e) {
+      print('❌ Error descargando ventas: $e');
+    }
+  }
+
+  Future<void> _descargarLogros() async {
+    try {
+      final result = await ApiService().obtenerTodosLogros();
+      if (result.ok && result.data != null) {
+        final box = await Hive.openBox('logros');
+        await box.put('lista', result.data!.map((l) => l.toJson()).toList());
+        print('✅ Logros descargados: ${result.data!.length}');
+      }
+    } catch (e) {
+      print('❌ Error descargando logros: $e');
+    }
+  }
+
+  Future<void> _descargarRetos() async {
+    try {
+      final result = await ApiService().obtenerTodosRetos();
+      if (result.ok && result.data != null) {
+        final box = await Hive.openBox('retos');
+        await box.put('lista', result.data!.map((r) => r.toJson()).toList());
+        print('✅ Retos descargados: ${result.data!.length}');
+      }
+    } catch (e) {
+      print('❌ Error descargando retos: $e');
+    }
+  }
+
+  Future<void> _descargarRecordatorios() async {
+    try {
+      final result = await ApiService().obtenerTodosRecordatorios();
+      if (result.ok && result.data != null) {
+        final box = await Hive.openBox('recordatorios');
+        await box.put('lista', result.data!.map((r) => r.toJson()).toList());
+        print('✅ Recordatorios descargados: ${result.data!.length}');
+      }
+    } catch (e) {
+      print('❌ Error descargando recordatorios: $e');
+    }
+  }
+
+  // ========== SINCRONIZACIÓN NORMAL ==========
+
   Future<void> sincronizar() async {
     if (!await tieneInternet()) {
       print('🌐 Sin internet, no se puede sincronizar');

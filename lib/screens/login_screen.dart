@@ -6,7 +6,8 @@ import 'registro_screen.dart';
 import 'recuperar_password_screen.dart';
 import '../services/api_service.dart';
 import '../services/sync_service.dart';
-import '../services/auth_service.dart'; // ✅ NUEVO: AuthService sin Firebase
+import '../services/auth_service.dart';
+import '../models/api_models.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -18,39 +19,107 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final AuthService _authService = AuthService(); // ✅ NUEVO
+  final AuthService _authService = AuthService();
   bool _isLoading = false;
+  bool _isDownloading = false;
   bool _obscurePassword = true;
   String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    _verificarSesion();
+    _verificarSesionYDescargar();
   }
 
-  Future<void> _verificarSesion() async {
+  Future<void> _verificarSesionYDescargar() async {
     try {
       final box = await Hive.openBox('configuracion');
       final loginExitoso = box.get('login_exitoso', defaultValue: false);
-      
-      // ✅ También verificar si AuthService tiene usuario
+
       if (loginExitoso) {
         _irAlMenu();
-      } else if (loginExitoso) {
-        // Si Hive dice que hay sesión pero AuthService no, intentar restaurar
-        final usuarioActual = box.get('usuario_actual');
-        if (usuarioActual != null) {
-          // Intentar obtener usuario de la API
-          final result = await ApiService().obtenerUsuario(usuarioActual);
-          if (result.ok && result.data != null) {
-            // Usuario válido, ir al menú
-            _irAlMenu();
-          }
+        return;
+      }
+
+      await _descargarDatosIniciales();
+    } catch (e) {
+      print('❌ Error en verificación inicial: $e');
+    }
+  }
+
+  Future<void> _descargarDatosIniciales() async {
+    if (_isDownloading) return;
+
+    setState(() {
+      _isDownloading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final syncService = SyncService();
+
+      if (!await syncService.tieneInternet()) {
+        setState(() {
+          _isDownloading = false;
+          _errorMessage = 'Sin conexión a internet. Usa datos guardados localmente.';
+        });
+        return;
+      }
+
+      print('🌐 Descargando datos iniciales desde la API...');
+
+      final usuariosResult = await ApiService().obtenerTodosUsuarios();
+      if (usuariosResult.ok && usuariosResult.data != null) {
+        final usuariosBox = await Hive.openBox('usuarios');
+        await usuariosBox.put('lista', usuariosResult.data!.map((u) => u.toJson()).toList());
+        print('✅ Usuarios descargados: ${usuariosResult.data!.length}');
+      }
+
+      final configBox = await Hive.openBox('configuracion');
+      final usuarioActual = configBox.get('usuario_actual');
+      if (usuarioActual != null) {
+        final diarioResult = await ApiService().obtenerDiario(usuarioActual);
+        if (diarioResult.ok && diarioResult.data != null) {
+          final diarioBox = await Hive.openBox('diario');
+          await diarioBox.put('lista', diarioResult.data!.map((e) => e.toJson()).toList());
+          print('✅ Diario descargado: ${diarioResult.data!.length}');
         }
       }
+
+      final ventasResult = await ApiService().obtenerTodasVentas();
+      if (ventasResult.ok && ventasResult.data != null) {
+        final ventasBox = await Hive.openBox('historial_ventas');
+        await ventasBox.put('lista', ventasResult.data!.map((v) => v.toJson()).toList());
+        print('✅ Ventas descargadas: ${ventasResult.data!.length}');
+      }
+
+      final logrosResult = await ApiService().obtenerTodosLogros();
+      if (logrosResult.ok && logrosResult.data != null) {
+        final logrosBox = await Hive.openBox('logros');
+        await logrosBox.put('lista', logrosResult.data!.map((l) => l.toJson()).toList());
+        print('✅ Logros descargados: ${logrosResult.data!.length}');
+      }
+
+      setState(() {
+        _isDownloading = false;
+        _errorMessage = '✅ Datos descargados correctamente. ¡Ya puedes iniciar sesión!';
+      });
+
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) {
+          setState(() {
+            _errorMessage = null;
+          });
+        }
+      });
+
+      print('✅ Descarga de datos iniciales completada');
     } catch (e) {
-      print('❌ Error verificando sesión: $e');
+      print('❌ Error descargando datos: $e');
+      setState(() {
+        _isDownloading = false;
+        _errorMessage = 'Error al descargar datos. Intenta de nuevo.';
+      });
     }
   }
 
@@ -76,60 +145,64 @@ class _LoginScreenState extends State<LoginScreen> {
 
       print('🔍 Buscando usuario: $nombreUsuario');
 
-      // ✅ 1. Buscar en Hive PRIMERO (offline)
-      final usuarioGuardado = box.get('usuario_actual');
-      final passwordGuardada = box.get('usuario_password');
-
-      if (usuarioGuardado == nombreUsuario && passwordGuardada == passwordIngresada) {
-        print('✅ Login exitoso desde Hive');
-        await box.put('login_exitoso', true);
-        // ✅ Restaurar usuario en AuthService
-        final result = await ApiService().obtenerUsuario(nombreUsuario);
-        if (result.ok && result.data != null) {
-          // Guardar en AuthService
-          await _authService.login(
-            nombreUsuario: nombreUsuario,
-            password: passwordIngresada,
-          );
+      // ✅ BUSCAR EN HIVE PRIMERO (datos descargados)
+      final usuariosBox = await Hive.openBox('usuarios');
+      final usuariosLista = usuariosBox.get('lista', defaultValue: []);
+      
+      Usuario? usuarioEncontrado;
+      for (var item in usuariosLista) {
+        if (item['nombre_usuario'] == nombreUsuario) {
+          usuarioEncontrado = Usuario.fromJson(item);
+          break;
         }
-        _irAlMenu();
-        return;
       }
 
-      // ✅ 2. Buscar en API por nombre de usuario (online)
+      if (usuarioEncontrado != null) {
+        final passwordGuardada = box.get('usuario_password');
+        if (passwordGuardada == passwordIngresada || usuarioEncontrado.password == passwordIngresada) {
+          print('✅ Login exitoso desde datos locales');
+          await box.put('usuario_uid', usuarioEncontrado.uid);
+          await box.put('usuario_actual', usuarioEncontrado.nombreUsuario);
+          await box.put('usuario_nombre', usuarioEncontrado.nombre);
+          await box.put('usuario_password', passwordIngresada);
+          await box.put('login_exitoso', true);
+          _irAlMenu();
+          return;
+        } else {
+          setState(() {
+            _errorMessage = 'Contraseña incorrecta';
+            _isLoading = false;
+          });
+          return;
+        }
+      }
+
+      // ✅ Si no está en Hive, buscar en API (online)
       final syncService = SyncService();
       if (await syncService.tieneInternet()) {
         print('🌐 Buscando usuario en API por nombre: $nombreUsuario');
-        
+
         try {
-          // Usar el nuevo método loginUsuario de ApiService
           final result = await ApiService().loginUsuario(
             nombreUsuario: nombreUsuario,
             password: passwordIngresada,
           );
-          
-          print('📥 Respuesta API: ok=${result.ok}, error=${result.error}');
-          
+
           if (result.ok && result.data != null) {
             final usuario = result.data!;
             print('✅ Usuario encontrado en API: ${usuario.nombreUsuario}');
-            
-            // ✅ Guardar en Hive
+
             await box.put('usuario_uid', usuario.uid);
             await box.put('usuario_actual', usuario.nombreUsuario);
             await box.put('usuario_nombre', usuario.nombre);
             await box.put('usuario_password', passwordIngresada);
-            await box.put('usuario_edad', usuario.edad?.toString() ?? 'No especificada');
-            await box.put('usuario_ciudad', usuario.ciudad ?? 'No especificada');
             await box.put('login_exitoso', true);
-            
-            // ✅ Guardar en AuthService
-            await _authService.login(
-              nombreUsuario: nombreUsuario,
-              password: passwordIngresada,
-            );
-            
-            print('✅ Usuario guardado en Hive y AuthService');
+
+            final usuariosBox2 = await Hive.openBox('usuarios');
+            final listaActual = usuariosBox2.get('lista', defaultValue: []);
+            listaActual.add(usuario.toJson());
+            await usuariosBox2.put('lista', listaActual);
+
             _irAlMenu();
             return;
           } else {
@@ -148,9 +221,8 @@ class _LoginScreenState extends State<LoginScreen> {
           return;
         }
       } else {
-        // ❌ Sin internet y no está en Hive
         setState(() {
-          _errorMessage = 'Sin conexión a internet. Verifica tu conexión.';
+          _errorMessage = 'Usuario no encontrado en datos locales. Conéctate a internet para sincronizar.';
           _isLoading = false;
         });
         return;
@@ -249,16 +321,47 @@ class _LoginScreenState extends State<LoginScreen> {
                           style: TextStyle(color: Colors.grey),
                         ),
                         const SizedBox(height: 24),
-                        if (_errorMessage != null)
+                        if (_isDownloading)
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: Colors.red.withValues(alpha: 0.1),
+                              color: Colors.blue.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              children: [
+                                const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.blue,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                const Expanded(
+                                  child: Text(
+                                    'Descargando datos...',
+                                    style: TextStyle(color: Colors.blue),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        if (_errorMessage != null && !_isDownloading)
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: _errorMessage!.startsWith('✅')
+                                  ? Colors.green.withValues(alpha: 0.1)
+                                  : Colors.red.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
                               _errorMessage!,
-                              style: const TextStyle(color: Colors.red),
+                              style: TextStyle(
+                                color: _errorMessage!.startsWith('✅') ? Colors.green : Colors.red,
+                              ),
                             ),
                           ),
                         const SizedBox(height: 16),
@@ -298,7 +401,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: _isLoading ? null : _iniciarSesion,
+                            onPressed: (_isLoading || _isDownloading) ? null : _iniciarSesion,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.verde,
                               padding: const EdgeInsets.symmetric(vertical: 14),

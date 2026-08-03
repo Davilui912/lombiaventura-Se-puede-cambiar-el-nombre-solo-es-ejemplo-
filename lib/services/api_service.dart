@@ -44,7 +44,7 @@ class ApiService {
   ApiResult<T> _catch<T>(Object e) =>
       ApiResult.error('Sin conexión o tiempo de espera agotado: $e');
 
-  // ─── USUARIOS (SIN CONTRASEÑA) ───
+  // ─── USUARIOS ───
 
   Future<ApiResult<Usuario>> crearUsuario({
     required String uid,
@@ -98,30 +98,55 @@ class ApiService {
     }
   }
 
+  /// ✅ Obtener todos los usuarios (para descarga inicial)
+  Future<ApiResult<List<Usuario>>> obtenerTodosUsuarios() async {
+    try {
+      final res = await http
+          .get(_uri('/usuarios'), headers: _headers)
+          .timeout(_timeout);
+      return _handle(res,
+          (b) => (b as List).map((e) => Usuario.fromJson(e)).toList());
+    } catch (e) {
+      return _catch(e);
+    }
+  }
+
+  /// ✅ LOGIN CORREGIDO - Valida en Hive, no en API
   Future<ApiResult<Usuario>> loginUsuario({
     required String nombreUsuario,
     required String password,
   }) async {
     try {
+      // ✅ 1. Buscar en Hive primero
       final box = await Hive.openBox('configuracion');
       final usuarioGuardado = box.get('usuario_actual');
       final passwordGuardada = box.get('usuario_password');
 
+      print('🔍 Buscando en Hive: usuario=$usuarioGuardado');
+      print('🔍 Contraseña en Hive: $passwordGuardada');
+      print('🔍 Contraseña ingresada: $password');
+
+      // ✅ 2. Validar en Hive
       if (usuarioGuardado == nombreUsuario && passwordGuardada == password) {
+        print('✅ Contraseña válida desde Hive');
+
+        // ✅ 3. Obtener datos de la API (sin contraseña)
         final res = await http
             .get(_uri('/usuarios'), headers: _headers)
             .timeout(_timeout);
+
         if (res.statusCode >= 200 && res.statusCode < 300) {
           final data = jsonDecode(res.body) as List;
           for (var item in data) {
             if (item['nombre_usuario'] == nombreUsuario) {
               final usuarioApi = Usuario.fromJson(item);
+              // ✅ 4. Combinar datos API + contraseña de Hive
               return ApiResult.ok(Usuario(
                 uid: usuarioApi.uid,
                 nombre: usuarioApi.nombre,
                 nombreUsuario: usuarioApi.nombreUsuario,
                 email: usuarioApi.email,
-                password: password,
+                password: password, // ✅ Usar contraseña de Hive
                 edad: usuarioApi.edad,
                 ciudad: usuarioApi.ciudad,
                 genero: usuarioApi.genero,
@@ -132,8 +157,12 @@ class ApiService {
         }
         return ApiResult.error('Error al obtener datos de API');
       }
+
+      // ✅ Si no está en Hive o contraseña no coincide
+      print('❌ Usuario no encontrado en Hive o contraseña incorrecta');
       return ApiResult.error('Usuario o contraseña incorrectos');
     } catch (e) {
+      print('❌ Error en loginUsuario: $e');
       return _catch(e);
     }
   }
@@ -260,6 +289,19 @@ class ApiService {
     }
   }
 
+  /// ✅ Obtener todas las ventas (para descarga inicial)
+  Future<ApiResult<List<Venta>>> obtenerTodasVentas() async {
+    try {
+      final res = await http
+          .get(_uri('/ventas'), headers: _headers)
+          .timeout(_timeout);
+      return _handle(res,
+          (b) => (b as List).map((e) => Venta.fromJson(e)).toList());
+    } catch (e) {
+      return _catch(e);
+    }
+  }
+
   // ─── RETOS ───
 
   Future<ApiResult<Reto>> crearReto({
@@ -295,6 +337,19 @@ class ApiService {
           .timeout(_timeout);
       return _handle(
           res, (b) => (b as List).map((e) => Reto.fromJson(e)).toList());
+    } catch (e) {
+      return _catch(e);
+    }
+  }
+
+  /// ✅ Obtener todos los retos (para descarga inicial)
+  Future<ApiResult<List<Reto>>> obtenerTodosRetos() async {
+    try {
+      final res = await http
+          .get(_uri('/retos'), headers: _headers)
+          .timeout(_timeout);
+      return _handle(res,
+          (b) => (b as List).map((e) => Reto.fromJson(e)).toList());
     } catch (e) {
       return _catch(e);
     }
@@ -350,6 +405,19 @@ class ApiService {
     }
   }
 
+  /// ✅ Obtener todos los logros (para descarga inicial)
+  Future<ApiResult<List<Logro>>> obtenerTodosLogros() async {
+    try {
+      final res = await http
+          .get(_uri('/logros'), headers: _headers)
+          .timeout(_timeout);
+      return _handle(res,
+          (b) => (b as List).map((e) => Logro.fromJson(e)).toList());
+    } catch (e) {
+      return _catch(e);
+    }
+  }
+
   // ─── RECORDATORIOS ───
 
   Future<ApiResult<Recordatorio>> crearRecordatorio({
@@ -379,6 +447,19 @@ class ApiService {
     try {
       final res = await http
           .get(_uri('/usuarios/$uid/recordatorios'), headers: _headers)
+          .timeout(_timeout);
+      return _handle(res,
+          (b) => (b as List).map((e) => Recordatorio.fromJson(e)).toList());
+    } catch (e) {
+      return _catch(e);
+    }
+  }
+
+  /// ✅ Obtener todos los recordatorios (para descarga inicial)
+  Future<ApiResult<List<Recordatorio>>> obtenerTodosRecordatorios() async {
+    try {
+      final res = await http
+          .get(_uri('/recordatorios'), headers: _headers)
           .timeout(_timeout);
       return _handle(res,
           (b) => (b as List).map((e) => Recordatorio.fromJson(e)).toList());
