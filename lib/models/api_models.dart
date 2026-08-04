@@ -1,12 +1,14 @@
 // ============================================================
-// USUARIO
+// 1. USUARIO
 // ============================================================
 class Usuario {
   final String uid;
   final String nombre;
   final String nombreUsuario;
   final String email;
-  final String password; 
+  final String password;
+  final String preguntaSeguridad;
+  final String respuestaSeguridad;
   final int? edad;
   final String? ciudad;
   final String? genero;
@@ -16,7 +18,9 @@ class Usuario {
     required this.nombre,
     required this.nombreUsuario,
     required this.email,
-    required this.password, 
+    required this.password,
+    required this.preguntaSeguridad,
+    required this.respuestaSeguridad,
     this.edad,
     this.ciudad,
     this.genero,
@@ -28,7 +32,9 @@ class Usuario {
       nombre: json['nombre'] ?? '',
       nombreUsuario: json['nombre_usuario'] ?? '',
       email: json['email'] ?? '',
-      password: json['password'] ?? '', 
+      password: json['password'] ?? '',
+      preguntaSeguridad: json['pregunta_seguridad'] ?? '',
+      respuestaSeguridad: json['respuesta_seguridad'] ?? '',
       edad: json['edad'],
       ciudad: json['ciudad'],
       genero: json['genero'],
@@ -42,6 +48,8 @@ class Usuario {
       'nombre_usuario': nombreUsuario,
       'email': email,
       'password': password,
+      'pregunta_seguridad': preguntaSeguridad,
+      'respuesta_seguridad': respuestaSeguridad,
       if (edad != null) 'edad': edad,
       if (ciudad != null) 'ciudad': ciudad,
       if (genero != null) 'genero': genero,
@@ -50,229 +58,225 @@ class Usuario {
 }
 
 // ============================================================
-// DIARIO
+// 2. ENTRADA DIARIO
 // ============================================================
 class EntradaDiario {
-  final int id;
-  final String uid;
+  final String id;
   final DateTime fecha;
   final String? nota;
-  final String? estado;
+  final List<String> fotosRutas;
+  final String estado;
+  final int? humedad;
   final String? temperatura;
   final String? tipoResiduo;
-  final int? compostaPunos;
-  final int? lixiviadoCucharadas;
-  final List<String> fotos; // ✅ CORREGIDO: ahora tiene valor por defecto
+  final double? produccionComposta;
+  final double? produccionLixiviado;
+  final String? temperaturaTexto;
 
   EntradaDiario({
     required this.id,
-    required this.uid,
     required this.fecha,
     this.nota,
-    this.estado,
+    this.fotosRutas = const [],
+    this.estado = '😊',
+    this.humedad,
     this.temperatura,
     this.tipoResiduo,
-    this.compostaPunos,
-    this.lixiviadoCucharadas,
-    this.fotos = const [], // ✅ SOLUCIÓN: valor por defecto no-nulo
+    this.produccionComposta,
+    this.produccionLixiviado,
+    this.temperaturaTexto,
   });
 
-  factory EntradaDiario.fromJson(Map<String, dynamic> j) => EntradaDiario(
-        id: j['id'],
-        uid: j['uid'],
-        fecha: DateTime.parse(j['fecha']),
-        nota: j['nota'],
-        estado: j['estado'],
-        temperatura: j['temperatura'],
-        tipoResiduo: j['tipo_residuo'],
-        compostaPunos: j['composta_punos'],
-        lixiviadoCucharadas: j['lixiviado_cucharadas'],
-        fotos: List<String>.from(j['fotos'] ?? []),
-      );
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'fecha': fecha.toIso8601String(),
+      'nota': nota,
+      'fotosRutas': fotosRutas,
+      'estado': estado,
+      'humedad': humedad,
+      'temperatura': temperatura,
+      'tipoResiduo': tipoResiduo,
+      'produccionComposta': produccionComposta,
+      'produccionLixiviado': produccionLixiviado,
+      'temperaturaTexto': temperaturaTexto,
+    };
+  }
 
-  Map<String, dynamic> toJson() => {
-        'uid': uid,
-        'id': id,
-        if (nota != null) 'nota': nota,
-        if (estado != null) 'estado': estado,
-        if (temperatura != null) 'temperatura': temperatura,
-        if (tipoResiduo != null) 'tipo_residuo': tipoResiduo,
-        if (compostaPunos != null) 'composta_punos': compostaPunos,
-        if (lixiviadoCucharadas != null)
-          'lixiviado_cucharadas': lixiviadoCucharadas,
-        'fotos': fotos,
-      };
+  factory EntradaDiario.fromJson(Map<String, dynamic> map) {
+    return EntradaDiario(
+      id: map['id'],
+      fecha: DateTime.parse(map['fecha']),
+      nota: map['nota'],
+      fotosRutas: List<String>.from(map['fotosRutas'] ?? []),
+      estado: map['estado'] ?? '😊',
+      humedad: map['humedad'],
+      temperatura: map['temperatura'],
+      tipoResiduo: map['tipoResiduo'],
+      produccionComposta: map['produccionComposta']?.toDouble(),
+      produccionLixiviado: map['produccionLixiviado']?.toDouble(),
+      temperaturaTexto: map['temperaturaTexto'],
+    );
+  }
 }
 
 // ============================================================
-// VENTA
+// 3. VENTA
 // ============================================================
 class Venta {
-  final int id;
-  final String uid;
+  final String id;
   final String producto;
   final int cantidad;
   final double precioUnitario;
   final int totalGanado;
-  final DateTime fecha;
   final String? descripcion;
 
   Venta({
     required this.id,
-    required this.uid,
     required this.producto,
     required this.cantidad,
     required this.precioUnitario,
     required this.totalGanado,
-    required this.fecha,
     this.descripcion,
   });
 
-  factory Venta.fromJson(Map<String, dynamic> j) => Venta(
-        id: j['id'],
-        uid: j['uid'],
-        producto: j['producto'],
-        cantidad: j['cantidad'],
-        precioUnitario: (j['precio_unitario'] as num).toDouble(),
-        totalGanado: j['total_ganado'],
-        fecha: DateTime.parse(j['fecha']),
-        descripcion: j['descripcion'],
-      );
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'producto': producto,
+      'cantidad': cantidad,
+      'precio_unitario': precioUnitario,
+      'total_ganado': totalGanado,
+      if (descripcion != null) 'descripcion': descripcion,
+    };
+  }
 
-  Map<String, dynamic> toJson() => {
-        'uid': uid,
-        'producto': producto,
-        'cantidad': cantidad,
-        'precio_unitario': precioUnitario,
-        'total_ganado': totalGanado,
-        if (descripcion != null) 'descripcion': descripcion,
-      };
+  factory Venta.fromJson(Map<String, dynamic> json) {
+    return Venta(
+      id: json['id'],
+      producto: json['producto'],
+      cantidad: json['cantidad'],
+      precioUnitario: json['precio_unitario']?.toDouble(),
+      totalGanado: json['total_ganado'],
+      descripcion: json['descripcion'],
+    );
+  }
 }
 
 // ============================================================
-// RETO
+// 4. LOGRO
+// ============================================================
+class Logro {
+  final String id;
+  final String tipo;
+  final String nombre;
+  final String? descripcion;
+
+  Logro({
+    required this.id,
+    required this.tipo,
+    required this.nombre,
+    this.descripcion,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'tipo': tipo,
+      'nombre': nombre,
+      if (descripcion != null) 'descripcion': descripcion,
+    };
+  }
+
+  factory Logro.fromJson(Map<String, dynamic> json) {
+    return Logro(
+      id: json['id'],
+      tipo: json['tipo'],
+      nombre: json['nombre'],
+      descripcion: json['descripcion'],
+    );
+  }
+}
+
+// ============================================================
+// 5. RETO
 // ============================================================
 class Reto {
-  final int id;
-  final String uid;
+  final String id;
   final String retoId;
   final bool completado;
-  final DateTime? fechaCompletado;
   final int? medicion;
   final String? fotoUrl;
 
-  // ✅ CORREGIDO: descripcion ya no está en el constructor
   Reto({
     required this.id,
-    required this.uid,
     required this.retoId,
     required this.completado,
-    this.fechaCompletado,
     this.medicion,
     this.fotoUrl,
   });
 
-  factory Reto.fromJson(Map<String, dynamic> j) => Reto(
-        id: j['id'],
-        uid: j['uid'],
-        retoId: j['reto_id'],
-        completado: j['completado'] ?? false,
-        fechaCompletado: j['fecha_completado'] != null
-            ? DateTime.parse(j['fecha_completado'])
-            : null,
-        medicion: j['medicion'],
-        fotoUrl: j['foto_url'],
-      );
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'reto_id': retoId,
+      'completado': completado,
+      if (medicion != null) 'medicion': medicion,
+      if (fotoUrl != null) 'foto_url': fotoUrl,
+    };
+  }
 
-  Map<String, dynamic> toJson() => {
-        'uid': uid,
-        'reto_id': retoId,
-        'completado': completado,
-        if (medicion != null) 'medicion': medicion,
-        if (fotoUrl != null) 'foto_url': fotoUrl,
-        // ✅ SOLUCIÓN: descripcion eliminado de toJson (no existe)
-      };
+  factory Reto.fromJson(Map<String, dynamic> json) {
+    return Reto(
+      id: json['id'],
+      retoId: json['reto_id'],
+      completado: json['completado'] ?? false,
+      medicion: json['medicion'],
+      fotoUrl: json['foto_url'],
+    );
+  }
 }
 
 // ============================================================
-// LOGRO
-// ============================================================
-class Logro {
-  final int id;
-  final String uid;
-  final String tipo;
-  final String nombre;
-  final String? descripcion;
-  final DateTime fechaDesbloqueo;
-
-  Logro({
-    required this.id,
-    required this.uid,
-    required this.tipo,
-    required this.nombre,
-    this.descripcion,
-    required this.fechaDesbloqueo,
-  });
-
-  factory Logro.fromJson(Map<String, dynamic> j) => Logro(
-        id: j['id'],
-        uid: j['uid'],
-        tipo: j['tipo'],
-        nombre: j['nombre'],
-        descripcion: j['descripcion'],
-        fechaDesbloqueo: DateTime.parse(j['fecha_desbloqueo']),
-      );
-
-  Map<String, dynamic> toJson() => {
-        'uid': uid,
-        'tipo': tipo,
-        'nombre': nombre,
-        if (descripcion != null) 'descripcion': descripcion,
-      };
-}
-
-// ============================================================
-// RECORDATORIO
+// 6. RECORDATORIO
 // ============================================================
 class Recordatorio {
-  final int id;
-  final String uid;
+  final String id;
   final String titulo;
   final String? mensaje;
-  final DateTime fecha;
   final bool visto;
 
   Recordatorio({
     required this.id,
-    required this.uid,
     required this.titulo,
     this.mensaje,
-    required this.fecha,
-    required this.visto,
+    this.visto = false,
   });
 
-  factory Recordatorio.fromJson(Map<String, dynamic> j) => Recordatorio(
-        id: j['id'],
-        uid: j['uid'],
-        titulo: j['titulo'],
-        mensaje: j['mensaje'],
-        fecha: DateTime.parse(j['fecha']),
-        visto: j['visto'] ?? false,
-      );
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'titulo': titulo,
+      if (mensaje != null) 'mensaje': mensaje,
+      'visto': visto,
+    };
+  }
 
-  Map<String, dynamic> toJson() => {
-        'uid': uid,
-        'titulo': titulo,
-        if (mensaje != null) 'mensaje': mensaje,
-      };
+  factory Recordatorio.fromJson(Map<String, dynamic> json) {
+    return Recordatorio(
+      id: json['id'],
+      titulo: json['titulo'],
+      mensaje: json['mensaje'],
+      visto: json['visto'] ?? false,
+    );
+  }
 }
 
 // ============================================================
-// CAPACITACION
+// 7. CAPACITACION
 // ============================================================
 class Capacitacion {
-  final int id;
-  final String uid;
+  final String id;
   final String nombreCapacitado;
   final int? edadCapacitado;
   final String? municipio;
@@ -280,41 +284,41 @@ class Capacitacion {
   final String? pais;
   final String? invitadoPor;
   final int monedasGanadas;
-  final DateTime fecha;
 
   Capacitacion({
     required this.id,
-    required this.uid,
     required this.nombreCapacitado,
     this.edadCapacitado,
     this.municipio,
     this.estado,
     this.pais,
     this.invitadoPor,
-    required this.monedasGanadas,
-    required this.fecha,
+    this.monedasGanadas = 50,
   });
 
-  factory Capacitacion.fromJson(Map<String, dynamic> j) => Capacitacion(
-        id: j['id'],
-        uid: j['uid'],
-        nombreCapacitado: j['nombre_capacitado'],
-        edadCapacitado: j['edad_capacitado'],
-        municipio: j['municipio'],
-        estado: j['estado'],
-        pais: j['pais'],
-        invitadoPor: j['invitado_por'],
-        monedasGanadas: j['monedas_ganadas'] ?? 50,
-        fecha: DateTime.parse(j['fecha']),
-      );
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'nombre_capacitado': nombreCapacitado,
+      if (edadCapacitado != null) 'edad_capacitado': edadCapacitado,
+      if (municipio != null) 'municipio': municipio,
+      if (estado != null) 'estado': estado,
+      if (pais != null) 'pais': pais,
+      if (invitadoPor != null) 'invitado_por': invitadoPor,
+      'monedas_ganadas': monedasGanadas,
+    };
+  }
 
-  Map<String, dynamic> toJson() => {
-        'uid': uid,
-        'nombre_capacitado': nombreCapacitado,
-        if (edadCapacitado != null) 'edad_capacitado': edadCapacitado,
-        if (municipio != null) 'municipio': municipio,
-        if (estado != null) 'estado': estado,
-        if (pais != null) 'pais': pais,
-        if (invitadoPor != null) 'invitado_por': invitadoPor,
-      };
+  factory Capacitacion.fromJson(Map<String, dynamic> json) {
+    return Capacitacion(
+      id: json['id'],
+      nombreCapacitado: json['nombre_capacitado'],
+      edadCapacitado: json['edad_capacitado'],
+      municipio: json['municipio'],
+      estado: json['estado'],
+      pais: json['pais'],
+      invitadoPor: json['invitado_por'],
+      monedasGanadas: json['monedas_ganadas'] ?? 50,
+    );
+  }
 }

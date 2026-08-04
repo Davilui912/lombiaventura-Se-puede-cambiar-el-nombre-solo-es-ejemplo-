@@ -120,13 +120,15 @@ class _RegistroScreenState extends State<RegistroScreen> {
       await configBox.put('usuario_password', _passwordController.text.trim());
       await configBox.put('usuario_edad', _edadController.text.trim());
       await configBox.put('usuario_ciudad', _ciudadController.text.trim());
+      await configBox.put('usuario_pregunta_seguridad', _preguntaSeguridad);
+      await configBox.put('usuario_respuesta_seguridad', _respuestaSeguridadController.text.trim());
       await configBox.put('usuario_fecha_registro', DateTime.now().toIso8601String());
       await configBox.put('privacidad_aceptada', true);
-      await configBox.put('login_exitoso', true); // ✅ Marcar como autenticado
+      await configBox.put('login_exitoso', true);
 
       print('✅ Usuario guardado en Hive: ${_usuarioController.text.trim()}');
 
-      // ✅ 2. Intentar guardar en API
+      // ✅ 2. Guardar en API (con pregunta y respuesta de seguridad)
       if (await syncService.tieneInternet()) {
         print('🌐 Guardando usuario en API...');
         final result = await ApiService().crearUsuario(
@@ -134,6 +136,8 @@ class _RegistroScreenState extends State<RegistroScreen> {
           nombre: _nombreController.text.trim(),
           nombreUsuario: _usuarioController.text.trim(),
           email: '${_usuarioController.text.trim()}@lombriaventura.com',
+          preguntaSeguridad: _preguntaSeguridad!,
+          respuestaSeguridad: _respuestaSeguridadController.text.trim(),
           edad: int.tryParse(_edadController.text.trim()),
           ciudad: _ciudadController.text.trim(),
           genero: null,
@@ -142,12 +146,13 @@ class _RegistroScreenState extends State<RegistroScreen> {
         if (result.ok) {
           print('✅ Usuario guardado en API');
         } else {
-          // Si falla, guardar en pendientes
           await syncService.guardarUsuarioPendiente({
             'uid': uid,
             'nombre': _nombreController.text.trim(),
             'nombreUsuario': _usuarioController.text.trim(),
             'email': '${_usuarioController.text.trim()}@lombriaventura.com',
+            'preguntaSeguridad': _preguntaSeguridad,
+            'respuestaSeguridad': _respuestaSeguridadController.text.trim(),
             'edad': int.tryParse(_edadController.text.trim()),
             'ciudad': _ciudadController.text.trim(),
             'genero': null,
@@ -155,12 +160,13 @@ class _RegistroScreenState extends State<RegistroScreen> {
           print('💾 Usuario guardado en pendientes (API falló)');
         }
       } else {
-        // Sin internet, guardar en pendientes
         await syncService.guardarUsuarioPendiente({
           'uid': uid,
           'nombre': _nombreController.text.trim(),
           'nombreUsuario': _usuarioController.text.trim(),
           'email': '${_usuarioController.text.trim()}@lombriaventura.com',
+          'preguntaSeguridad': _preguntaSeguridad,
+          'respuestaSeguridad': _respuestaSeguridadController.text.trim(),
           'edad': int.tryParse(_edadController.text.trim()),
           'ciudad': _ciudadController.text.trim(),
           'genero': null,
@@ -171,7 +177,6 @@ class _RegistroScreenState extends State<RegistroScreen> {
       setState(() => _isLoading = false);
 
       if (mounted) {
-        // ✅ Ir al menú principal directamente (ya autenticado)
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (_) => const MenuPrincipal()),

@@ -7,6 +7,7 @@ import 'services/recordatorios_service.dart';
 import 'services/sync_service.dart';
 import 'screens/splash_screen.dart';
 import 'providers/usuario_provider.dart';
+import 'services/monedas_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,7 +31,8 @@ void main() async {
 
   final recordatorioService = RecordatoriosService();
   await recordatorioService.init();
-
+  await MonedasService().init();
+  
   final syncService = SyncService();
   await syncService.sincronizarAlIniciar();
 

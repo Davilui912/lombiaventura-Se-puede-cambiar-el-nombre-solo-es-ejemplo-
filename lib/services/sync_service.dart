@@ -16,7 +16,6 @@ class SyncService {
 
   // ========== SINCRONIZACIÓN AL INICIAR ==========
 
-  /// ✅ Sincronizar datos al iniciar la app (descarga inicial)
   Future<void> sincronizarAlIniciar() async {
     print('🔄 Iniciando sincronización al iniciar la app...');
 
@@ -140,6 +139,7 @@ class SyncService {
     print('✅ Sincronización completada');
   }
 
+  // ✅ CORREGIDO: incluye preguntaSeguridad y respuestaSeguridad
   Future<void> _sincronizarUsuarios() async {
     final box = await Hive.openBox('sync_pendientes');
     final pendientes = box.get('usuarios', defaultValue: <Map<String, dynamic>>[]);
@@ -151,6 +151,8 @@ class SyncService {
           nombre: usuario['nombre'],
           nombreUsuario: usuario['nombreUsuario'],
           email: usuario['email'],
+          preguntaSeguridad: usuario['preguntaSeguridad'] ?? '',
+          respuestaSeguridad: usuario['respuestaSeguridad'] ?? '',
           edad: usuario['edad'],
           ciudad: usuario['ciudad'],
           genero: usuario['genero'],
@@ -333,10 +335,21 @@ class SyncService {
     }
   }
 
+  // ✅ CORREGIDO: incluye preguntaSeguridad y respuestaSeguridad
   Future<void> guardarUsuarioPendiente(Map<String, dynamic> usuario) async {
     final box = await Hive.openBox('sync_pendientes');
     final pendientes = box.get('usuarios', defaultValue: <Map<String, dynamic>>[]);
-    pendientes.add(usuario);
+    pendientes.add({
+      'uid': usuario['uid'],
+      'nombre': usuario['nombre'],
+      'nombreUsuario': usuario['nombreUsuario'],
+      'email': usuario['email'],
+      'preguntaSeguridad': usuario['preguntaSeguridad'] ?? '',
+      'respuestaSeguridad': usuario['respuestaSeguridad'] ?? '',
+      'edad': usuario['edad'],
+      'ciudad': usuario['ciudad'],
+      'genero': usuario['genero'],
+    });
     await box.put('usuarios', pendientes);
     print('💾 Usuario guardado localmente (pendiente de sincronizar)');
   }

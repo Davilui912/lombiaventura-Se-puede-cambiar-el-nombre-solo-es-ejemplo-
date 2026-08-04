@@ -51,6 +51,8 @@ class ApiService {
     required String nombre,
     required String nombreUsuario,
     required String email,
+    required String preguntaSeguridad,
+    required String respuestaSeguridad,
     int? edad,
     String? ciudad,
     String? genero,
@@ -65,6 +67,8 @@ class ApiService {
               'nombre': nombre,
               'nombre_usuario': nombreUsuario,
               'email': email,
+              'pregunta_seguridad': preguntaSeguridad,
+              'respuesta_seguridad': respuestaSeguridad,
               if (edad != null) 'edad': edad,
               if (ciudad != null) 'ciudad': ciudad,
               if (genero != null) 'genero': genero,
@@ -111,42 +115,33 @@ class ApiService {
     }
   }
 
-  /// ✅ LOGIN CORREGIDO - Valida en Hive, no en API
+  /// ✅ LOGIN - Valida solo en Hive
   Future<ApiResult<Usuario>> loginUsuario({
     required String nombreUsuario,
     required String password,
   }) async {
     try {
-      // ✅ 1. Buscar en Hive primero
       final box = await Hive.openBox('configuracion');
       final usuarioGuardado = box.get('usuario_actual');
       final passwordGuardada = box.get('usuario_password');
 
-      print('🔍 Buscando en Hive: usuario=$usuarioGuardado');
-      print('🔍 Contraseña en Hive: $passwordGuardada');
-      print('🔍 Contraseña ingresada: $password');
-
-      // ✅ 2. Validar en Hive
       if (usuarioGuardado == nombreUsuario && passwordGuardada == password) {
-        print('✅ Contraseña válida desde Hive');
-
-        // ✅ 3. Obtener datos de la API (sin contraseña)
         final res = await http
             .get(_uri('/usuarios'), headers: _headers)
             .timeout(_timeout);
-
         if (res.statusCode >= 200 && res.statusCode < 300) {
           final data = jsonDecode(res.body) as List;
           for (var item in data) {
             if (item['nombre_usuario'] == nombreUsuario) {
               final usuarioApi = Usuario.fromJson(item);
-              // ✅ 4. Combinar datos API + contraseña de Hive
               return ApiResult.ok(Usuario(
                 uid: usuarioApi.uid,
                 nombre: usuarioApi.nombre,
                 nombreUsuario: usuarioApi.nombreUsuario,
                 email: usuarioApi.email,
-                password: password, // ✅ Usar contraseña de Hive
+                password: password,
+                preguntaSeguridad: usuarioApi.preguntaSeguridad ?? '',
+                respuestaSeguridad: usuarioApi.respuestaSeguridad ?? '',
                 edad: usuarioApi.edad,
                 ciudad: usuarioApi.ciudad,
                 genero: usuarioApi.genero,
@@ -157,12 +152,8 @@ class ApiService {
         }
         return ApiResult.error('Error al obtener datos de API');
       }
-
-      // ✅ Si no está en Hive o contraseña no coincide
-      print('❌ Usuario no encontrado en Hive o contraseña incorrecta');
       return ApiResult.error('Usuario o contraseña incorrectos');
     } catch (e) {
-      print('❌ Error en loginUsuario: $e');
       return _catch(e);
     }
   }
@@ -289,7 +280,7 @@ class ApiService {
     }
   }
 
-  /// ✅ Obtener todas las ventas (para descarga inicial)
+  /// ✅ Obtener todas las ventas
   Future<ApiResult<List<Venta>>> obtenerTodasVentas() async {
     try {
       final res = await http
@@ -342,7 +333,6 @@ class ApiService {
     }
   }
 
-  /// ✅ Obtener todos los retos (para descarga inicial)
   Future<ApiResult<List<Reto>>> obtenerTodosRetos() async {
     try {
       final res = await http
@@ -405,7 +395,6 @@ class ApiService {
     }
   }
 
-  /// ✅ Obtener todos los logros (para descarga inicial)
   Future<ApiResult<List<Logro>>> obtenerTodosLogros() async {
     try {
       final res = await http
@@ -455,7 +444,6 @@ class ApiService {
     }
   }
 
-  /// ✅ Obtener todos los recordatorios (para descarga inicial)
   Future<ApiResult<List<Recordatorio>>> obtenerTodosRecordatorios() async {
     try {
       final res = await http

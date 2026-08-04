@@ -16,7 +16,6 @@ class AuthService {
 
   // ─── OBTENER USUARIO DESDE HIVE ───
 
-  /// Obtener usuario actual desde Hive
   Future<Usuario?> obtenerUsuarioDesdeHive() async {
     try {
       final box = await Hive.openBox('configuracion');
@@ -25,6 +24,8 @@ class AuthService {
       final nombreUsuario = box.get('usuario_actual');
       final email = box.get('usuario_email');
       final password = box.get('usuario_password');
+      final preguntaSeguridad = box.get('usuario_pregunta_seguridad') ?? '';
+      final respuestaSeguridad = box.get('usuario_respuesta_seguridad') ?? '';
       final edad = box.get('usuario_edad');
       final ciudad = box.get('usuario_ciudad');
 
@@ -35,6 +36,8 @@ class AuthService {
           nombreUsuario: nombreUsuario,
           email: email ?? '',
           password: password ?? '',
+          preguntaSeguridad: preguntaSeguridad,
+          respuestaSeguridad: respuestaSeguridad,
           edad: edad != null ? int.tryParse(edad.toString()) : null,
           ciudad: ciudad,
         );
@@ -48,89 +51,77 @@ class AuthService {
 
   // ─── REGISTRO ───
 
-  /// Registro de usuario usando SOLO tu API
   Future<({Usuario? usuario, String? error})> registrar({
     required String nombre,
     required String nombreUsuario,
     required String password,
     required String email,
+    required String preguntaSeguridad,
+    required String respuestaSeguridad,
     int? edad,
     String? ciudad,
     String? genero,
   }) async {
     try {
-      // Verificar si el usuario ya existe
-      final existe = await _api.obtenerUsuario(nombreUsuario);
-      if (existe.ok) {
-        return (usuario: null, error: 'El nombre de usuario ya está registrado');
-      }
-
-      // ✅ Guardar en Hive primero (con contraseña)
       final box = await Hive.openBox('configuracion');
       final uid = DateTime.now().millisecondsSinceEpoch.toString();
-      
+
+      // ✅ Guardar en Hive
       await box.put('usuario_uid', uid);
       await box.put('usuario_actual', nombreUsuario);
       await box.put('usuario_nombre', nombre);
       await box.put('usuario_password', password);
       await box.put('usuario_email', email);
+      await box.put('usuario_pregunta_seguridad', preguntaSeguridad);
+      await box.put('usuario_respuesta_seguridad', respuestaSeguridad);
       if (edad != null) await box.put('usuario_edad', edad.toString());
       if (ciudad != null) await box.put('usuario_ciudad', ciudad);
       await box.put('login_exitoso', true);
 
-      // ✅ Guardar en API (SIN contraseña)
-      final result = await _api.crearUsuario(
+      final usuario = Usuario(
         uid: uid,
         nombre: nombre,
         nombreUsuario: nombreUsuario,
         email: email,
+        password: password,
+        preguntaSeguridad: preguntaSeguridad,
+        respuestaSeguridad: respuestaSeguridad,
         edad: edad,
         ciudad: ciudad,
         genero: genero,
       );
+      _currentUser = usuario;
+      _currentUid = uid;
 
-      if (result.ok) {
-        // Crear usuario con datos de API + contraseña de Hive
-        final usuario = Usuario(
+      // ✅ Guardar en API
+      if (await _syncService.tieneInternet()) {
+        final result = await _api.crearUsuario(
           uid: uid,
           nombre: nombre,
           nombreUsuario: nombreUsuario,
           email: email,
-          password: password,
+          preguntaSeguridad: preguntaSeguridad,
+          respuestaSeguridad: respuestaSeguridad,
           edad: edad,
           ciudad: ciudad,
           genero: genero,
         );
-        _currentUser = usuario;
-        _currentUid = uid;
-        return (usuario: usuario, error: null);
-      } else {
-        // Si API falla, guardar en pendientes
-        await _syncService.guardarUsuarioPendiente({
-          'uid': uid,
-          'nombre': nombre,
-          'nombreUsuario': nombreUsuario,
-          'email': email,
-          'edad': edad,
-          'ciudad': ciudad,
-          'genero': genero,
-        });
-        print('💾 Usuario guardado en pendientes (API falló)');
-        
-        final usuario = Usuario(
-          uid: uid,
-          nombre: nombre,
-          nombreUsuario: nombreUsuario,
-          email: email,
-          password: password,
-          edad: edad,
-          ciudad: ciudad,
-          genero: genero,
-        );
-        _currentUser = usuario;
-        _currentUid = uid;
-        return (usuario: usuario, error: null);
+        if (!result.ok) {
+          await _syncService.guardarUsuarioPendiente({
+            'uid': uid,
+            'nombre': nombre,
+            'nombreUsuario': nombreUsuario,
+            'email': email,
+            'preguntaSeguridad': preguntaSeguridad,
+            'respuestaSeguridad': respuestaSeguridad,
+            'edad': edad,
+            'ciudad': ciudad,
+            'genero': genero,
+          });
+        }
       }
+
+      return (usuario: usuario, error: null);
     } catch (e) {
       return (usuario: null, error: 'Error inesperado: $e');
     }
@@ -138,87 +129,46 @@ class AuthService {
 
   // ─── LOGIN ───
 
-  /// Login con sincronización Hive → API
   Future<({Usuario? usuario, String? error})> login({
     required String nombreUsuario,
     required String password,
   }) async {
     try {
-      // 1. Buscar en Hive primero
       final box = await Hive.openBox('configuracion');
       final usuarioGuardado = box.get('usuario_actual');
       final passwordGuardada = box.get('usuario_password');
 
-      print('🔍 Buscando en Hive: usuario=$usuarioGuardado');
-
-      // 2. Validar en Hive
       if (usuarioGuardado == nombreUsuario && passwordGuardada == password) {
-        print('✅ Contraseña válida desde Hive');
-        
-        // 3. Obtener datos de API
-        final result = await _api.obtenerUsuario(nombreUsuario);
-        
-        if (result.ok && result.data != null) {
-          final usuarioApi = result.data!;
-          
-          // ✅ Combinar: datos API + contraseña Hive
-          final usuario = Usuario(
-            uid: usuarioApi.uid,
-            nombre: usuarioApi.nombre,
-            nombreUsuario: usuarioApi.nombreUsuario,
-            email: usuarioApi.email,
-            password: password, // ✅ Desde Hive
-            edad: usuarioApi.edad,
-            ciudad: usuarioApi.ciudad,
-            genero: usuarioApi.genero,
-          );
-          
+        final usuario = await obtenerUsuarioDesdeHive();
+        if (usuario != null) {
           _currentUser = usuario;
           _currentUid = usuario.uid;
           await box.put('login_exitoso', true);
           return (usuario: usuario, error: null);
-        } else {
-          // Si API no responde, usar datos de Hive
-          final usuario = await obtenerUsuarioDesdeHive();
-          if (usuario != null) {
-            _currentUser = usuario;
-            _currentUid = usuario.uid;
-            return (usuario: usuario, error: null);
-          }
         }
       }
 
-      // 4. Si no está en Hive, buscar en API y guardar en Hive
+      // Buscar en API si no está en Hive
       if (await _syncService.tieneInternet()) {
-        final result = await _api.obtenerUsuario(nombreUsuario);
-        
+        final result = await _api.loginUsuario(
+          nombreUsuario: nombreUsuario,
+          password: password,
+        );
         if (result.ok && result.data != null) {
-          final usuarioApi = result.data!;
-          
-          // Guardar en Hive con la contraseña ingresada
-          await box.put('usuario_uid', usuarioApi.uid);
-          await box.put('usuario_actual', usuarioApi.nombreUsuario);
-          await box.put('usuario_nombre', usuarioApi.nombre);
-          await box.put('usuario_password', password);
-          await box.put('usuario_email', usuarioApi.email);
-          if (usuarioApi.edad != null) await box.put('usuario_edad', usuarioApi.edad.toString());
-          if (usuarioApi.ciudad != null) await box.put('usuario_ciudad', usuarioApi.ciudad);
+          final usuario = result.data!;
+          await box.put('usuario_uid', usuario.uid);
+          await box.put('usuario_actual', usuario.nombreUsuario);
+          await box.put('usuario_nombre', usuario.nombre);
+          await box.put('usuario_password', usuario.password);
+          await box.put('usuario_email', usuario.email);
+          await box.put('usuario_pregunta_seguridad', usuario.preguntaSeguridad);
+          await box.put('usuario_respuesta_seguridad', usuario.respuestaSeguridad);
+          if (usuario.edad != null) await box.put('usuario_edad', usuario.edad.toString());
+          if (usuario.ciudad != null) await box.put('usuario_ciudad', usuario.ciudad);
           await box.put('login_exitoso', true);
 
-          final usuario = Usuario(
-            uid: usuarioApi.uid,
-            nombre: usuarioApi.nombre,
-            nombreUsuario: usuarioApi.nombreUsuario,
-            email: usuarioApi.email,
-            password: password,
-            edad: usuarioApi.edad,
-            ciudad: usuarioApi.ciudad,
-            genero: usuarioApi.genero,
-          );
-          
           _currentUser = usuario;
           _currentUid = usuario.uid;
-          print('✅ Usuario guardado en Hive desde API');
           return (usuario: usuario, error: null);
         }
       }
@@ -231,7 +181,6 @@ class AuthService {
 
   // ─── CAMBIAR CONTRASEÑA ───
 
-  /// Cambiar contraseña (SOLO en Hive)
   Future<({bool success, String? error})> cambiarPassword({
     required String nuevaPassword,
   }) async {
@@ -241,34 +190,20 @@ class AuthService {
       }
 
       final box = await Hive.openBox('configuracion');
-
-      // 1. Validar longitud mínima
-      if (nuevaPassword.length < 4) {
-        return (success: false, error: 'La contraseña debe tener al menos 4 caracteres');
-      }
-
-      // 2. Actualizar en Hive
       await box.put('usuario_password', nuevaPassword);
-      print('✅ Contraseña actualizada en Hive');
 
-      // 3. Actualizar objeto local
       _currentUser = Usuario(
         uid: _currentUser!.uid,
         nombre: _currentUser!.nombre,
         nombreUsuario: _currentUser!.nombreUsuario,
         email: _currentUser!.email,
         password: nuevaPassword,
+        preguntaSeguridad: _currentUser!.preguntaSeguridad,
+        respuestaSeguridad: _currentUser!.respuestaSeguridad,
         edad: _currentUser!.edad,
         ciudad: _currentUser!.ciudad,
         genero: _currentUser!.genero,
       );
-
-      // 4. Guardar pendiente para sincronizar en otros dispositivos
-      await _syncService.guardarCambioPasswordPendiente({
-        'uid': _currentUser!.uid,
-        'nueva_password': nuevaPassword,
-      });
-      print('💾 Cambio de contraseña guardado en pendientes');
 
       return (success: true, error: null);
     } catch (e) {
@@ -276,32 +211,8 @@ class AuthService {
     }
   }
 
-  // ─── VERIFICAR RESPUESTA DE SEGURIDAD ───
-
-  /// Verificar respuesta de seguridad del usuario
-  Future<bool> verificarRespuestaSeguridad(String respuesta) async {
-    try {
-      final box = await Hive.openBox('configuracion');
-      final respuestaGuardada = box.get('usuario_respuesta_seguridad');
-      return respuestaGuardada == respuesta;
-    } catch (e) {
-      print('❌ Error verificando respuesta de seguridad: $e');
-      return false;
-    }
-  }
-
-  // ─── SINCRONIZAR PENDIENTES ───
-
-  /// Sincronizar cambios pendientes desde Hive a API
-  Future<void> syncPendientes() async {
-    if (await _syncService.tieneInternet()) {
-      await _syncService.sincronizar();
-    }
-  }
-
   // ─── LOGOUT ───
 
-  /// Cerrar sesión
   Future<void> logout() async {
     final box = await Hive.openBox('configuracion');
     await box.put('login_exitoso', false);
@@ -311,6 +222,5 @@ class AuthService {
 
   // ─── GETTERS ───
 
-  /// Obtener usuario actual
   Usuario? get usuarioActual => _currentUser;
 }

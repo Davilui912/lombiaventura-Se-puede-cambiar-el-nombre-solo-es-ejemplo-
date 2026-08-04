@@ -21,7 +21,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final AuthService _authService = AuthService();
   bool _isLoading = false;
-  bool _isDownloading = false;
   bool _obscurePassword = true;
   String? _errorMessage;
 
@@ -41,33 +40,27 @@ class _LoginScreenState extends State<LoginScreen> {
         return;
       }
 
+      // ✅ Descarga silenciosa (sin mostrar mensajes)
       await _descargarDatosIniciales();
+
     } catch (e) {
       print('❌ Error en verificación inicial: $e');
     }
   }
 
+  // ✅ DESCARGA SILENCIOSA (sin indicadores visuales)
   Future<void> _descargarDatosIniciales() async {
-    if (_isDownloading) return;
-
-    setState(() {
-      _isDownloading = true;
-      _errorMessage = null;
-    });
-
     try {
       final syncService = SyncService();
 
       if (!await syncService.tieneInternet()) {
-        setState(() {
-          _isDownloading = false;
-          _errorMessage = 'Sin conexión a internet. Usa datos guardados localmente.';
-        });
+        print('🌐 Sin internet, usando datos locales');
         return;
       }
 
-      print('🌐 Descargando datos iniciales desde la API...');
+      print('🌐 Descargando datos iniciales (silencioso)...');
 
+      // ✅ 1. Descargar usuarios
       final usuariosResult = await ApiService().obtenerTodosUsuarios();
       if (usuariosResult.ok && usuariosResult.data != null) {
         final usuariosBox = await Hive.openBox('usuarios');
@@ -75,6 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
         print('✅ Usuarios descargados: ${usuariosResult.data!.length}');
       }
 
+      // ✅ 2. Descargar otros datos (diario, ventas, logros, etc.)
       final configBox = await Hive.openBox('configuracion');
       final usuarioActual = configBox.get('usuario_actual');
       if (usuarioActual != null) {
@@ -86,6 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       }
 
+      // ✅ 3. Descargar ventas
       final ventasResult = await ApiService().obtenerTodasVentas();
       if (ventasResult.ok && ventasResult.data != null) {
         final ventasBox = await Hive.openBox('historial_ventas');
@@ -93,6 +88,7 @@ class _LoginScreenState extends State<LoginScreen> {
         print('✅ Ventas descargadas: ${ventasResult.data!.length}');
       }
 
+      // ✅ 4. Descargar logros
       final logrosResult = await ApiService().obtenerTodosLogros();
       if (logrosResult.ok && logrosResult.data != null) {
         final logrosBox = await Hive.openBox('logros');
@@ -100,26 +96,9 @@ class _LoginScreenState extends State<LoginScreen> {
         print('✅ Logros descargados: ${logrosResult.data!.length}');
       }
 
-      setState(() {
-        _isDownloading = false;
-        _errorMessage = '✅ Datos descargados correctamente. ¡Ya puedes iniciar sesión!';
-      });
-
-      Future.delayed(const Duration(seconds: 2), () {
-        if (mounted) {
-          setState(() {
-            _errorMessage = null;
-          });
-        }
-      });
-
-      print('✅ Descarga de datos iniciales completada');
+      print('✅ Descarga silenciosa completada');
     } catch (e) {
-      print('❌ Error descargando datos: $e');
-      setState(() {
-        _isDownloading = false;
-        _errorMessage = 'Error al descargar datos. Intenta de nuevo.';
-      });
+      print('❌ Error en descarga silenciosa: $e');
     }
   }
 
@@ -198,6 +177,7 @@ class _LoginScreenState extends State<LoginScreen> {
             await box.put('usuario_password', passwordIngresada);
             await box.put('login_exitoso', true);
 
+            // ✅ Actualizar lista de usuarios en Hive
             final usuariosBox2 = await Hive.openBox('usuarios');
             final listaActual = usuariosBox2.get('lista', defaultValue: []);
             listaActual.add(usuario.toJson());
@@ -321,47 +301,16 @@ class _LoginScreenState extends State<LoginScreen> {
                           style: TextStyle(color: Colors.grey),
                         ),
                         const SizedBox(height: 24),
-                        if (_isDownloading)
+                        if (_errorMessage != null)
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: Colors.blue.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Row(
-                              children: [
-                                const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                const Expanded(
-                                  child: Text(
-                                    'Descargando datos...',
-                                    style: TextStyle(color: Colors.blue),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        if (_errorMessage != null && !_isDownloading)
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: _errorMessage!.startsWith('✅')
-                                  ? Colors.green.withValues(alpha: 0.1)
-                                  : Colors.red.withValues(alpha: 0.1),
+                              color: Colors.red.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
                               _errorMessage!,
-                              style: TextStyle(
-                                color: _errorMessage!.startsWith('✅') ? Colors.green : Colors.red,
-                              ),
+                              style: const TextStyle(color: Colors.red),
                             ),
                           ),
                         const SizedBox(height: 16),
@@ -401,7 +350,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: (_isLoading || _isDownloading) ? null : _iniciarSesion,
+                            onPressed: _isLoading ? null : _iniciarSesion,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.verde,
                               padding: const EdgeInsets.symmetric(vertical: 14),
