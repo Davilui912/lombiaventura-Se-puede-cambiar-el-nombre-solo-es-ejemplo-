@@ -4,7 +4,8 @@ import 'dart:io';
 import '../config/theme.dart';
 import '../services/retos_service.dart';
 import '../models/reto.dart';
-import '../services/recordatorios_service.dart'; 
+import '../services/recordatorios_service.dart';
+
 class RetosScreen extends StatefulWidget {
   const RetosScreen({super.key});
 
@@ -54,7 +55,6 @@ class _RetosScreenState extends State<RetosScreen> {
   }
 
   Future<void> _completarReto(Reto reto) async {
-    // Verificar si es día 1 del mes para los retos mensuales
     final hoy = DateTime.now();
     final esDia1 = hoy.day == 1;
 
@@ -81,71 +81,71 @@ class _RetosScreenState extends State<RetosScreen> {
     }
   }
 
-void _mostrarDialogoLombrices(Reto reto) {
-  if (_retosService.estaCompletado('reto_1')) { 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('✅ ¡Ya completaste este reto!'),
-        backgroundColor: AppTheme.verde,
+  void _mostrarDialogoLombrices(Reto reto) {
+    if (_retosService.estaCompletado('reto_1')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('✅ ¡Ya completaste este reto!'),
+          backgroundColor: AppTheme.verde,
+        ),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text('🎯 ${reto.titulo}'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(reto.descripcion),
+            const SizedBox(height: 16),
+            const Text(
+              '¿Ya tienes lombrices?',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      _mostrarCuantasLombrices(reto);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.verde,
+                    ),
+                    child: const Text('Sí'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Primero consigue lombrices y luego regresa 🪱'),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey,
+                    ),
+                    child: const Text('No'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
-    return;
   }
-
-  showDialog(
-    context: context,
-    builder: (ctx) => AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: Text('🎯 ${reto.titulo}'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(reto.descripcion),
-          const SizedBox(height: 16),
-          const Text(
-            '¿Ya tienes lombrices?',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(ctx);
-                    _mostrarCuantasLombrices(reto);  // ✅ Llamar a la función corregida
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.verde,
-                  ),
-                  child: const Text('Sí'),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(ctx);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Primero consigue lombrices y luego regresa 🪱'),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey,
-                  ),
-                  child: const Text('No'),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    ),
-  );
-}
 
   void _mostrarCuantasLombrices(Reto reto) {
     int cantidad = 0;
@@ -217,7 +217,6 @@ void _mostrarDialogoLombrices(Reto reto) {
                         await _retosService.completarReto(reto.id);
                         _cargarRetos();
                         
-                        // Activar recordatorios al completar el Reto 1
                         if (reto.id == 'reto_1') {
                           final recordatorioService = RecordatoriosService();
                           await recordatorioService.init();
@@ -249,6 +248,7 @@ void _mostrarDialogoLombrices(Reto reto) {
       ),
     );
   }
+
   void _mostrarDialogoHumus(Reto reto) {
     int punos = 0;
     showDialog(
@@ -519,102 +519,131 @@ void _mostrarDialogoLombrices(Reto reto) {
         title: const Text('🎯 Retos'),
         backgroundColor: AppTheme.verde,
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  margin: const EdgeInsets.all(16),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/fondo.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Container(
+                  padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: AppTheme.verde.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppTheme.verde),
+                    color: Colors.white.withValues(alpha: 0.92),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
                   ),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Progreso',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          Text(
-                            '${_retosService.obtenerProgreso()}%',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: AppTheme.verde,
+                      // Progreso
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppTheme.verde.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppTheme.verde),
+                        ),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  'Progreso',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  '${_retosService.obtenerProgreso()}%',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.verde,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 8),
+                            LinearProgressIndicator(
+                              value: _retosService.obtenerProgreso() / 100,
+                              backgroundColor: Colors.grey.shade200,
+                              valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.verde),
+                              minHeight: 10,
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 8),
-                      LinearProgressIndicator(
-                        value: _retosService.obtenerProgreso() / 100,
-                        backgroundColor: Colors.grey.shade200,
-                        valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.verde),
-                        minHeight: 10,
-                        borderRadius: BorderRadius.circular(5),
+                      const SizedBox(height: 16),
+                      // Lista de retos
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: _retos.length,
+                        itemBuilder: (context, index) {
+                          final reto = _retos[index];
+                          final completado = reto.completado;
+                          return Card(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            child: ListTile(
+                              leading: Container(
+                                width: 50,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  color: completado
+                                      ? AppTheme.verde.withValues(alpha: 0.1)
+                                      : Colors.grey.withValues(alpha: 0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    completado ? '✅' : reto.emoji,
+                                    style: const TextStyle(fontSize: 28),
+                                  ),
+                                ),
+                              ),
+                              title: Text(
+                                '${reto.orden}. ${reto.titulo}',
+                                style: TextStyle(
+                                  fontWeight: completado ? FontWeight.normal : FontWeight.bold,
+                                  color: completado ? Colors.grey : AppTheme.negro,
+                                  decoration: completado ? TextDecoration.lineThrough : null,
+                                ),
+                              ),
+                              subtitle: Text(
+                                completado ? '¡Completado! 🎉' : reto.descripcion,
+                                style: TextStyle(
+                                  color: completado ? AppTheme.verde : Colors.grey.shade600,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              trailing: completado
+                                  ? const Icon(Icons.check_circle, color: AppTheme.verde)
+                                  : IconButton(
+                                      icon: const Icon(Icons.play_arrow, color: AppTheme.verde),
+                                      onPressed: () => _completarReto(reto),
+                                    ),
+                              onTap: completado ? null : () => _completarReto(reto),
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
                 ),
-                Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _retos.length,
-                    itemBuilder: (context, index) {
-                      final reto = _retos[index];
-                      final completado = reto.completado;
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        child: ListTile(
-                          leading: Container(
-                            width: 50,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color: completado
-                                  ? AppTheme.verde.withValues(alpha: 0.1)
-                                  : Colors.grey.withValues(alpha: 0.1),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Center(
-                              child: Text(
-                                completado ? '✅' : reto.emoji,
-                                style: const TextStyle(fontSize: 28),
-                              ),
-                            ),
-                          ),
-                          title: Text(
-                            '${reto.orden}. ${reto.titulo}',
-                            style: TextStyle(
-                              fontWeight: completado ? FontWeight.normal : FontWeight.bold,
-                              color: completado ? Colors.grey : AppTheme.negro,
-                              decoration: completado ? TextDecoration.lineThrough : null,
-                            ),
-                          ),
-                          subtitle: Text(
-                            completado ? '¡Completado! 🎉' : reto.descripcion,
-                            style: TextStyle(
-                              color: completado ? AppTheme.verde : Colors.grey.shade600,
-                              fontSize: 12,
-                            ),
-                          ),
-                          trailing: completado
-                              ? const Icon(Icons.check_circle, color: AppTheme.verde)
-                              : IconButton(
-                                  icon: const Icon(Icons.play_arrow, color: AppTheme.verde),
-                                  onPressed: () => _completarReto(reto),
-                                ),
-                          onTap: completado ? null : () => _completarReto(reto),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
+              ),
+      ),
     );
   }
 }

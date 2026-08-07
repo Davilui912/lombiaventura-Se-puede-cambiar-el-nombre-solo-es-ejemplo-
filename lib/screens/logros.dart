@@ -38,31 +38,45 @@ class _LogrosScreenState extends State<LogrosScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('🏆 Mis Logros'),
+        backgroundColor: AppTheme.verde,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            // Cabecera con estrellas
-            _buildCabecera(),
-
-            const SizedBox(height: 25),
-
-            // Progreso
-            _buildProgreso(),
-
-            const SizedBox(height: 25),
-
-            // Insignias
-            _buildSeccionInsignias(),
-
-            const SizedBox(height: 25),
-
-            // Certificado (si es Eco Héroe)
-            if (_ecoHeroe) _buildCertificado(),
-
-            const SizedBox(height: 30),
-          ],
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/fondo.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.92),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildCabecera(),
+                const SizedBox(height: 20),
+                _buildProgreso(),
+                const SizedBox(height: 20),
+                _buildSeccionInsignias(),
+                const SizedBox(height: 20),
+                if (_ecoHeroe) _buildCertificado(),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -70,7 +84,7 @@ class _LogrosScreenState extends State<LogrosScreen> {
 
   Widget _buildCabecera() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [AppTheme.amarillo, AppTheme.amarillo.withValues(alpha: 0.7)],
@@ -118,8 +132,9 @@ class _LogrosScreenState extends State<LogrosScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.grey.shade50,
         borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: Colors.grey.shade200),
       ),
       child: Column(
         children: [

@@ -1138,25 +1138,27 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                         ),
                       ],
                     ),
-                    // ==================== MI COMPOSTA ====================
+                    // ==================== MIS JUEGOS ====================
                     _buildCategoria(
-                      titulo: 'Mi Composta',
+                      titulo: 'Mis juegos',
                       subtitulo: 'Cuida tu composta',
                       color: const Color(0xFFFFA726),
                       color2: const Color(0xFFFFCA28),
                       iconImage: 'assets/images/icons/icono_composta.png',
                       index: 1,
                       opciones: [
-                        _buildOpcion('Mi diario', 'Registra tu avance', '📝',
-                            () => _irAPantalla(const NuevaEntradaScreen()),
-                            color: const Color(0xFFFFA726)),
-                        _buildOpcion(
+                       /*_buildOpcion(
                             'Avisos importantes',
                             'Cuida a tus lombrices',
                             '⚠️',
                             () => _irAPantalla(const AvisosScreen()),
-                            color: const Color(0xFFFFA726)),
-                        // _buildOpcion('¿Cómo va mi composta?', 'Compara y revisa tu composta', '🔄', () => _irAPantalla(const ComparaCompostaScreen()), color: const Color(0xFFFFA726)),
+                            color: const Color(0xFFFFA726)),*/
+                        /*_buildOpcion(
+                            '¿Cómo va mi composta?', 
+                            'Compara y revisa tu composta', 
+                            '🔄', 
+                            () => _irAPantalla(const ComparaCompostaScreen()),
+                            color: const Color(0xFFFFA726)),*/
 
                         // ✅ Submenú de juegos (mejorado)
                         _buildSubmenuJuegos(),
@@ -1201,25 +1203,30 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                             () => _irAPantalla(const VentasLombricesScreen()),
                             color: const Color(0xFFFF7043)),
                         _buildOpcion(
-                            'Atomizador lixiviado',
+                            'Vender humus', 
+                            'Precio: \$10 por bolsita',
+                            '🌱', () => _irAPantalla(const VentasHumusScreen()),
+                            color: const Color(0xFFFF7043)),
+                        _buildOpcion(
+                            'Vender lixiviado',
                             'Precio: \$25',
                             '💦',
                             () => _irAPantalla(const VentasAtomizadorScreen()),
                             color: const Color(0xFFFF7043)),
-                        _buildOpcion('Vender humus', 'Precio: \$10 por bolsita',
-                            '🌱', () => _irAPantalla(const VentasHumusScreen()),
-                            color: const Color(0xFFFF7043)),
                         _buildOpcion(
-                            'Registro de ventas',
+                            'Ventas totales',
                             'Historial de ingresos',
                             '🧾',
                             () => _irAPantalla(const VentasHistorialScreen()),
                             color: const Color(0xFFFF7043)),
+                        _buildOpcion('Mi diario', 'Registra tu avance', '📝',
+                            () => _irAPantalla(const NuevaEntradaScreen()),
+                            color: const Color(0xFFFFA726)),
                         _buildOpcion('Accesorios', 'Personaliza a tu lombriz',
                             '🛍️', () => _irAPantalla(const AccesoriosScreen()),
                             color: const Color(0xFFFF7043)),
                         _buildOpcion(
-                            'Capacitación',
+                            'Venta de capacitación',
                             'Capacita a otros niños',
                             '🎓',
                             () => _irAPantalla(const CapacitacionScreen()),

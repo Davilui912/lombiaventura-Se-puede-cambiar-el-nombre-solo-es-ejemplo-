@@ -27,7 +27,6 @@ class _VentasHistorialScreenState extends State<VentasHistorialScreen> {
     try {
       await _monedasService.init();
       
-      // ✅ Usar obtenerHistorialVentas
       final historialCompleto = _monedasService.obtenerHistorialVentas();
       
       final ventas = historialCompleto.where((item) => 
@@ -90,76 +89,102 @@ class _VentasHistorialScreenState extends State<VentasHistorialScreen> {
         title: const Text('📊 Ventas y ganancias'),
         backgroundColor: Colors.orange,
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
-                // Resumen de ventas y ganancias
-                Container(
-                  margin: const EdgeInsets.all(16),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/fondo.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [Colors.orange.shade400, Colors.orange.shade700],
-                    ),
-                    borderRadius: BorderRadius.circular(16),
+                    color: Colors.white.withValues(alpha: 0.92),
+                    borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.orange.withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
                       ),
                     ],
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Ventas totales
-                      Column(
-                        children: [
-                          const Text(
-                            '📦 Ventas',
-                            style: TextStyle(color: Colors.white, fontSize: 14),
+                      // Resumen de ventas y ganancias
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [Colors.orange.shade400, Colors.orange.shade700],
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '$_totalVentas',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.orange.withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
                             ),
-                          ),
-                        ],
-                      ),
-                      // Ganancias totales
-                      Column(
-                        children: [
-                          const Text(
-                            '💰 Ganancias',
-                            style: TextStyle(color: Colors.white, fontSize: 14),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '\$$_totalGanado',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            // Ventas totales
+                            Column(
+                              children: [
+                                const Text(
+                                  '📦 Ventas',
+                                  style: TextStyle(color: Colors.white, fontSize: 14),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '$_totalVentas',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
+                            // Ganancias totales
+                            Column(
+                              children: [
+                                const Text(
+                                  '💰 Ganancias',
+                                  style: TextStyle(color: Colors.white, fontSize: 14),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '\$$_totalGanado',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ],
-                  ),
-                ),
-                
-                // Lista de ventas con detalles
-                Expanded(
-                  child: _historial.isEmpty
-                      ? const Center(
+                      
+                      const SizedBox(height: 16),
+                      
+                      // Lista de ventas con detalles
+                      if (_historial.isEmpty)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 40),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -173,8 +198,10 @@ class _VentasHistorialScreenState extends State<VentasHistorialScreen> {
                             ],
                           ),
                         )
-                      : ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                      else
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
                           itemCount: _historial.length,
                           itemBuilder: (context, index) {
                             final venta = _historial[index];
@@ -230,9 +257,11 @@ class _VentasHistorialScreenState extends State<VentasHistorialScreen> {
                             );
                           },
                         ),
+                    ],
+                  ),
                 ),
-              ],
-            ),
+              ),
+      ),
     );
   }
 }

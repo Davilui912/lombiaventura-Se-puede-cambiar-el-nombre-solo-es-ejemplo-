@@ -52,68 +52,96 @@ class _VentasAtomizadorScreenState extends State<VentasAtomizadorScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Vender atomizador'),
+        title: const Text('Vender lixiviado'),
         backgroundColor: Colors.orange,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            const Icon(Icons.water_drop, size: 80, color: Colors.orange),
-            const SizedBox(height: 20),
-            const Text(
-              'Precio: \$25 c/u',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 30),
-            const Text('Cantidad a vender:', style: TextStyle(fontSize: 18)),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.remove_circle, size: 40),
-                  onPressed: () => setState(() {
-                    if (_cantidad > 1) _cantidad--;
-                  }),
-                ),
-                Container(
-                  width: 80,
-                  height: 60,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    '$_cantidad',
-                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.add_circle, size: 40),
-                  onPressed: () => setState(() => _cantidad++),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/fondo.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.92),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
                 ),
               ],
             ),
-            const SizedBox(height: 10),
-            Text(
-              'Total: \$${_cantidad * 25} MXN',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.orange),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('💧', style: TextStyle(fontSize: 80)),
+                const SizedBox(height: 16),
+                const Text(
+                  'Precio: \$25 c/u',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 24),
+                const Text('Cantidad a vender:', style: TextStyle(fontSize: 18)),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.remove_circle, size: 40),
+                      onPressed: () => setState(() {
+                        if (_cantidad > 1) _cantidad--;
+                      }),
+                    ),
+                    Container(
+                      width: 80,
+                      height: 60,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        '$_cantidad',
+                        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.add_circle, size: 40),
+                      onPressed: () => setState(() => _cantidad++),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Total: \$${_cantidad * 25} MXN',
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.orange),
+                ),
+                const SizedBox(height: 30),
+                ElevatedButton(
+                  onPressed: _vender,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Registrar venta',
+                    style: TextStyle(fontSize: 18, color: Colors.white),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 30),
-            ElevatedButton(
-              onPressed: _vender,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-              ),
-              child: const Text(
-                'Registrar venta',
-                style: TextStyle(fontSize: 18, color: Colors.white),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
