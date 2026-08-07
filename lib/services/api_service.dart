@@ -108,8 +108,8 @@ class ApiService {
       final res = await http
           .get(_uri('/usuarios'), headers: _headers)
           .timeout(_timeout);
-      return _handle(res,
-          (b) => (b as List).map((e) => Usuario.fromJson(e)).toList());
+      return _handle(
+          res, (b) => (b as List).map((e) => Usuario.fromJson(e)).toList());
     } catch (e) {
       return _catch(e);
     }
@@ -186,6 +186,28 @@ class ApiService {
           .timeout(_timeout);
       if (res.statusCode == 204) return ApiResult.ok(true);
       return ApiResult.error('Error al eliminar usuario');
+    } catch (e) {
+      return _catch(e);
+    }
+  }
+
+  //Nuevo metodo para la recuperacion de la contraseña
+  Future<ApiResult<Map<String, dynamic>>> verificarRespuestaSeguridad({
+    required String uid,
+    required String respuestaSeguridad,
+  }) async {
+    try {
+      final res = await http
+          .post(
+            _uri('/usuarios/verificar-respuesta'),
+            headers: _headers,
+            body: jsonEncode({
+              'uid': uid,
+              'respuesta_seguridad': respuestaSeguridad,
+            }),
+          )
+          .timeout(_timeout);
+      return _handle(res, (b) => b as Map<String, dynamic>);
     } catch (e) {
       return _catch(e);
     }
@@ -283,11 +305,10 @@ class ApiService {
   /// ✅ Obtener todas las ventas
   Future<ApiResult<List<Venta>>> obtenerTodasVentas() async {
     try {
-      final res = await http
-          .get(_uri('/ventas'), headers: _headers)
-          .timeout(_timeout);
-      return _handle(res,
-          (b) => (b as List).map((e) => Venta.fromJson(e)).toList());
+      final res =
+          await http.get(_uri('/ventas'), headers: _headers).timeout(_timeout);
+      return _handle(
+          res, (b) => (b as List).map((e) => Venta.fromJson(e)).toList());
     } catch (e) {
       return _catch(e);
     }
@@ -335,11 +356,10 @@ class ApiService {
 
   Future<ApiResult<List<Reto>>> obtenerTodosRetos() async {
     try {
-      final res = await http
-          .get(_uri('/retos'), headers: _headers)
-          .timeout(_timeout);
-      return _handle(res,
-          (b) => (b as List).map((e) => Reto.fromJson(e)).toList());
+      final res =
+          await http.get(_uri('/retos'), headers: _headers).timeout(_timeout);
+      return _handle(
+          res, (b) => (b as List).map((e) => Reto.fromJson(e)).toList());
     } catch (e) {
       return _catch(e);
     }
@@ -397,11 +417,10 @@ class ApiService {
 
   Future<ApiResult<List<Logro>>> obtenerTodosLogros() async {
     try {
-      final res = await http
-          .get(_uri('/logros'), headers: _headers)
-          .timeout(_timeout);
-      return _handle(res,
-          (b) => (b as List).map((e) => Logro.fromJson(e)).toList());
+      final res =
+          await http.get(_uri('/logros'), headers: _headers).timeout(_timeout);
+      return _handle(
+          res, (b) => (b as List).map((e) => Logro.fromJson(e)).toList());
     } catch (e) {
       return _catch(e);
     }
