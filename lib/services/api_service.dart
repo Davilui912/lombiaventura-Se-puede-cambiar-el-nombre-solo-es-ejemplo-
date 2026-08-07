@@ -191,6 +191,114 @@ class ApiService {
     }
   }
 
+  // ─── RECUPERACIÓN DE CONTRASEÑA ───
+
+  /// ✅ Verificar respuesta de seguridad (formato específico de tu API)
+  Future<ApiResult<bool>> verificarSeguridad({
+    required String uid,
+    required String respuestaSeguridad,
+  }) async {
+    try {
+      final res = await http
+          .post(
+            _uri('/usuarios/verificar-seguridad'),
+            headers: _headers,
+            body: jsonEncode({
+              'uid': uid,
+              'respuesta_seguridad': respuestaSeguridad,
+            }),
+          )
+          .timeout(_timeout);
+      
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        return ApiResult.ok(true);
+      } else {
+        // Intentar leer el mensaje de error del body
+        try {
+          final body = jsonDecode(res.body);
+          final mensaje = body['mensaje'] ?? body['error'] ?? 'Respuesta incorrecta';
+          return ApiResult.error(mensaje);
+        } catch (e) {
+          return ApiResult.error('Respuesta de seguridad incorrecta');
+        }
+      }
+    } catch (e) {
+      return _catch(e);
+    }
+  }
+
+  /// ✅ Obtener usuario por UID (para obtener la pregunta de seguridad)
+  Future<ApiResult<Usuario>> obtenerUsuarioPorUid(String uid) async {
+    try {
+      final res = await http
+          .get(_uri('/usuarios'), headers: _headers)
+          .timeout(_timeout);
+      
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        final data = jsonDecode(res.body) as List;
+        for (var item in data) {
+          if (item['uid'] == uid) {
+            return ApiResult.ok(Usuario.fromJson(item));
+          }
+        }
+        return ApiResult.error('Usuario no encontrado');
+      } else {
+        return ApiResult.error('Error al obtener usuarios');
+      }
+    } catch (e) {
+      return _catch(e);
+    }
+  }
+
+  /// ✅ Actualizar contraseña (cuando el usuario la recupera)
+  Future<ApiResult<bool>> actualizarPassword({
+    required String uid,
+    required String nuevaPassword,
+  }) async {
+    try {
+      final res = await http
+          .patch(
+            _uri('/usuarios/$uid/password'),
+            headers: _headers,
+            body: jsonEncode({
+              'password': nuevaPassword,
+            }),
+          )
+          .timeout(_timeout);
+      
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        return ApiResult.ok(true);
+      } else {
+        return ApiResult.error('Error al actualizar contraseña');
+      }
+    } catch (e) {
+      return _catch(e);
+    }
+  }
+
+  /// ✅ Buscar usuario por nombre (para la recuperación)
+  Future<ApiResult<Usuario>> buscarUsuarioPorNombre(String nombreUsuario) async {
+    try {
+      final res = await http
+          .get(_uri('/usuarios'), headers: _headers)
+          .timeout(_timeout);
+      
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        final data = jsonDecode(res.body) as List;
+        for (var item in data) {
+          if (item['nombre_usuario'] == nombreUsuario) {
+            return ApiResult.ok(Usuario.fromJson(item));
+          }
+        }
+        return ApiResult.error('Usuario no encontrado');
+      } else {
+        return ApiResult.error('Error al obtener usuarios');
+      }
+    } catch (e) {
+      return _catch(e);
+    }
+  }
+
   // ─── DIARIO ───
 
   Future<ApiResult<EntradaDiario>> crearEntradaDiario({
