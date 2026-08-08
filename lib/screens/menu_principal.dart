@@ -282,135 +282,6 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
     );
   }
 
-  Widget _buildSubmenuJuegos() {
-    final Color colorJuegos = const Color(0xFF6DB467);
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 4),
-      decoration: BoxDecoration(
-        // Fondo blanco
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        // Borde verde claro más definido
-        border:
-            Border.all(color: colorJuegos.withValues(alpha: 0.4), width: 1.5),
-        // Sombra suave para darle profundidad
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Theme(
-        data: Theme.of(context).copyWith(
-          dividerColor: Colors.transparent,
-        ),
-        child: ExpansionTile(
-          tilePadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
-          leading: Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: colorJuegos.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            // ⬅️ Cambiamos el icono de Flutter por un emoji centrado
-            child: const Center(
-              child: Text('🎮', style: TextStyle(fontSize: 20)),
-            ),
-          ),
-          title: const Text(
-            'Juegos',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 15,
-              color: Colors.black,
-            ),
-          ),
-          trailing: Icon(Icons.keyboard_arrow_down, color: colorJuegos),
-          children: [
-            // ⬅️ Usamos _buildOpcion en lugar de _buildOpcionJuego
-            _buildOpcion(
-              'Clasifica residuos',
-              'Aprende a separar los residuos',
-              '♻️', // Emoji para reciclar
-              () => _irAPantalla(const ClasificaResiduosScreen()),
-              color: colorJuegos,
-            ),
-            _buildOpcion(
-              'Bocados Sorpresa',
-              'Arrastra a la lombriz para comer los alimentos buenos',
-              '🍎', // Emoji de manzanita
-              () => _irAPantalla(const SelectorNivelAlimentaScreen()),
-              color: colorJuegos,
-            ),
-            _buildOpcion(
-              'Lluvia Deliciosa',
-              'Atrapa la comida que cae y evita los aparatos electrónicos',
-              '🧺', // Emoji de canasta
-              () => _irAPantalla(const SelectorNivelCayendoScreen()),
-              color: colorJuegos,
-            ),
-            _buildOpcion(
-              'Memorama ecológico',
-              'Encuentra las parejas',
-              '🃏', // Emoji de cartas
-              () => _irAPantalla(const MemoramaScreen()),
-              color: colorJuegos,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSubmenu({
-    required String titulo,
-    required IconData icon,
-    required Color color,
-    required List<Widget> opciones,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              children: [
-                Icon(icon, color: color, size: 20),
-                const SizedBox(width: 8),
-                Text(
-                  titulo,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                    color: color,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
-            child: Column(
-              children: opciones,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildCategoria({
     required String titulo,
     required String subtitulo,
@@ -755,7 +626,6 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                 child: Column(
                   children: [
                     // ==================== APRENDIZAJE ====================
-// ==================== APRENDIZAJE ====================
                     _buildCategoria(
                       titulo: 'Aprendizaje',
                       subtitulo: 'Descubre y aprende',
@@ -1141,27 +1011,41 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                     // ==================== MIS JUEGOS ====================
                     _buildCategoria(
                       titulo: 'Mis juegos',
-                      subtitulo: 'Cuida tu composta',
+                      subtitulo: 'Juega y aprende',
                       color: const Color(0xFFFFA726),
                       color2: const Color(0xFFFFCA28),
                       iconImage: 'assets/images/icons/icono_composta.png',
                       index: 1,
                       opciones: [
-                       /*_buildOpcion(
-                            'Avisos importantes',
-                            'Cuida a tus lombrices',
-                            '⚠️',
-                            () => _irAPantalla(const AvisosScreen()),
-                            color: const Color(0xFFFFA726)),*/
-                        /*_buildOpcion(
-                            '¿Cómo va mi composta?', 
-                            'Compara y revisa tu composta', 
-                            '🔄', 
-                            () => _irAPantalla(const ComparaCompostaScreen()),
-                            color: const Color(0xFFFFA726)),*/
-
-                        // ✅ Submenú de juegos (mejorado)
-                        _buildSubmenuJuegos(),
+                        _buildOpcion(
+                          'Clasifica residuos',
+                          'Aprende a separar los residuos',
+                          '♻️',
+                          () => _irAPantalla(const ClasificaResiduosScreen()),
+                          color: const Color(0xFFFFA726),
+                        ),
+                        _buildOpcion(
+                          'Bocados Sorpresa',
+                          'Arrastra a la lombriz para comer los alimentos buenos',
+                          '🍎',
+                          () => _irAPantalla(const SelectorNivelAlimentaScreen()),
+                          color: const Color(0xFFFFA726),
+                        ),
+                        _buildOpcion(
+                          'Lluvia Deliciosa',
+                          'Atrapa la comida que cae y evita los aparatos electrónicos',
+                          '🧺',
+                          () => _irAPantalla(const SelectorNivelCayendoScreen()),
+                          color: const Color(0xFFFFA726),
+                        ),
+                        _buildOpcion(
+                          'Memorama ecológico',
+                          'Encuentra las parejas',
+                          '🃏',
+                          () => _irAPantalla(const MemoramaScreen()),
+                          color: const Color(0xFFFFA726),
+                        ),
+                        // Puedes agregar más juegos aquí si quieres
                       ],
                     ),
                     // ==================== PROGRESO ====================

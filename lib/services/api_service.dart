@@ -108,8 +108,8 @@ class ApiService {
       final res = await http
           .get(_uri('/usuarios'), headers: _headers)
           .timeout(_timeout);
-      return _handle(
-          res, (b) => (b as List).map((e) => Usuario.fromJson(e)).toList());
+      return _handle(res,
+          (b) => (b as List).map((e) => Usuario.fromJson(e)).toList());
     } catch (e) {
       return _catch(e);
     }
@@ -191,26 +191,17 @@ class ApiService {
     }
   }
 
-<<<<<<< HEAD
-  //Nuevo metodo para la recuperacion de la contraseña
-  Future<ApiResult<Map<String, dynamic>>> verificarRespuestaSeguridad({
-=======
   // ─── RECUPERACIÓN DE CONTRASEÑA ───
 
-  /// ✅ Verificar respuesta de seguridad (formato específico de tu API)
+  /// ✅ Verificar respuesta de seguridad
   Future<ApiResult<bool>> verificarSeguridad({
->>>>>>> 41ebe8deba44eeaedc66de5ca5e546f8b5ac1ea9
     required String uid,
     required String respuestaSeguridad,
   }) async {
     try {
       final res = await http
           .post(
-<<<<<<< HEAD
-            _uri('/usuarios/verificar-respuesta'),
-=======
             _uri('/usuarios/verificar-seguridad'),
->>>>>>> 41ebe8deba44eeaedc66de5ca5e546f8b5ac1ea9
             headers: _headers,
             body: jsonEncode({
               'uid': uid,
@@ -218,14 +209,10 @@ class ApiService {
             }),
           )
           .timeout(_timeout);
-<<<<<<< HEAD
-      return _handle(res, (b) => b as Map<String, dynamic>);
-=======
       
       if (res.statusCode >= 200 && res.statusCode < 300) {
         return ApiResult.ok(true);
       } else {
-        // Intentar leer el mensaje de error del body
         try {
           final body = jsonDecode(res.body);
           final mensaje = body['mensaje'] ?? body['error'] ?? 'Respuesta incorrecta';
@@ -239,7 +226,7 @@ class ApiService {
     }
   }
 
-  /// ✅ Obtener usuario por UID (para obtener la pregunta de seguridad)
+  /// ✅ Obtener usuario por UID
   Future<ApiResult<Usuario>> obtenerUsuarioPorUid(String uid) async {
     try {
       final res = await http
@@ -262,7 +249,7 @@ class ApiService {
     }
   }
 
-  /// ✅ Actualizar contraseña (cuando el usuario la recupera)
+  /// ✅ Actualizar contraseña
   Future<ApiResult<bool>> actualizarPassword({
     required String uid,
     required String nuevaPassword,
@@ -288,7 +275,7 @@ class ApiService {
     }
   }
 
-  /// ✅ Buscar usuario por nombre (para la recuperación)
+  /// ✅ Buscar usuario por nombre
   Future<ApiResult<Usuario>> buscarUsuarioPorNombre(String nombreUsuario) async {
     try {
       final res = await http
@@ -306,7 +293,6 @@ class ApiService {
       } else {
         return ApiResult.error('Error al obtener usuarios');
       }
->>>>>>> 41ebe8deba44eeaedc66de5ca5e546f8b5ac1ea9
     } catch (e) {
       return _catch(e);
     }
@@ -404,10 +390,11 @@ class ApiService {
   /// ✅ Obtener todas las ventas
   Future<ApiResult<List<Venta>>> obtenerTodasVentas() async {
     try {
-      final res =
-          await http.get(_uri('/ventas'), headers: _headers).timeout(_timeout);
-      return _handle(
-          res, (b) => (b as List).map((e) => Venta.fromJson(e)).toList());
+      final res = await http
+          .get(_uri('/ventas'), headers: _headers)
+          .timeout(_timeout);
+      return _handle(res,
+          (b) => (b as List).map((e) => Venta.fromJson(e)).toList());
     } catch (e) {
       return _catch(e);
     }
@@ -455,10 +442,11 @@ class ApiService {
 
   Future<ApiResult<List<Reto>>> obtenerTodosRetos() async {
     try {
-      final res =
-          await http.get(_uri('/retos'), headers: _headers).timeout(_timeout);
-      return _handle(
-          res, (b) => (b as List).map((e) => Reto.fromJson(e)).toList());
+      final res = await http
+          .get(_uri('/retos'), headers: _headers)
+          .timeout(_timeout);
+      return _handle(res,
+          (b) => (b as List).map((e) => Reto.fromJson(e)).toList());
     } catch (e) {
       return _catch(e);
     }
@@ -516,10 +504,11 @@ class ApiService {
 
   Future<ApiResult<List<Logro>>> obtenerTodosLogros() async {
     try {
-      final res =
-          await http.get(_uri('/logros'), headers: _headers).timeout(_timeout);
-      return _handle(
-          res, (b) => (b as List).map((e) => Logro.fromJson(e)).toList());
+      final res = await http
+          .get(_uri('/logros'), headers: _headers)
+          .timeout(_timeout);
+      return _handle(res,
+          (b) => (b as List).map((e) => Logro.fromJson(e)).toList());
     } catch (e) {
       return _catch(e);
     }
