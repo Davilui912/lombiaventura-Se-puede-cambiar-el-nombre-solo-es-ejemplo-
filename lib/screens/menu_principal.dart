@@ -25,6 +25,7 @@ import 'tienda/accesorios_screen.dart';
 import 'avisos.dart';
 import 'tienda/problemas_matematicos.dart';
 import 'perfil_screen.dart';
+import 'progress_screen.dart';
 import 'admin_screen.dart';
 import 'retos_screen.dart';
 import '../services/recordatorios_service.dart';
@@ -598,7 +599,18 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.person_3, color: Colors.white),
+            icon: const Icon(Icons.trending_up_rounded, color: Colors.white),
+            onPressed: () => _irAPantalla(
+              ProgressScreen(
+                coins: MonedasService().obtenerMonedas(),
+                streakDays: 7,
+                recordDays: 15,
+              ),
+            ),
+            tooltip: 'Progreso',
+          ),
+          IconButton(
+            icon: const Icon(Icons.person_sharp, color: Colors.white),
             onPressed: () => _irAPantalla(const PerfilScreen()),
             tooltip: 'Mi perfil',
           ),
@@ -1028,14 +1040,16 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                           'Bocados Sorpresa',
                           'Arrastra a la lombriz para comer los alimentos buenos',
                           '🍎',
-                          () => _irAPantalla(const SelectorNivelAlimentaScreen()),
+                          () =>
+                              _irAPantalla(const SelectorNivelAlimentaScreen()),
                           color: const Color(0xFFFFA726),
                         ),
                         _buildOpcion(
                           'Lluvia Deliciosa',
                           'Atrapa la comida que cae y evita los aparatos electrónicos',
                           '🧺',
-                          () => _irAPantalla(const SelectorNivelCayendoScreen()),
+                          () =>
+                              _irAPantalla(const SelectorNivelCayendoScreen()),
                           color: const Color(0xFFFFA726),
                         ),
                         _buildOpcion(
@@ -1086,15 +1100,10 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                             '🏷️',
                             () => _irAPantalla(const VentasLombricesScreen()),
                             color: const Color(0xFFFF7043)),
-                        _buildOpcion(
-                            'Vender humus', 
-                            'Precio: \$10 por bolsita',
+                        _buildOpcion('Vender humus', 'Precio: \$10 por bolsita',
                             '🌱', () => _irAPantalla(const VentasHumusScreen()),
                             color: const Color(0xFFFF7043)),
-                        _buildOpcion(
-                            'Vender lixiviado',
-                            'Precio: \$25',
-                            '💦',
+                        _buildOpcion('Vender lixiviado', 'Precio: \$25', '💦',
                             () => _irAPantalla(const VentasAtomizadorScreen()),
                             color: const Color(0xFFFF7043)),
                         _buildOpcion(
