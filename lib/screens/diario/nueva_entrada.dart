@@ -14,28 +14,26 @@ class NuevaEntradaScreen extends StatefulWidget {
 
 class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
   final DiarioService _diarioService = DiarioService();
-  final TextEditingController _notaController = TextEditingController();
 
   // Temperatura y Humedad
   int _humedad = 5;
-  int _temperaturaValor = 5; // 1 al 10 en el Slider
+  int _temperaturaValor = 5;
   String _temperaturaSeleccionada = '🌤️ Buen clima';
 
-  // ✅ Composta y Lixiviado (Declarados solo una vez)
-  final TextEditingController _compostaController = TextEditingController();
-  final TextEditingController _lixiviadoController = TextEditingController();
-  bool _mostrarComposta = false;
-  bool _mostrarLixiviado = false;
+  // ✅ Nuevos campos para moscas y mal olor
+  bool _tieneMoscas = false;
+  bool _tieneMalOlor = false;
 
-  // ✅ Tipo de residuo
-  String _tipoResiduo = 'Mixto';
+  // ✅ Tipo de residuo (múltiple selección)
   final List<String> _tiposResiduo = [
     'Frutas',
     'Verduras',
     'Cáscaras',
     'Café',
-    'Mixto'
+    'Hojas',
+    'Estiércol'
   ];
+  final List<bool> _tiposSeleccionados = [];
 
   // ✅ Estado de ánimo
   String _estadoSeleccionado = '😊';
@@ -47,37 +45,53 @@ class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
 
   bool _guardando = false;
 
+  // ✅ Control de días para alimentación, composta y lixiviado
+  int _diasDesdeUltimaAlimentacion = 0;
+  int _diasDesdeUltimaCompostaLixiviado = 0;
+
   @override
   void initState() {
     super.initState();
-    _verificarDiaMes();
+    _inicializarTipos();
+    _calcularDias();
   }
 
-  void _verificarDiaMes() {
-    final hoy = DateTime.now();
-    // ✅ Composta y Lixiviado solo el día 1 del mes
-    if (hoy.day == 1) {
-      _mostrarComposta = true;
-      _mostrarLixiviado = true;
-    } else {
-      _mostrarComposta = false;
-      _mostrarLixiviado = false;
+  void _inicializarTipos() {
+    _tiposSeleccionados.clear();
+    for (var i = 0; i < _tiposResiduo.length; i++) {
+      _tiposSeleccionados.add(false);
     }
+  }
+
+  void _calcularDias() {
+    _diasDesdeUltimaAlimentacion = 5; // Ejemplo
+    _diasDesdeUltimaCompostaLixiviado = 45; // Ejemplo
   }
 
   @override
   void dispose() {
-    _notaController.dispose();
-    _compostaController.dispose();
-    _lixiviadoController.dispose();
     super.dispose();
   }
 
   Future<void> _guardarEntrada() async {
-    if (_notaController.text.isEmpty) {
+    // ✅ Validar si tiene moscas y mostrar advertencia
+    if (_tieneMoscas) {
+      _mostrarDialogoMoscas();
+      return;
+    }
+
+    // ✅ Validar si tiene mal olor y mostrar advertencia
+    if (_tieneMalOlor) {
+      _mostrarDialogoMalOlor();
+      return;
+    }
+
+    // ✅ Verificar que al menos un tipo de residuo esté seleccionado
+    final tiposSeleccionados = _obtenerTiposSeleccionados();
+    if (tiposSeleccionados.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('📝 Escribe qué le diste de comer a tus lombrices'),
+          content: Text('⚠️ Selecciona al menos un tipo de residuo'),
           backgroundColor: Colors.orange,
         ),
       );
@@ -87,20 +101,14 @@ class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
     setState(() => _guardando = true);
 
     await _diarioService.guardarEntrada(
-      fotosRutas: [], // ✅ Sin fotos
-      nota: _notaController.text.isNotEmpty ? _notaController.text : null,
+      fotosRutas: [],
+      nota: 'Alimentación registrada',
       estado: _estadoSeleccionado,
-      humedad: null, // ✅ Sin humedad enviada en este formato antiguo
+      humedad: null,
       temperaturaTexto: _temperaturaSeleccionada,
-      tipoResiduo: _tipoResiduo,
-      produccionComposta:
-          _mostrarComposta && _compostaController.text.isNotEmpty
-              ? double.tryParse(_compostaController.text)
-              : null,
-      produccionLixiviado:
-          _mostrarLixiviado && _lixiviadoController.text.isNotEmpty
-              ? double.tryParse(_lixiviadoController.text)
-              : null,
+      tipoResiduo: tiposSeleccionados.join(', '),
+      produccionComposta: null,
+      produccionLixiviado: null,
     );
 
     await ActividadService().registrarActividad();
@@ -119,26 +127,71 @@ class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final hoy = DateTime.now();
-    final esDia1 = hoy.day == 1;
+  List<String> _obtenerTiposSeleccionados() {
+    final tipos = <String>[];
+    for (var i = 0; i < _tiposResiduo.length; i++) {
+      if (_tiposSeleccionados[i]) {
+        tipos.add(_tiposResiduo[i]);
+      }
+    }
+    return tipos;
+  }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('📝 Nueva entrada'),
-        backgroundColor: AppTheme.verde,
+  void _mostrarDialogoMoscas() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('🪰 ¡Moscas detectadas!'),
+        content: const Text(
+          'Cubrela con una malla para que no entren más moscas.',
+        ),
         actions: [
           TextButton(
-            onPressed: _guardando ? null : _guardarEntrada,
-            child: const Text(
-              'Guardar',
-              style: TextStyle(color: Colors.white, fontSize: 16),
-            ),
+            onPressed: () {
+              Navigator.pop(ctx);
+              setState(() => _tieneMoscas = false);
+            },
+            child: const Text('✅ Corregir'),
           ),
         ],
       ),
-      body: Container(
+    );
+  }
+
+  void _mostrarDialogoMalOlor() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('👃 ¡Mal olor detectado!'),
+        content: const Text(
+          'Agrega más material seco (hojas secas, cartón, aserrín) para equilibrar.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              setState(() => _tieneMalOlor = false);
+            },
+            child: const Text('✅ Corregir'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bool puedeAlimentar = _diasDesdeUltimaAlimentacion >= 7;
+    final bool puedeCompostaLixiviado = _diasDesdeUltimaCompostaLixiviado >= 60;
+
+    return Scaffold(
+    appBar: AppBar(
+      title: const Text('📝 Nueva entrada'),
+      backgroundColor: AppTheme.verde,
+    ),
+    body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage('assets/images/fondo.png'),
@@ -208,34 +261,8 @@ class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
 
                 const SizedBox(height: 20),
 
-                // ✅ "¿Qué le di de comer?"
-                const Text('🍽️ ¿Qué le di de comer?',
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.cafe)),
-                const SizedBox(height: 10),
-                TextField(
-                  controller: _notaController,
-                  maxLines: 3,
-                  decoration: InputDecoration(
-                    hintText:
-                        'Ej: Hoy les di cáscaras de plátano, manzana y restos de café ☕',
-                    hintStyle: TextStyle(color: Colors.grey[400]),
-                    filled: true,
-                    fillColor: const Color(0xFFF5F5F5),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: const EdgeInsets.all(16),
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                // ✅ Tipo de residuo
-                const Text('🍎 Tipo de residuo',
+                // ✅ Tipo de residuo (MÚLTIPLE SELECCIÓN)
+                const Text('🍎 Tipo de residuo (puedes seleccionar varios)',
                     style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -243,21 +270,411 @@ class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 8,
-                  children: _tiposResiduo.map((tipo) {
-                    final sel = _tipoResiduo == tipo;
-                    return ChoiceChip(
-                      label: Text(tipo,
-                          style: const TextStyle(color: Colors.black)),
-                      selected: sel,
+                  runSpacing: 8,
+                  children: List.generate(_tiposResiduo.length, (index) {
+                    return FilterChip(
+                      label: Text(
+                        _tiposResiduo[index],
+                        style: TextStyle(
+                          color: _tiposSeleccionados[index]
+                              ? AppTheme.verde
+                              : Colors.black87,
+                          fontWeight: _tiposSeleccionados[index]
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                        ),
+                      ),
+                      selected: _tiposSeleccionados[index],
+                      onSelected: (selected) {
+                        setState(() {
+                          _tiposSeleccionados[index] = selected;
+                        });
+                      },
                       selectedColor: AppTheme.verde.withValues(alpha: 0.3),
-                      onSelected: (_) => setState(() => _tipoResiduo = tipo),
+                      checkmarkColor: AppTheme.verde,
+                      backgroundColor: Colors.grey.shade50,
+                      side: BorderSide(
+                        color: _tiposSeleccionados[index]
+                            ? AppTheme.verde
+                            : Colors.grey.shade300,
+                        width: _tiposSeleccionados[index] ? 2 : 1,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     );
-                  }).toList(),
+                  }),
                 ),
 
                 const SizedBox(height: 20),
 
-                // Humedad
+                // ✅ MOSCAS
+                const Text('🪰 ¿Hay moscas dentro del recipiente?',
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.cafe)),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => _tieneMoscas = false),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            color: !_tieneMoscas
+                                ? AppTheme.verde.withValues(alpha: 0.2)
+                                : Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: !_tieneMoscas
+                                  ? AppTheme.verde
+                                  : Colors.grey.shade300,
+                              width: 2,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.check_circle,
+                                color: !_tieneMoscas
+                                    ? AppTheme.verde
+                                    : Colors.grey.shade400,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'No',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: !_tieneMoscas
+                                      ? AppTheme.verde
+                                      : Colors.grey.shade600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() => _tieneMoscas = true);
+                          _mostrarDialogoMoscas();
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            color: _tieneMoscas
+                                ? Colors.red.withValues(alpha: 0.2)
+                                : Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: _tieneMoscas
+                                  ? Colors.red
+                                  : Colors.grey.shade300,
+                              width: 2,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.cancel,
+                                color: _tieneMoscas
+                                    ? Colors.red
+                                    : Colors.grey.shade400,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Sí',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: _tieneMoscas
+                                      ? Colors.red
+                                      : Colors.grey.shade600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                if (_tieneMoscas)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                      ),
+                      child: const Row(
+                        children: [
+                          Icon(Icons.info, color: Colors.orange, size: 16),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              '💡 Cubrela con una malla para que no entren más moscas.',
+                              style: TextStyle(fontSize: 12, color: Colors.orange),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                const SizedBox(height: 20),
+
+                // ✅ MAL OLOR
+                const Text('👃 ¿Tiene mal olor?',
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.cafe)),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => _tieneMalOlor = false),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            color: !_tieneMalOlor
+                                ? AppTheme.verde.withValues(alpha: 0.2)
+                                : Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: !_tieneMalOlor
+                                  ? AppTheme.verde
+                                  : Colors.grey.shade300,
+                              width: 2,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.check_circle,
+                                color: !_tieneMalOlor
+                                    ? AppTheme.verde
+                                    : Colors.grey.shade400,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'No',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: !_tieneMalOlor
+                                      ? AppTheme.verde
+                                      : Colors.grey.shade600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() => _tieneMalOlor = true);
+                          _mostrarDialogoMalOlor();
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            color: _tieneMalOlor
+                                ? Colors.red.withValues(alpha: 0.2)
+                                : Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: _tieneMalOlor
+                                  ? Colors.red
+                                  : Colors.grey.shade300,
+                              width: 2,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.cancel,
+                                color: _tieneMalOlor
+                                    ? Colors.red
+                                    : Colors.grey.shade400,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Sí',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: _tieneMalOlor
+                                      ? Colors.red
+                                      : Colors.grey.shade600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                if (_tieneMalOlor)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                      ),
+                      child: const Row(
+                        children: [
+                          Icon(Icons.info, color: Colors.orange, size: 16),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              '💡 Agrega más material seco (hojas secas, cartón, aserrín) para equilibrar.',
+                              style: TextStyle(fontSize: 12, color: Colors.orange),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                const SizedBox(height: 20),
+
+                // ✅ Alimentación cada 7 días
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: puedeAlimentar
+                        ? AppTheme.verde.withValues(alpha: 0.1)
+                        : Colors.orange.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: puedeAlimentar
+                          ? AppTheme.verde.withValues(alpha: 0.3)
+                          : Colors.orange.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        puedeAlimentar
+                            ? Icons.check_circle
+                            : Icons.hourglass_empty,
+                        color: puedeAlimentar ? AppTheme.verde : Colors.orange,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '🍽️ Alimentación',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: puedeAlimentar
+                                    ? AppTheme.verde
+                                    : Colors.orange,
+                              ),
+                            ),
+                            Text(
+                              puedeAlimentar
+                                  ? '✅ ¡Puedes alimentar a tus lombrices hoy!'
+                                  : '⏳ Próxima alimentación en ${7 - _diasDesdeUltimaAlimentacion} días',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: puedeAlimentar
+                                    ? AppTheme.verde
+                                    : Colors.orange,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                // ✅ Composta y Lixiviado cada 2 meses
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: puedeCompostaLixiviado
+                        ? Colors.green.withValues(alpha: 0.1)
+                        : Colors.blue.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: puedeCompostaLixiviado
+                          ? Colors.green.withValues(alpha: 0.3)
+                          : Colors.blue.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        puedeCompostaLixiviado
+                            ? Icons.check_circle
+                            : Icons.calendar_today,
+                        color: puedeCompostaLixiviado
+                            ? Colors.green
+                            : Colors.blue,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '📊 Composta y Lixiviado',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: puedeCompostaLixiviado
+                                    ? Colors.green
+                                    : Colors.blue,
+                              ),
+                            ),
+                            Text(
+                              puedeCompostaLixiviado
+                                  ? '✅ ¡Ya puedes registrar tu composta y lixiviado!'
+                                  : '⏳ Próximo registro en ${60 - _diasDesdeUltimaCompostaLixiviado} días',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: puedeCompostaLixiviado
+                                    ? Colors.green
+                                    : Colors.blue,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // ✅ Humedad
                 const Text('💧 Humedad',
                     style: TextStyle(
                         fontSize: 16,
@@ -299,7 +716,7 @@ class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
 
                 const SizedBox(height: 12),
 
-                // Temperatura
+                // ✅ Temperatura
                 const Text('🌡️ Temperatura',
                     style: TextStyle(
                         fontSize: 16,
@@ -321,13 +738,13 @@ class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
                         onChanged: (val) {
                           setState(() {
                             _temperaturaValor = val.round();
-                            // Actualiza el texto según el valor del Slider para pasarlo al backend
                             if (_temperaturaValor <= 3) {
                               _temperaturaSeleccionada = '❄️ Frío';
-                            } else if (_temperaturaValor <= 6)
+                            } else if (_temperaturaValor <= 6) {
                               _temperaturaSeleccionada = '🌤️ Buen clima';
-                            else
+                            } else {
                               _temperaturaSeleccionada = '☀️ Caliente';
+                            }
                           });
                         },
                       ),
@@ -348,117 +765,6 @@ class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
                     style: const TextStyle(fontSize: 13),
                   ),
                 ),
-
-                // ✅ Mensaje informativo si NO es día 1
-                if (!esDia1) ...[
-                  const SizedBox(height: 20),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
-                      border:
-                          Border.all(color: Colors.blue.withValues(alpha: 0.3)),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(Icons.info_outline, size: 20, color: Colors.blue),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            '📅 La composta y el lixiviado se registran el día 1 de cada mes.',
-                            style: TextStyle(fontSize: 13, color: Colors.blue),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-
-                // ✅ Campos de composta y lixiviado (solo día 1)
-                if (esDia1) ...[
-                  const SizedBox(height: 20),
-                  const Divider(),
-                  const SizedBox(height: 10),
-                  const Text(
-                    '📊 Registro mensual',
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.cafe),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Solo disponible el día 1 de cada mes',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      // Composta
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('🪱 Composta (puños)',
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppTheme.cafe)),
-                            const SizedBox(height: 6),
-                            TextField(
-                              controller: _compostaController,
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                hintText: 'Ej: 2',
-                                suffixText: 'puos',
-                                filled: true,
-                                fillColor: const Color(0xFFF5F5F5),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide.none,
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 10),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      // Lixiviado
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('💧 Lixiviado (cuch.)',
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppTheme.cafe)),
-                            const SizedBox(height: 6),
-                            TextField(
-                              controller: _lixiviadoController,
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                hintText: 'Ej: 3',
-                                suffixText: 'cuch.',
-                                filled: true,
-                                fillColor: const Color(0xFFF5F5F5),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide.none,
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 10),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
 
                 const SizedBox(height: 30),
 

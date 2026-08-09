@@ -514,6 +514,92 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
     );
   }
 
+  Widget _buildSubmenuVentas() {
+    final Color colorVentas = const Color(0xFFFF7043);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: colorVentas.withValues(alpha: 0.4), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          dividerColor: Colors.transparent,
+        ),
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+          leading: Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: colorVentas.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Center(
+              child: Text('💰', style: TextStyle(fontSize: 20)),
+            ),
+          ),
+          title: const Text(
+            'Ventas',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
+              color: Colors.black,
+            ),
+          ),
+          trailing: Icon(Icons.keyboard_arrow_down, color: colorVentas),
+          children: [
+            _buildOpcion(
+              'Venta de lombrices',
+              'Precio: \$2.50 c/u',
+              '🏷️',
+              () => _irAPantalla(const VentasLombricesScreen()),
+              color: colorVentas,
+            ),
+            _buildOpcion(
+              'Venta de humus',
+              'Precio: \$10 por bolsita',
+              '🌱',
+              () => _irAPantalla(const VentasHumusScreen()),
+              color: colorVentas,
+            ),
+            _buildOpcion(
+              'Venta de lixiviado',
+              'Precio: \$25',
+              '💦',
+              () => _irAPantalla(const VentasAtomizadorScreen()),
+              color: colorVentas,
+            ),
+            _buildOpcion(
+              'Ventas totales',
+              'Historial de ingresos',
+              '🧾',
+              () => _irAPantalla(const VentasHistorialScreen()),
+              color: colorVentas,
+            ),
+            _buildOpcion(
+              'Venta de capacitación',
+              'Capacita a otros niños',
+              '🎓',
+              () => _irAPantalla(const CapacitacionScreen()),
+              color: colorVentas,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1062,60 +1148,37 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                       index: 3,
                       opciones: [
                         _buildOpcion(
-                            'Matemáticas de negocios',
-                            'Gana monedas resolviendo',
-                            '🧮',
-                            () => _irAPantalla(
-                                const ProblemasMatematicosScreen()),
-                            color: const Color(0xFFFF7043)),
+                          'Matemáticas de negocios',
+                          'Gana monedas resolviendo',
+                          '🧮',
+                          () => _irAPantalla(const ProblemasMatematicosScreen()),
+                          color: const Color(0xFFFF7043),
+                        ),
                         _buildOpcion(
-                            'Muestra de mi negocio',
-                            'Mi Lombricompostero en casa',
-                            '🚩',
-                            () => _irAPantalla(const RetosScreen()),
-                            color: const Color(0xFF42A5F5)),
-                        _buildOpcion('Mi diario', 'Registra tu avance', '📝',
-                            () => _irAPantalla(const NuevaEntradaScreen()),
-                            color: const Color(0xFFFFA726)),
+                          'Muestra de mi negocio',
+                          'Mi Lombricompostero en casa',
+                          '🚩',
+                          () => _irAPantalla(const RetosScreen()),
+                          color: const Color(0xFF42A5F5),
+                        ),
                         _buildOpcion(
-                            'Venta de lombrices',
-                            'Precio: \$2.50 c/u',
-                            '🏷️',
-                            () => _irAPantalla(const VentasLombricesScreen()),
-                            color: const Color(0xFFFF7043)),
+                          'Mi diario',
+                          'Registra tu avance',
+                          '📝',
+                          () => _irAPantalla(const NuevaEntradaScreen()),
+                          color: const Color(0xFFFFA726),
+                        ),
+                        
+                        // ✅ SUBMENÚ DE VENTAS
+                        _buildSubmenuVentas(),
+                        
                         _buildOpcion(
-                            'Venta de humus',
-                            'Precio: \$10 por bolsita',
-                            '🌱',
-                            () => _irAPantalla(const VentasHumusScreen()),
-                            color: const Color(0xFFFF7043)),
-                        _buildOpcion('Venta de lixiviado', 'Precio: \$25', '💦',
-                            () => _irAPantalla(const VentasAtomizadorScreen()),
-                            color: const Color(0xFFFF7043)),
-                        _buildOpcion(
-                            'Venta de capacitación',
-                            'Capacita a otros niños',
-                            '🎓',
-                            () => _irAPantalla(const CapacitacionScreen()),
-                            color: const Color(0xFFFF7043)),
-                        _buildOpcion(
-                            'Ventas totales',
-                            'Historial de ingresos',
-                            '🧾',
-                            () => _irAPantalla(const VentasHistorialScreen()),
-                            color: const Color(0xFFFF7043)),
-                        _buildOpcion(
-                            'Compra de accesorios',
-                            'Personaliza a tu lombriz',
-                            '🛍️',
-                            () => _irAPantalla(const AccesoriosScreen()),
-                            color: const Color(0xFFFF7043)),
-                        _buildOpcion(
-                            'Recordatorios',
-                            'Alertas y cuidados',
-                            '🔔',
-                            () => _irAPantalla(const RecordatoriosScreen()),
-                            color: const Color(0xFF42A5F5)),
+                          'Compra de accesorios',
+                          'Personaliza a tu lombriz',
+                          '🛍️',
+                          () => _irAPantalla(const AccesoriosScreen()),
+                          color: const Color(0xFFFF7043),
+                        ),
                       ],
                     ),
                     // ==================== MIS JUEGOS ====================
