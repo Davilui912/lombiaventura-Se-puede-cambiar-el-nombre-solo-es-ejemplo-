@@ -516,7 +516,7 @@ class _RetosScreenState extends State<RetosScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('🎯 Retos'),
+        title: const Text('Muestra de mi negocio'),
         backgroundColor: AppTheme.verde,
       ),
       body: Container(

@@ -639,7 +639,7 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                   children: [
                     // ==================== APRENDIZAJE ====================
                     _buildCategoria(
-                      titulo: 'Aprendizaje',
+                      titulo: 'LombriAula',
                       subtitulo: 'Descubre y aprende',
                       color: const Color(0xFF43A047),
                       color2: const Color(0xFF66BB6A),
@@ -1074,9 +1074,6 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                         _buildOpcion('Mis logros', 'Insignias y medallas', '🏆',
                             () => _irAPantalla(const LogrosScreen()),
                             color: const Color(0xFF42A5F5)),
-                        _buildOpcion('Retos', 'Completa los desafíos', '🚩',
-                            () => _irAPantalla(const RetosScreen()),
-                            color: const Color(0xFF42A5F5)),
                         _buildOpcion(
                             'Recordatorios',
                             'Alertas y cuidados',
@@ -1094,29 +1091,35 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                       iconImage: 'assets/images/icons/icono_negocio.png',
                       index: 3,
                       opciones: [
+                         _buildOpcion(
+                            'Matemáticas de negocios',
+                            'Gana monedas resolviendo',
+                            '🧮',
+                            () => _irAPantalla(
+                                const ProblemasMatematicosScreen()),
+                            color: const Color(0xFFFF7043)),
+                        _buildOpcion('Muestra de mi negocio', 'Mi Lombricompostero en casa', '🚩',
+                            () => _irAPantalla(const RetosScreen()),
+                            color: const Color(0xFF42A5F5)),
+                        _buildOpcion('Mi diario', 'Registra tu avance', '📝',
+                            () => _irAPantalla(const NuevaEntradaScreen()),
+                            color: const Color(0xFFFFA726)),
                         _buildOpcion(
-                            'Vender lombrices',
+                            'Venta de lombrices',
                             'Precio: \$2.50 c/u',
                             '🏷️',
                             () => _irAPantalla(const VentasLombricesScreen()),
                             color: const Color(0xFFFF7043)),
-                        _buildOpcion('Vender humus', 'Precio: \$10 por bolsita',
+                        _buildOpcion(
+                            'Venta de humus', 
+                            'Precio: \$10 por bolsita',
                             '🌱', () => _irAPantalla(const VentasHumusScreen()),
                             color: const Color(0xFFFF7043)),
-                        _buildOpcion('Vender lixiviado', 'Precio: \$25', '💦',
-                            () => _irAPantalla(const VentasAtomizadorScreen()),
-                            color: const Color(0xFFFF7043)),
                         _buildOpcion(
-                            'Ventas totales',
-                            'Historial de ingresos',
-                            '🧾',
-                            () => _irAPantalla(const VentasHistorialScreen()),
-                            color: const Color(0xFFFF7043)),
-                        _buildOpcion('Mi diario', 'Registra tu avance', '📝',
-                            () => _irAPantalla(const NuevaEntradaScreen()),
-                            color: const Color(0xFFFFA726)),
-                        _buildOpcion('Accesorios', 'Personaliza a tu lombriz',
-                            '🛍️', () => _irAPantalla(const AccesoriosScreen()),
+                            'Venta de lixiviado',
+                            'Precio: \$25',
+                            '💦',
+                            () => _irAPantalla(const VentasAtomizadorScreen()),
                             color: const Color(0xFFFF7043)),
                         _buildOpcion(
                             'Venta de capacitación',
@@ -1125,11 +1128,13 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                             () => _irAPantalla(const CapacitacionScreen()),
                             color: const Color(0xFFFF7043)),
                         _buildOpcion(
-                            'Matematicas de negocios',
-                            'Gana monedas resolviendo',
-                            '🧮',
-                            () => _irAPantalla(
-                                const ProblemasMatematicosScreen()),
+                            'Ventas totales',
+                            'Historial de ingresos',
+                            '🧾',
+                            () => _irAPantalla(const VentasHistorialScreen()),
+                            color: const Color(0xFFFF7043)),
+                        _buildOpcion('Compra de accesorios', 'Personaliza a tu lombriz',
+                            '🛍️', () => _irAPantalla(const AccesoriosScreen()),
                             color: const Color(0xFFFF7043)),
                       ],
                     ),
@@ -1138,6 +1143,7 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                 ),
               ),
             ),
+
             // ✅ Banner promocional fijo al final
             if (_mostrarBanner)
               Container(
