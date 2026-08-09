@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../services/monedas_service.dart';
+import '../services/actividad_service.dart';
+import '../services/monedas_service.dart';
 
-/// Pantalla de Progreso.
 /// - Arriba izquierda: botón de retroceso a la pantalla principal.
 /// - Arriba derecha: monedas del usuario.
 /// - Banner de racha con franjas diagonales (estilo Duolingo).
@@ -26,16 +26,28 @@ class ProgressScreen extends StatefulWidget {
 
 class _ProgressScreenState extends State<ProgressScreen> {
   late final Future<int> _coinsFuture;
+  late Future<int> _streakFuture;
 
   @override
   void initState() {
     super.initState();
     _coinsFuture = _loadCurrentCoins();
+    _streakFuture = _loadCurrentStreak();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _streakFuture = _loadCurrentStreak();
   }
 
   Future<int> _loadCurrentCoins() async {
     await MonedasService().init();
     return MonedasService().obtenerMonedas();
+  }
+
+  Future<int> _loadCurrentStreak() async {
+    return ActividadService().obtenerRacha();
   }
 
   @override
@@ -62,7 +74,14 @@ class _ProgressScreenState extends State<ProgressScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        _StreakBanner(days: widget.streakDays),
+                        FutureBuilder<int>(
+                          future: _streakFuture,
+                          builder: (context, snapshot) {
+                            final streakDays =
+                                snapshot.data ?? widget.streakDays;
+                            return _StreakBanner(days: streakDays);
+                          },
+                        ),
                         const SizedBox(height: 16),
                         _RecordCard(days: widget.recordDays),
                       ],

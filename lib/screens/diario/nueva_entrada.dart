@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../config/theme.dart';
+import '../../services/actividad_service.dart';
 import '../../services/monedas_service.dart';
 import '../../services/diario_service.dart';
 import '../../services/sound_service.dart';
@@ -102,6 +103,7 @@ class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
               : null,
     );
 
+    await ActividadService().registrarActividad();
     await MonedasService().ganarPorActividad('diario');
 
     if (mounted) {

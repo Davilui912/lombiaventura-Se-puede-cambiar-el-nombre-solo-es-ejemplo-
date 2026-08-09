@@ -598,16 +598,48 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
               return const SizedBox.shrink();
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.trending_up_rounded, color: Colors.white),
-            onPressed: () => _irAPantalla(
+          GestureDetector(
+            onTap: () => _irAPantalla(
               ProgressScreen(
                 coins: MonedasService().obtenerMonedas(),
                 streakDays: 7,
                 recordDays: 15,
               ),
             ),
-            tooltip: 'Progreso',
+            child: Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color.fromARGB(255, 76, 196, 240),
+                    Color.fromARGB(255, 30, 111, 217)
+                  ],
+                ),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color.fromARGB(255, 19, 25, 146),
+                    offset: Offset(0, 5),
+                    blurRadius: 0,
+                  ),
+                  BoxShadow(
+                    color: Colors.black26,
+                    offset: Offset(0, 6),
+                    blurRadius: 8,
+                  ),
+                ],
+              ),
+              child: const Center(
+                child: Icon(
+                  Icons.trending_up_rounded,
+                  color: Colors.white,
+                  size: 28,
+                ),
+              ),
+            ),
           ),
           IconButton(
             icon: const Icon(Icons.person_sharp, color: Colors.white),
@@ -1020,7 +1052,7 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                         ),
                       ],
                     ),
-                                        // ==================== MI NEGOCIO REAL ====================
+                    // ==================== MI NEGOCIO REAL ====================
                     _buildCategoria(
                       titulo: 'Mi negocio real',
                       subtitulo: 'Vende y capacita',
@@ -1029,14 +1061,17 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                       iconImage: 'assets/images/icons/icono_negocio.png',
                       index: 3,
                       opciones: [
-                         _buildOpcion(
+                        _buildOpcion(
                             'Matemáticas de negocios',
                             'Gana monedas resolviendo',
                             '🧮',
                             () => _irAPantalla(
                                 const ProblemasMatematicosScreen()),
                             color: const Color(0xFFFF7043)),
-                        _buildOpcion('Muestra de mi negocio', 'Mi Lombricompostero en casa', '🚩',
+                        _buildOpcion(
+                            'Muestra de mi negocio',
+                            'Mi Lombricompostero en casa',
+                            '🚩',
                             () => _irAPantalla(const RetosScreen()),
                             color: const Color(0xFF42A5F5)),
                         _buildOpcion('Mi diario', 'Registra tu avance', '📝',
@@ -1049,14 +1084,12 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                             () => _irAPantalla(const VentasLombricesScreen()),
                             color: const Color(0xFFFF7043)),
                         _buildOpcion(
-                            'Venta de humus', 
+                            'Venta de humus',
                             'Precio: \$10 por bolsita',
-                            '🌱', () => _irAPantalla(const VentasHumusScreen()),
+                            '🌱',
+                            () => _irAPantalla(const VentasHumusScreen()),
                             color: const Color(0xFFFF7043)),
-                        _buildOpcion(
-                            'Venta de lixiviado',
-                            'Precio: \$25',
-                            '💦',
+                        _buildOpcion('Venta de lixiviado', 'Precio: \$25', '💦',
                             () => _irAPantalla(const VentasAtomizadorScreen()),
                             color: const Color(0xFFFF7043)),
                         _buildOpcion(
@@ -1071,8 +1104,11 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                             '🧾',
                             () => _irAPantalla(const VentasHistorialScreen()),
                             color: const Color(0xFFFF7043)),
-                        _buildOpcion('Compra de accesorios', 'Personaliza a tu lombriz',
-                            '🛍️', () => _irAPantalla(const AccesoriosScreen()),
+                        _buildOpcion(
+                            'Compra de accesorios',
+                            'Personaliza a tu lombriz',
+                            '🛍️',
+                            () => _irAPantalla(const AccesoriosScreen()),
                             color: const Color(0xFFFF7043)),
                         _buildOpcion(
                             'Recordatorios',
