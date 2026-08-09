@@ -15,7 +15,7 @@ class RecordatoriosService {
       'id': 'alimentar_diario',
       'titulo': '🍎 Alimentar lombrices',
       'mensaje': '¡Es momento de alimentar a tus lombrices! Recuerda darles cáscaras de frutas y verduras en trozos pequeños. 🪱',
-      'frecuenciaDias': 1,
+      'frecuenciaDias': 7,
       'icono': '🍎',
     },
     {
@@ -33,25 +33,32 @@ class RecordatoriosService {
       'icono': '🌡️',
     },
     
+    {
+      'id': 'olor',
+      'titulo': '💧 Mal Olor',
+      'mensaje': 'La lombricomposta no tiene malos olores, así que agrega más material seco.',
+      'frecuenciaDias': 1,
+      'icono': '💧',
+    },
     // Recordatorios existentes
     {
-      'id': 'humedad',
-      'titulo': '💧 Revisar humedad',
-      'mensaje': 'Toca la tierra. Debe sentirse como una esponja exprimida. Si está seca, rocía un poco de agua.',
-      'frecuenciaDias': 2,
+      'id': 'insectos',
+      'titulo': '💧 Insectos',
+      'mensaje': 'Si observas moscas dentro del recipiente, cubrela con una malla.',
+      'frecuenciaDias': 1,
       'icono': '💧',
     },
     {
       'id': 'foto',
       'titulo': '📸 Foto de progreso',
       'mensaje': 'Toma una foto de tu composta para ver cómo crece. ¡En unos meses verás el cambio!',
-      'frecuenciaDias': 5,
+      'frecuenciaDias': 7,
       'icono': '📸',
     },
     {
       'id': 'consejo',
       'titulo': '🌱 Consejo ecológico',
-      'mensaje': '¿Sabías que las lombrices pueden comer la mitad de su peso en un día? ¡Son súper trabajadoras!',
+      'mensaje': '¿Sabías que las lombrices pueden comer el tamaño de su peso en un día? ¡Son súper trabajadoras!',
       'frecuenciaDias': 1,
       'icono': '💡',
     },

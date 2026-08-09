@@ -1020,69 +1020,7 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                         ),
                       ],
                     ),
-                    // ==================== MIS JUEGOS ====================
-                    _buildCategoria(
-                      titulo: 'Mis juegos',
-                      subtitulo: 'Juega y aprende',
-                      color: const Color(0xFFFFA726),
-                      color2: const Color(0xFFFFCA28),
-                      iconImage: 'assets/images/icons/icono_composta.png',
-                      index: 1,
-                      opciones: [
-                        _buildOpcion(
-                          'Clasifica residuos',
-                          'Aprende a separar los residuos',
-                          '♻️',
-                          () => _irAPantalla(const ClasificaResiduosScreen()),
-                          color: const Color(0xFFFFA726),
-                        ),
-                        _buildOpcion(
-                          'Bocados Sorpresa',
-                          'Arrastra a la lombriz para comer los alimentos buenos',
-                          '🍎',
-                          () =>
-                              _irAPantalla(const SelectorNivelAlimentaScreen()),
-                          color: const Color(0xFFFFA726),
-                        ),
-                        _buildOpcion(
-                          'Lluvia Deliciosa',
-                          'Atrapa la comida que cae y evita los aparatos electrónicos',
-                          '🧺',
-                          () =>
-                              _irAPantalla(const SelectorNivelCayendoScreen()),
-                          color: const Color(0xFFFFA726),
-                        ),
-                        _buildOpcion(
-                          'Memorama ecológico',
-                          'Encuentra las parejas',
-                          '🃏',
-                          () => _irAPantalla(const MemoramaScreen()),
-                          color: const Color(0xFFFFA726),
-                        ),
-                        // Puedes agregar más juegos aquí si quieres
-                      ],
-                    ),
-                    // ==================== PROGRESO ====================
-                    _buildCategoria(
-                      titulo: 'Progreso',
-                      subtitulo: 'Revisa tus logros',
-                      color: const Color(0xFF42A5F5),
-                      color2: const Color(0xFF64B5F6),
-                      iconImage: 'assets/images/icons/icono_progreso.png',
-                      index: 2,
-                      opciones: [
-                        _buildOpcion('Mis logros', 'Insignias y medallas', '🏆',
-                            () => _irAPantalla(const LogrosScreen()),
-                            color: const Color(0xFF42A5F5)),
-                        _buildOpcion(
-                            'Recordatorios',
-                            'Alertas y cuidados',
-                            '🔔',
-                            () => _irAPantalla(const RecordatoriosScreen()),
-                            color: const Color(0xFF42A5F5)),
-                      ],
-                    ),
-                    // ==================== MI NEGOCIO REAL ====================
+                                        // ==================== MI NEGOCIO REAL ====================
                     _buildCategoria(
                       titulo: 'Mi negocio real',
                       subtitulo: 'Vende y capacita',
@@ -1136,6 +1074,54 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                         _buildOpcion('Compra de accesorios', 'Personaliza a tu lombriz',
                             '🛍️', () => _irAPantalla(const AccesoriosScreen()),
                             color: const Color(0xFFFF7043)),
+                        _buildOpcion(
+                            'Recordatorios',
+                            'Alertas y cuidados',
+                            '🔔',
+                            () => _irAPantalla(const RecordatoriosScreen()),
+                            color: const Color(0xFF42A5F5)),
+                      ],
+                    ),
+                    // ==================== MIS JUEGOS ====================
+                    _buildCategoria(
+                      titulo: 'Mis juegos',
+                      subtitulo: 'Juega y aprende',
+                      color: const Color(0xFFFFA726),
+                      color2: const Color(0xFFFFCA28),
+                      iconImage: 'assets/images/icons/icono_composta.png',
+                      index: 1,
+                      opciones: [
+                        _buildOpcion(
+                          'Clasifica residuos',
+                          'Aprende a separar los residuos',
+                          '♻️',
+                          () => _irAPantalla(const ClasificaResiduosScreen()),
+                          color: const Color(0xFFFFA726),
+                        ),
+                        _buildOpcion(
+                          'Bocados Sorpresa',
+                          'Arrastra a la lombriz para comer los alimentos buenos',
+                          '🍎',
+                          () =>
+                              _irAPantalla(const SelectorNivelAlimentaScreen()),
+                          color: const Color(0xFFFFA726),
+                        ),
+                        _buildOpcion(
+                          'Lluvia Deliciosa',
+                          'Atrapa la comida que cae y evita los aparatos electrónicos',
+                          '🧺',
+                          () =>
+                              _irAPantalla(const SelectorNivelCayendoScreen()),
+                          color: const Color(0xFFFFA726),
+                        ),
+                        _buildOpcion(
+                          'Memorama ecológico',
+                          'Encuentra las parejas',
+                          '🃏',
+                          () => _irAPantalla(const MemoramaScreen()),
+                          color: const Color(0xFFFFA726),
+                        ),
+                        // Puedes agregar más juegos aquí si quieres
                       ],
                     ),
                     const SizedBox(height: 12),
