@@ -522,7 +522,8 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: colorVentas.withValues(alpha: 0.4), width: 1.5),
+        border:
+            Border.all(color: colorVentas.withValues(alpha: 0.4), width: 1.5),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -684,6 +685,7 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
               return const SizedBox.shrink();
             },
           ),
+          // ----------Botón de progreso---------
           GestureDetector(
             onTap: () => _irAPantalla(
               ProgressScreen(
@@ -693,21 +695,21 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
               ),
             ),
             child: Container(
-              width: 52,
-              height: 52,
+              width: 40,
+              height: 30,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(20),
                 gradient: const LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
                     Color.fromARGB(255, 76, 196, 240),
-                    Color.fromARGB(255, 30, 111, 217)
+                    Color.fromARGB(255, 60, 154, 248)
                   ],
                 ),
                 boxShadow: const [
                   BoxShadow(
-                    color: Color.fromARGB(255, 19, 25, 146),
+                    color: Color.fromARGB(255, 18, 111, 224),
                     offset: Offset(0, 5),
                     blurRadius: 0,
                   ),
@@ -727,6 +729,7 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
               ),
             ),
           ),
+          // ----------Botón de perfil---------
           IconButton(
             icon: const Icon(Icons.person_sharp, color: Colors.white),
             onPressed: () => _irAPantalla(const PerfilScreen()),
@@ -1151,7 +1154,8 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                           'Matemáticas de negocios',
                           'Gana monedas resolviendo',
                           '🧮',
-                          () => _irAPantalla(const ProblemasMatematicosScreen()),
+                          () =>
+                              _irAPantalla(const ProblemasMatematicosScreen()),
                           color: const Color(0xFFFF7043),
                         ),
                         _buildOpcion(
@@ -1168,10 +1172,10 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                           () => _irAPantalla(const NuevaEntradaScreen()),
                           color: const Color(0xFFFFA726),
                         ),
-                        
+
                         // ✅ SUBMENÚ DE VENTAS
                         _buildSubmenuVentas(),
-                        
+
                         _buildOpcion(
                           'Compra de accesorios',
                           'Personaliza a tu lombriz',

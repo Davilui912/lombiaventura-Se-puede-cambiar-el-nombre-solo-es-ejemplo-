@@ -187,11 +187,11 @@ class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
     final bool puedeCompostaLixiviado = _diasDesdeUltimaCompostaLixiviado >= 60;
 
     return Scaffold(
-    appBar: AppBar(
-      title: const Text('📝 Nueva entrada'),
-      backgroundColor: AppTheme.verde,
-    ),
-    body: Container(
+      appBar: AppBar(
+        title: const Text('📝 Nueva entrada'),
+        backgroundColor: AppTheme.verde,
+      ),
+      body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage('assets/images/fondo.png'),
@@ -337,13 +337,13 @@ class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
-                                Icons.check_circle,
-                                color: !_tieneMoscas
-                                    ? AppTheme.verde
-                                    : Colors.grey.shade400,
-                                size: 20,
-                              ),
+                              // Icon(
+                              //   Icons.check_circle,
+                              //   color: !_tieneMoscas
+                              //       ? AppTheme.verde
+                              //       : Colors.grey.shade400,
+                              //   size: 20,
+                              // ),
                               const SizedBox(width: 8),
                               Text(
                                 'No',
@@ -383,13 +383,13 @@ class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
-                                Icons.cancel,
-                                color: _tieneMoscas
-                                    ? Colors.red
-                                    : Colors.grey.shade400,
-                                size: 20,
-                              ),
+                              // Icon(
+                              //   Icons.cancel,
+                              //   color: _tieneMoscas
+                              //       ? Colors.red
+                              //       : Colors.grey.shade400,
+                              //   size: 20,
+                              // ),
                               const SizedBox(width: 8),
                               Text(
                                 'Sí',
@@ -415,7 +415,8 @@ class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
                       decoration: BoxDecoration(
                         color: Colors.orange.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                        border: Border.all(
+                            color: Colors.orange.withValues(alpha: 0.3)),
                       ),
                       child: const Row(
                         children: [
@@ -424,7 +425,8 @@ class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
                           Expanded(
                             child: Text(
                               '💡 Cubrela con una malla para que no entren más moscas.',
-                              style: TextStyle(fontSize: 12, color: Colors.orange),
+                              style:
+                                  TextStyle(fontSize: 12, color: Colors.orange),
                             ),
                           ),
                         ],
@@ -463,13 +465,13 @@ class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
-                                Icons.check_circle,
-                                color: !_tieneMalOlor
-                                    ? AppTheme.verde
-                                    : Colors.grey.shade400,
-                                size: 20,
-                              ),
+                              // Icon(
+                              //   Icons.check_circle,
+                              //   color: !_tieneMalOlor
+                              //       ? AppTheme.verde
+                              //       : Colors.grey.shade400,
+                              //   size: 20,
+                              // ),
                               const SizedBox(width: 8),
                               Text(
                                 'No',
@@ -509,13 +511,13 @@ class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
-                                Icons.cancel,
-                                color: _tieneMalOlor
-                                    ? Colors.red
-                                    : Colors.grey.shade400,
-                                size: 20,
-                              ),
+                              // Icon(
+                              //   Icons.cancel,
+                              //   color: _tieneMalOlor
+                              //       ? Colors.red
+                              //       : Colors.grey.shade400,
+                              //   size: 20,
+                              // ),
                               const SizedBox(width: 8),
                               Text(
                                 'Sí',
@@ -541,7 +543,8 @@ class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
                       decoration: BoxDecoration(
                         color: Colors.orange.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                        border: Border.all(
+                            color: Colors.orange.withValues(alpha: 0.3)),
                       ),
                       child: const Row(
                         children: [
@@ -550,7 +553,8 @@ class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
                           Expanded(
                             child: Text(
                               '💡 Agrega más material seco (hojas secas, cartón, aserrín) para equilibrar.',
-                              style: TextStyle(fontSize: 12, color: Colors.orange),
+                              style:
+                                  TextStyle(fontSize: 12, color: Colors.orange),
                             ),
                           ),
                         ],
@@ -636,9 +640,8 @@ class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
                         puedeCompostaLixiviado
                             ? Icons.check_circle
                             : Icons.calendar_today,
-                        color: puedeCompostaLixiviado
-                            ? Colors.green
-                            : Colors.blue,
+                        color:
+                            puedeCompostaLixiviado ? Colors.green : Colors.blue,
                       ),
                       const SizedBox(width: 10),
                       Expanded(

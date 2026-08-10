@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 import '../services/actividad_service.dart';
 import '../services/monedas_service.dart';
 
-/// - Arriba izquierda: botón de retroceso a la pantalla principal.
-/// - Arriba derecha: monedas del usuario.
-/// - Banner de racha con franjas diagonales (estilo Duolingo).
-/// - Tarjeta de récord (el cuadro verde de "Total de puntos" se omitió).
 class ProgressScreen extends StatefulWidget {
   final int coins;
   final int streakDays;
