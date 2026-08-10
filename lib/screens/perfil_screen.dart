@@ -15,8 +15,8 @@ class PerfilScreen extends StatefulWidget {
 class _PerfilScreenState extends State<PerfilScreen> {
   String _usuario = '';
   String _nombreCompleto = '';
-  String _edad = '?';
-  String _ciudad = '?';
+  String _edad = 'No especificada';
+  String _ciudad = 'No especificada';
   String _fechaRegistro = '';
   String? _fotoPerfil;
   bool _isLoading = true;
@@ -34,26 +34,41 @@ class _PerfilScreenState extends State<PerfilScreen> {
     
     try {
       final configBox = await Hive.openBox('configuracion');
+      final usuariosBox = await Hive.openBox('usuarios');
+      final listaUsuarios = usuariosBox.get('lista', defaultValue: <Map<String, dynamic>>[]);
       
-      print('📦 DATOS EN HIVE (PERFIL):');
-      print('  - usuario_actual: ${configBox.get('usuario_actual')}');
-      print('  - usuario_nombre: ${configBox.get('usuario_nombre')}');
-      print('  - usuario_edad: ${configBox.get('usuario_edad')}');
-      print('  - usuario_ciudad: ${configBox.get('usuario_ciudad')}');
+      final usuarioActual = configBox.get('usuario_actual', defaultValue: '');
+      
+      // Buscar el usuario en la lista
+      Map<String, dynamic>? usuarioData;
+      for (var item in listaUsuarios) {
+        if (item['nombre_usuario'] == usuarioActual) {
+          usuarioData = item;
+          break;
+        }
+      }
+      
+      // Obtener edad y ciudad
+      String edadTemp = configBox.get('usuario_edad', defaultValue: '');
+      if (edadTemp.isEmpty && usuarioData != null) {
+        edadTemp = usuarioData['edad']?.toString() ?? '';
+      }
+      
+      String ciudadTemp = configBox.get('usuario_ciudad', defaultValue: '');
+      if (ciudadTemp.isEmpty && usuarioData != null) {
+        ciudadTemp = usuarioData['ciudad']?.toString() ?? '';
+      }
       
       setState(() {
-        _usuario = configBox.get('usuario_actual', defaultValue: '');
+        _usuario = usuarioActual;
         _nombreCompleto = configBox.get('usuario_nombre', defaultValue: 'Lombrikid');
-        _edad = configBox.get('usuario_edad', defaultValue: 'No especificada');
-        _ciudad = configBox.get('usuario_ciudad', defaultValue: 'No especificada');
+        _edad = edadTemp.isNotEmpty ? edadTemp : 'No especificada';
+        _ciudad = ciudadTemp.isNotEmpty ? ciudadTemp : 'No especificada';
         _fechaRegistro = configBox.get('usuario_fecha_registro', defaultValue: DateTime.now().toIso8601String());
         _fotoPerfil = configBox.get('usuario_foto_perfil');
         _isLoading = false;
       });
-      
-      print('✅ Perfil cargado: edad=$_edad, ciudad=$_ciudad');
     } catch (e) {
-      print('❌ Error cargando perfil: $e');
       setState(() => _isLoading = false);
     }
   }
@@ -205,8 +220,6 @@ class _PerfilScreenState extends State<PerfilScreen> {
 
     if (confirm == true) {
       final configBox = await Hive.openBox('configuracion');
-      
-      // ✅ CAMBIO APLICADO: Solo marcamos que la sesión ya no está activa, sin borrar los datos locales
       await configBox.put('login_exitoso', false);
       
       if (mounted) {
