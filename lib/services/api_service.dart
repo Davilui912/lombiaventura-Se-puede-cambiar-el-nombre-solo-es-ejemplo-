@@ -58,6 +58,10 @@ class ApiService {
     String? genero,
   }) async {
     try {
+      print('📤 Enviando a /usuarios:');
+      print('  uid: $uid');
+      print('  nombreUsuario: $nombreUsuario');
+      
       final res = await http
           .post(
             _uri('/usuarios'),
@@ -67,25 +71,32 @@ class ApiService {
               'nombre': nombre,
               'nombre_usuario': nombreUsuario,
               'email': email,
+              'edad': edad,
+              'ciudad': ciudad,
+              'genero': genero,
               'pregunta_seguridad': preguntaSeguridad,
               'respuesta_seguridad': respuestaSeguridad,
-              if (edad != null) 'edad': edad,
-              if (ciudad != null) 'ciudad': ciudad,
-              if (genero != null) 'genero': genero,
             }),
           )
           .timeout(_timeout);
+      
+      print('📥 Respuesta de API: ${res.statusCode}');
+      print('📥 Body: ${res.body}');
+      
       return _handle(res, (b) => Usuario.fromJson(b));
     } catch (e) {
+      print('❌ Error en API: $e');
       return _catch(e);
     }
   }
 
+  /// ✅ Obtener usuario por nombre de usuario
   Future<ApiResult<Usuario>> obtenerUsuario(String nombreUsuario) async {
     try {
       final res = await http
           .get(_uri('/usuarios'), headers: _headers)
           .timeout(_timeout);
+      
       if (res.statusCode >= 200 && res.statusCode < 300) {
         final data = jsonDecode(res.body) as List;
         for (var item in data) {

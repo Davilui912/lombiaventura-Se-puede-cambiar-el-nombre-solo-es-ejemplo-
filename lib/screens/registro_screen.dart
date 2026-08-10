@@ -64,101 +64,134 @@ class _RegistroScreenState extends State<RegistroScreen> {
     );
   }
 
-  Future<void> _registrarUsuario() async {
-    if (!_privacidadAceptada) {
-      setState(() => _errorMessage = 'Debes aceptar el Aviso de Privacidad para continuar');
-      return;
+Future<void> _registrarUsuario() async {
+  if (!_privacidadAceptada) {
+    setState(() => _errorMessage = 'Debes aceptar el Aviso de Privacidad para continuar');
+    return;
+  }
+
+  if (_usuarioController.text.trim().isEmpty) {
+    setState(() => _errorMessage = 'Ingresa tu nombre de usuario');
+    return;
+  }
+  if (_nombreController.text.trim().isEmpty) {
+    setState(() => _errorMessage = 'Ingresa tu nombre completo');
+    return;
+  }
+  if (_passwordController.text.length < 4) {
+    setState(() => _errorMessage = 'La contraseña debe tener al menos 4 caracteres');
+    return;
+  }
+  if (_passwordController.text != _confirmarController.text) {
+    setState(() => _errorMessage = 'Las contraseñas no coinciden');
+    return;
+  }
+  if (_edadController.text.trim().isEmpty) {
+    setState(() => _errorMessage = 'Ingresa tu edad');
+    return;
+  }
+  if (_ciudadController.text.trim().isEmpty) {
+    setState(() => _errorMessage = 'Ingresa tu ciudad');
+    return;
+  }
+  if (_preguntaSeguridad == null) {
+    setState(() => _errorMessage = 'Elige una pregunta de seguridad');
+    return;
+  }
+  if (_respuestaSeguridadController.text.trim().isEmpty) {
+    setState(() => _errorMessage = 'Ingresa la respuesta de seguridad');
+    return;
+  }
+
+  setState(() {
+    _isLoading = true;
+    _errorMessage = null;
+  });
+
+  try {
+    final uid = DateTime.now().millisecondsSinceEpoch.toString();
+    final syncService = SyncService();
+
+    // ✅ 1. Guardar en Hive (configuración)
+    final configBox = await Hive.openBox('configuracion');
+    await configBox.put('usuario_uid', uid);
+    await configBox.put('usuario_actual', _usuarioController.text.trim());
+    await configBox.put('usuario_nombre', _nombreController.text.trim());
+    await configBox.put('usuario_password', _passwordController.text.trim());
+    await configBox.put('usuario_edad', _edadController.text.trim());
+    await configBox.put('usuario_ciudad', _ciudadController.text.trim());
+    await configBox.put('usuario_pregunta_seguridad', _preguntaSeguridad);
+    await configBox.put('usuario_respuesta_seguridad', _respuestaSeguridadController.text.trim());
+    await configBox.put('usuario_fecha_registro', DateTime.now().toIso8601String());
+    await configBox.put('privacidad_aceptada', true);
+    await configBox.put('login_exitoso', true);
+
+    print('✅ Usuario guardado en configuracion Hive: ${_usuarioController.text.trim()}');
+
+    // ✅ 1.5 Guardar en la lista de usuarios de Hive (para búsqueda en recuperación)
+    final usuariosBox = await Hive.openBox('usuarios');
+    final listaUsuarios = usuariosBox.get('lista', defaultValue: <Map<String, dynamic>>[]);
+
+    // Verificar si el usuario ya existe en la lista
+    bool existe = false;
+    for (var i = 0; i < listaUsuarios.length; i++) {
+      if (listaUsuarios[i]['nombre_usuario'] == _usuarioController.text.trim()) {
+        // Actualizar si existe
+        listaUsuarios[i] = {
+          'uid': uid,
+          'nombre': _nombreController.text.trim(),
+          'nombre_usuario': _usuarioController.text.trim(),
+          'email': '${_usuarioController.text.trim()}@lombriaventura.com',
+          'password': _passwordController.text.trim(),
+          'pregunta_seguridad': _preguntaSeguridad,
+          'respuesta_seguridad': _respuestaSeguridadController.text.trim(),
+          'edad': int.tryParse(_edadController.text.trim()),
+          'ciudad': _ciudadController.text.trim(),
+          'genero': null,
+          'fecha_registro': DateTime.now().toIso8601String(),
+        };
+        existe = true;
+        break;
+      }
     }
 
-    if (_usuarioController.text.trim().isEmpty) {
-      setState(() => _errorMessage = 'Ingresa tu nombre de usuario');
-      return;
-    }
-    if (_nombreController.text.trim().isEmpty) {
-      setState(() => _errorMessage = 'Ingresa tu nombre completo');
-      return;
-    }
-    if (_passwordController.text.length < 4) {
-      setState(() => _errorMessage = 'La contraseña debe tener al menos 4 caracteres');
-      return;
-    }
-    if (_passwordController.text != _confirmarController.text) {
-      setState(() => _errorMessage = 'Las contraseñas no coinciden');
-      return;
-    }
-    if (_edadController.text.trim().isEmpty) {
-      setState(() => _errorMessage = 'Ingresa tu edad');
-      return;
-    }
-    if (_ciudadController.text.trim().isEmpty) {
-      setState(() => _errorMessage = 'Ingresa tu ciudad');
-      return;
-    }
-    if (_preguntaSeguridad == null) {
-      setState(() => _errorMessage = 'Elige una pregunta de seguridad');
-      return;
-    }
-    if (_respuestaSeguridadController.text.trim().isEmpty) {
-      setState(() => _errorMessage = 'Ingresa la respuesta de seguridad');
-      return;
+    if (!existe) {
+      listaUsuarios.add({
+        'uid': uid,
+        'nombre': _nombreController.text.trim(),
+        'nombre_usuario': _usuarioController.text.trim(),
+        'email': '${_usuarioController.text.trim()}@lombriaventura.com',
+        'password': _passwordController.text.trim(),
+        'pregunta_seguridad': _preguntaSeguridad,
+        'respuesta_seguridad': _respuestaSeguridadController.text.trim(),
+        'edad': int.tryParse(_edadController.text.trim()),
+        'ciudad': _ciudadController.text.trim(),
+        'genero': null,
+        'fecha_registro': DateTime.now().toIso8601String(),
+      });
     }
 
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
+    await usuariosBox.put('lista', listaUsuarios);
+    print('✅ Usuario guardado en lista de Hive: ${_usuarioController.text.trim()}');
+    print('📋 Lista de usuarios en Hive: ${listaUsuarios.length} usuarios');
 
-    try {
-      final uid = DateTime.now().millisecondsSinceEpoch.toString();
-      final syncService = SyncService();
+    // ✅ 2. Guardar en API (con pregunta y respuesta de seguridad)
+    if (await syncService.tieneInternet()) {
+      print('🌐 Guardando usuario en API...');
+      final result = await ApiService().crearUsuario(
+        uid: uid,
+        nombre: _nombreController.text.trim(),
+        nombreUsuario: _usuarioController.text.trim(),
+        email: '${_usuarioController.text.trim()}@lombriaventura.com',
+        preguntaSeguridad: _preguntaSeguridad!,
+        respuestaSeguridad: _respuestaSeguridadController.text.trim(),
+        edad: int.tryParse(_edadController.text.trim()),
+        ciudad: _ciudadController.text.trim(),
+        genero: null,
+      );
 
-      // ✅ 1. Guardar en Hive SIEMPRE
-      final configBox = await Hive.openBox('configuracion');
-      await configBox.put('usuario_uid', uid);
-      await configBox.put('usuario_actual', _usuarioController.text.trim());
-      await configBox.put('usuario_nombre', _nombreController.text.trim());
-      await configBox.put('usuario_password', _passwordController.text.trim());
-      await configBox.put('usuario_edad', _edadController.text.trim());
-      await configBox.put('usuario_ciudad', _ciudadController.text.trim());
-      await configBox.put('usuario_pregunta_seguridad', _preguntaSeguridad);
-      await configBox.put('usuario_respuesta_seguridad', _respuestaSeguridadController.text.trim());
-      await configBox.put('usuario_fecha_registro', DateTime.now().toIso8601String());
-      await configBox.put('privacidad_aceptada', true);
-      await configBox.put('login_exitoso', true);
-
-      print('✅ Usuario guardado en Hive: ${_usuarioController.text.trim()}');
-
-      // ✅ 2. Guardar en API (con pregunta y respuesta de seguridad)
-      if (await syncService.tieneInternet()) {
-        print('🌐 Guardando usuario en API...');
-        final result = await ApiService().crearUsuario(
-          uid: uid,
-          nombre: _nombreController.text.trim(),
-          nombreUsuario: _usuarioController.text.trim(),
-          email: '${_usuarioController.text.trim()}@lombriaventura.com',
-          preguntaSeguridad: _preguntaSeguridad!,
-          respuestaSeguridad: _respuestaSeguridadController.text.trim(),
-          edad: int.tryParse(_edadController.text.trim()),
-          ciudad: _ciudadController.text.trim(),
-          genero: null,
-        );
-
-        if (result.ok) {
-          print('✅ Usuario guardado en API');
-        } else {
-          await syncService.guardarUsuarioPendiente({
-            'uid': uid,
-            'nombre': _nombreController.text.trim(),
-            'nombreUsuario': _usuarioController.text.trim(),
-            'email': '${_usuarioController.text.trim()}@lombriaventura.com',
-            'preguntaSeguridad': _preguntaSeguridad,
-            'respuestaSeguridad': _respuestaSeguridadController.text.trim(),
-            'edad': int.tryParse(_edadController.text.trim()),
-            'ciudad': _ciudadController.text.trim(),
-            'genero': null,
-          });
-          print('💾 Usuario guardado en pendientes (API falló)');
-        }
+      if (result.ok) {
+        print('✅ Usuario guardado en API');
       } else {
         await syncService.guardarUsuarioPendiente({
           'uid': uid,
@@ -171,26 +204,40 @@ class _RegistroScreenState extends State<RegistroScreen> {
           'ciudad': _ciudadController.text.trim(),
           'genero': null,
         });
-        print('💾 Usuario guardado en pendientes (sin internet)');
+        print('💾 Usuario guardado en pendientes (API falló)');
       }
-
-      setState(() => _isLoading = false);
-
-      if (mounted) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => const MenuPrincipal()),
-          (route) => false,
-        );
-      }
-    } catch (e) {
-      setState(() {
-        _errorMessage = 'Error al registrar: $e';
-        _isLoading = false;
+    } else {
+      await syncService.guardarUsuarioPendiente({
+        'uid': uid,
+        'nombre': _nombreController.text.trim(),
+        'nombreUsuario': _usuarioController.text.trim(),
+        'email': '${_usuarioController.text.trim()}@lombriaventura.com',
+        'preguntaSeguridad': _preguntaSeguridad,
+        'respuestaSeguridad': _respuestaSeguridadController.text.trim(),
+        'edad': int.tryParse(_edadController.text.trim()),
+        'ciudad': _ciudadController.text.trim(),
+        'genero': null,
       });
+      print('💾 Usuario guardado en pendientes (sin internet)');
     }
-  }
 
+    setState(() => _isLoading = false);
+
+    if (mounted) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const MenuPrincipal()),
+        (route) => false,
+      );
+    }
+  } catch (e) {
+    print('❌ Error en registro: $e');
+    setState(() {
+      _errorMessage = 'Error al registrar: $e';
+      _isLoading = false;
+    });
+  }
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
