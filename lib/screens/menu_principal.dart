@@ -607,15 +607,14 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
       appBar: AppBar(
         title: _buildTituloAdmin(),
         actions: [
-          // Mostrar monedas en el AppBar
+          // Mostrar monedas en el AppBar (SIEMPRE visible)
           FutureBuilder<int>(
             future: _obtenerMonedas(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Container(
                   margin: const EdgeInsets.only(right: 8),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(20),
@@ -632,60 +631,55 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                   ),
                 );
               }
-              if (snapshot.hasData && snapshot.data! > 0) {
-                return Container(
-                  margin: const EdgeInsets.only(right: 8),
+              
+              final monedas = snapshot.data ?? 0;
+              return Container(
+                margin: const EdgeInsets.only(right: 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: monedas > 0 ? const Color(0xFFB8860B) : Colors.transparent,
+                      offset: const Offset(0, 4),
+                      blurRadius: 0,
+                    ),
+                  ],
+                ),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
+                    color: monedas > 0 ? const Color(0xFFFFD700) : Colors.grey.shade300,
                     borderRadius: BorderRadius.circular(20),
-                    //Sombra solida hacia abajo = profundidad 3D
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFFB8860B),
-                        offset: const Offset(0, 4),
-                        blurRadius: 0,
+                    border: Border.all(
+                      color: monedas > 0 ? const Color(0xFFB8860B) : Colors.grey.shade500,
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.monetization_on,
+                        color: monedas > 0 ? const Color(0xFFB8860B) : Colors.grey.shade600,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '$monedas',
+                        style: TextStyle(
+                          color: monedas > 0 ? const Color(0xFF7B5100) : Colors.grey.shade600,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Fredoka',
+                          fontSize: 14,
+                        ),
                       ),
                     ],
                   ),
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      //Fondo amarillo dorado
-                      color: const Color(0xFFFFD700),
-                      borderRadius: BorderRadius.circular(20),
-                      //Borde inferior que refuerza la profundidad
-                      border: Border.all(
-                        color: const Color(0xFFB8860B), // dorado oscuro
-                        width: 1.5,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.monetization_on,
-                          color: Color(0xFFB8860B), //icono dorado oscuro
-                          size: 18,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${snapshot.data}',
-                          style: const TextStyle(
-                            color: Color(0xFF7B5100), // texto cafe dorado
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Fredoka',
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }
-              return const SizedBox.shrink();
+                ),
+              );
             },
           ),
-          // ----------Botón de progreso---------
+          // Botón de progreso
           GestureDetector(
             onTap: () => _irAPantalla(
               ProgressScreen(
@@ -729,7 +723,7 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
               ),
             ),
           ),
-          // ----------Botón de perfil---------
+          // Botón de perfil
           IconButton(
             icon: const Icon(Icons.person_sharp, color: Colors.white),
             onPressed: () => _irAPantalla(const PerfilScreen()),
