@@ -516,7 +516,7 @@ class _RetosScreenState extends State<RetosScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Muestra de mi negocio'),
+        title: const Text('Creación de mi negocio'),
         backgroundColor: AppTheme.verde,
       ),
       body: Container(
@@ -585,7 +585,41 @@ class _RetosScreenState extends State<RetosScreen> {
                           ],
                         ),
                       ),
+                      
                       const SizedBox(height: 16),
+                      
+                      // ✅ MENSAJE INFORMATIVO ENTRE PROGRESO Y LISTA DE RETOS
+                      Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade50,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.blue.shade200),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.info_outline,
+                              color: Colors.blue,
+                              size: 22,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                'Pasos para la creación de tu negocio: palomea cada paso al completarlo y envía una foto como evidencia.',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.blue.shade800,
+                                  height: 1.4,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 16),
+                      
                       // Lista de retos
                       ListView.builder(
                         shrinkWrap: true,

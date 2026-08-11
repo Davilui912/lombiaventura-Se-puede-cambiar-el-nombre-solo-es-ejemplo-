@@ -70,6 +70,9 @@ class _ProgressScreenState extends State<ProgressScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        // ✅ NUEVA INSTRUCCIÓN ENTRE APP BAR Y RACHA
+                        _InstruccionBanner(),
+                        const SizedBox(height: 16),
                         FutureBuilder<int>(
                           future: _streakFuture,
                           builder: (context, snapshot) {
@@ -188,6 +191,47 @@ class _CoinPill extends StatelessWidget {
             Icons.monetization_on_rounded,
             color: Color(0xFFFFC800),
             size: 22,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ✅ NUEVO BANNER DE INSTRUCCIÓN
+class _InstruccionBanner extends StatelessWidget {
+  const _InstruccionBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFD6ECFF),
+        borderRadius: BorderRadius.circular(16),
+        border: const Border(
+          bottom: BorderSide(color: Color(0xFF1B5E8C), width: 3),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(
+            Icons.info_outline,
+            color: Color(0xFF1B5E8C),
+            size: 22,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Tu primer reto será llegar a los 15 días seguidos cuidando con éxito tu lombricompostero. ¡No pierdas tu racha! Recuerda registrar diariamente tus cuidados en "Mi Diario".',
+              style: TextStyle(
+                fontSize: 13,
+                color: const Color(0xFF1B5E8C),
+                height: 1.5,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ),
         ],
       ),

@@ -767,72 +767,73 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                       iconImage: 'assets/images/icons/icono_aprendizaje.png',
                       index: 0,
                       opciones: [
-                        _buildOpcion(
-                          'Conoce a las lombrices',
-                          'Aprende sobre la lombriz roja californiana',
-                          '🐛', // ⬅️ Emoji directo
-                          () => _irAPantalla(ModuloEducativoScreen(
-                            titulo: '🪱 Conoce a las lombrices',
-                            descripcion:
-                                'Las lombrices son pequeñas pero poderosas aliadas del planeta.',
-                            informacion:
-                                '🐛 ¡Hola! Soy la lombriz sabia, una lombriz roja californiana. '
-                                'Somos las mejores para hacer composta porque comemos muy rápido.\n\n'
-                                '🌱 ¿CÓMO NACEMOS?\n'
-                                'Nos juntamos en pareja y compartimos una parte de nuestro cuerpo. '
-                                'Ponemos huevitos dentro de capullos ¡Cada 10 días! De cada capullo '
-                                'pueden nacer entre 2 y 5 lombrices bebés. Las bebés tardan 2 o 3 '
-                                'meses en ser adultas (lo sabrás cuando veas un anillo en nuestro cuerpo).\n\n'
-                                '🍎 ¿QUÉ COMEMOS? (¡ATENCIÓN!)\n'
-                                'NO comemos residuos frescos. Tienen que esperar unos días a que '
-                                'se fermenten. Nos encanta: cáscaras de frutas/verduras EN TROZOS '
-                                'PEQUEÑOS, restos de café, hojas secas, cartón mojado, '
-                                'cáscara de huevo triturada.\n\n'
-                                '🚫 ¡NUNCA NOS DES! Carnes, huesos, lácteos, cítricos en exceso, '
-                                'sal, aceites, plásticos. Eso nos enferma o nos puede matar.\n\n'
-                                '🏠 NUESTRO HOGAR PERFECTO\n'
-                                '• Temperatura: 15°C - 25°C (sin frío ni calor extremos)\n'
-                                '• Humedad: como una esponja escurrida (prueba del puño)\n'
-                                '• Un recipiente con drenaje para que salga el lixiviado\n'
-                                '• Malla para que no entren moscas\n\n'
-                                '💧 ¿QUÉ ES EL LIXIVIADO?\n'
-                                'Es el líquido que sale de la composta. ¡Es súper nutritivo! '
-                                'Se mezcla con 10 partes de agua y se echa a las plantas. '
-                                'Cuidado: el lixiviado de la basura común SÍ es tóxico, por eso '
-                                'separamos los residuos.\n\n'
-                                '🌟 ¿SABÍAS QUÉ?\n'
-                                '• No tenemos dientes, por eso corta nuestra comida chiquita\n'
-                                '• Podemos comer la mitad de nuestro peso cada día\n'
-                                '• Ayudamos a reducir la basura que contamina el agua y el suelo',
-                            puntosClave: [
-                              {
-                                'emoji': '🪱',
-                                'titulo': 'Lombriz californiana',
-                                'descripcion':
-                                    'La especie ideal para compostaje, come su peso en un día'
-                              },
-                              {
-                                'emoji': '🌍',
-                                'titulo': 'Viven en la tierra',
-                                'descripcion':
-                                    'Necesitan humedad y oscuridad para sobrevivir'
-                              },
-                              {
-                                'emoji': '🍎',
-                                'titulo': 'Qué comen',
-                                'descripcion':
-                                    'Restos de frutas, verduras, cáscaras de huevo y café'
-                              },
-                              {
-                                'emoji': '✨',
-                                'titulo': 'Beneficios',
-                                'descripcion':
-                                    'Producen humus, el mejor fertilizante natural'
-                              },
-                            ],
-                          )),
-                          color: const Color(0xFF43A047),
-                        ),
+                      _buildOpcion(
+                        'Conoce a las lombrices',
+                        'Aprende sobre la lombriz roja californiana',
+                        '🐛',
+                        () => _irAPantalla(ModuloEducativoScreen(
+                          titulo: '🪱 Conoce a las lombrices',
+                          descripcion:
+                              'Las lombrices son pequeñas pero poderosas aliadas del planeta.',
+                          videoAsset: 'assets/videos/lombriz_intro.mp4', // ✅ Aquí va el videoAsset
+                          informacion:
+                              '🐛 ¡Hola! Soy la lombriz sabia, una lombriz roja californiana. '
+                              'Somos las mejores para hacer composta porque comemos muy rápido.\n\n'
+                              '🌱 ¿CÓMO NACEMOS?\n'
+                              'Nos juntamos en pareja y compartimos una parte de nuestro cuerpo. '
+                              'Ponemos huevitos dentro de capullos ¡Cada 10 días! De cada capullo '
+                              'pueden nacer entre 2 y 5 lombrices bebés. Las bebés tardan 2 o 3 '
+                              'meses en ser adultas (lo sabrás cuando veas un anillo en nuestro cuerpo).\n\n'
+                              '🍎 ¿QUÉ COMEMOS? (¡ATENCIÓN!)\n'
+                              'NO comemos residuos frescos. Tienen que esperar unos días a que '
+                              'se fermenten. Nos encanta: cáscaras de frutas/verduras EN TROZOS '
+                              'PEQUEÑOS, restos de café, hojas secas, cartón mojado, '
+                              'cáscara de huevo triturada.\n\n'
+                              '🚫 ¡NUNCA NOS DES! Carnes, huesos, lácteos, cítricos en exceso, '
+                              'sal, aceites, plásticos. Eso nos enferma o nos puede matar.\n\n'
+                              '🏠 NUESTRO HOGAR PERFECTO\n'
+                              '• Temperatura: 15°C - 25°C (sin frío ni calor extremos)\n'
+                              '• Humedad: como una esponja escurrida (prueba del puño)\n'
+                              '• Un recipiente con drenaje para que salga el lixiviado\n'
+                              '• Malla para que no entren moscas\n\n'
+                              '💧 ¿QUÉ ES EL LIXIVIADO?\n'
+                              'Es el líquido que sale de la composta. ¡Es súper nutritivo! '
+                              'Se mezcla con 10 partes de agua y se echa a las plantas. '
+                              'Cuidado: el lixiviado de la basura común SÍ es tóxico, por eso '
+                              'separamos los residuos.\n\n'
+                              '🌟 ¿SABÍAS QUÉ?\n'
+                              '• No tenemos dientes, por eso corta nuestra comida chiquita\n'
+                              '• Podemos comer la mitad de nuestro peso cada día\n'
+                              '• Ayudamos a reducir la basura que contamina el agua y el suelo',
+                          puntosClave: [
+                            {
+                              'emoji': '🪱',
+                              'titulo': 'Lombriz californiana',
+                              'descripcion':
+                                  'La especie ideal para compostaje, come su peso en un día'
+                            },
+                            {
+                              'emoji': '🌍',
+                              'titulo': 'Viven en la tierra',
+                              'descripcion':
+                                  'Necesitan humedad y oscuridad para sobrevivir'
+                            },
+                            {
+                              'emoji': '🍎',
+                              'titulo': 'Qué comen',
+                              'descripcion':
+                                  'Restos de frutas, verduras, cáscaras de huevo y café'
+                            },
+                            {
+                              'emoji': '✨',
+                              'titulo': 'Beneficios',
+                              'descripcion':
+                                  'Producen humus, el mejor fertilizante natural'
+                            },
+                          ],
+                        )),
+                        color: const Color(0xFF43A047),
+                      ),
                         _buildOpcion(
                           '¿Qué es la lombricomposta?',
                           'Beneficios y proceso',
@@ -1018,6 +1019,39 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                             ],
                           )),
                         ),
+                      _buildOpcion(
+                        'Humus',
+                        'Abono nutritivo para tus plantas',
+                        '🌱',  // ✅ CAMBIADO: ahora es una planta en lugar de una gota de agua
+                        () => _irAPantalla(ModuloEducativoScreen(
+                          titulo: '🌱 Humus',  // ✅ También cambié el título
+                          descripcion:
+                              'El humus es un material orgánico rico en nutrientes que se produce durante la lombricomposta. ¡Es oro para tus plantas!',
+                          informacion:
+                              'El humus o lombricomposta es el abono orgánico que producen las lombrices después de digerir los residuos orgánicos. Es rico en nutrientes y ayuda a mejorar la calidad del suelo y el crecimiento de las plantas.\n\n',
+                          puntosClave: [
+                            {
+                              'emoji': '🌱',
+                              'titulo': '¿Qué es?',
+                              'descripcion':
+                                  'Es la tierra oscura y rica en nutrientes que resulta del proceso de transformación de los residuos por las lombrices. Es un excelente abono para la tierra y las plantas.'
+                            },
+                            {
+                              'emoji': '🧺',
+                              'titulo': 'Recolecta',
+                              'descripcion':
+                                  'Cuando quieras rescatar el humus, agrega residuos en una canasta y colócala sobre el humus. Las lombrices subirán hacia los residuos y dejarán libre el humus para que puedas recolectarlo.'
+                            },
+                            {
+                              'emoji': '🌻',
+                              'titulo': 'Usa en plantas',
+                              'descripcion':
+                                  'Coloca el humus sobre la tierra, alrededor de la planta, y riégala. Verás que ayuda a conservar la humedad y mejora la nutrición de la planta'
+                            },
+                          ],
+                        )),
+                        color: const Color(0xFF43A047),
+                      ),
                         _buildOpcion(
                           'Lixiviado',
                           'El oro líquido de la composta',
@@ -1027,9 +1061,7 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                             descripcion:
                                 'El lixiviado es un líquido oscuro que se produce durante la lombricomposta. ¡Es oro líquido para tus plantas!',
                             informacion:
-                                'El lixiviado es el exceso de agua que escurre de la composta cargado de nutrientes.\n\n'
-                                'Se recolecta en la parte baja del contenedor y se diluye en agua para regar plantas.\n\n'
-                                'Proporción: 1 parte de lixiviado por 10 partes de agua.',
+                                ' Se recolecta el líquido en un atomizador, se agregan 10 partes de agua por cada parte de lixiviado y queda listo para aplicarlo directamente sobre las hojas de las plantas.',
                             puntosClave: [
                               {
                                 'emoji': '💧',
@@ -1041,7 +1073,7 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                                 'emoji': '🪣',
                                 'titulo': 'Recolecta',
                                 'descripcion':
-                                    'Usa un contenedor con llave en la parte inferior'
+                                    'Tu lombricompostero debe tener pequeños agujeros en la parte inferior para drenar el exceso de agua. Coloca un recipiente debajo para ir recolectando el lixiviado.'
                               },
                               {
                                 'emoji': '🧪',
@@ -1099,46 +1131,49 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                           )),
                         ),
                         _buildOpcion(
-                          'Emprendimiento',
-                          'Gana dinero ayudando al planeta',
-                          '💰',
-                          () => _irAPantalla(ModuloEducativoScreen(
-                            titulo: '💰 Emprendimiento',
-                            descripcion:
-                                '¿Sabías que puedes ganar dinero con tu lombricomposta? ¡Aprende a vender y ayudar al planeta!',
-                            informacion: 'Puedes vender:\n\n'
-                                '• Composta (humus): \$50-100 MXN por kilo\n'
-                                '• Lixiviado: \$30-50 MXN por litro\n'
-                                '• Lombrices: \$100-200 MXN por 100 lombrices\n\n'
-                                'Ideal para vender en tu escuela, colonia o redes sociales.',
-                            puntosClave: [
-                              {
-                                'emoji': '🛍️',
-                                'titulo': 'Vende composta',
-                                'descripcion':
-                                    'Empaca en bolsas de 1kg y vende a vecinos y jardineros'
-                              },
-                              {
-                                'emoji': '🧴',
-                                'titulo': 'Vende lixiviado',
-                                'descripcion':
-                                    'Embasa en botellas recicladas como fertilizante líquido'
-                              },
-                              {
-                                'emoji': '🪱',
-                                'titulo': 'Vende lombrices',
-                                'descripcion':
-                                    'Cuando tengas muchas, separa y vende paquetes'
-                              },
-                              {
-                                'emoji': '📱',
-                                'titulo': 'Promoción',
-                                'descripcion':
-                                    'Toma fotos bonitas y comparte en WhatsApp o Facebook'
-                              },
-                            ],
-                          )),
-                        ),
+                        'Emprendimiento',
+                        'Gana dinero ayudando al planeta',
+                        '💰',
+                        () => _irAPantalla(ModuloEducativoScreen(
+                          titulo: '💰 Emprendimiento',
+                          descripcion:
+                              '¿Sabías que puedes ganar dinero con tu lombricomposta? ¡Aprende a vender y ayudar al planeta!',
+                          informacion: 
+                              'Cuando creas un negocio necesitas invertir, calcular costos, fijar precios, vender y obtener ganancias.\n\n'
+                              'Puedes vender:\n'
+                              '• Composta (humus): \$50-100 MXN por kilo\n'
+                              '• Lixiviado: \$30-50 MXN por litro\n'
+                              '• Lombrices: \$100-200 MXN por 100 lombrices\n\n'
+                              'Ideal para vender en tu escuela, colonia o redes sociales.',
+                          puntosClave: [
+                            {
+                              'emoji': '🛍️',
+                              'titulo': 'Vende composta',
+                              'descripcion':
+                                  'Empaca en bolsas de 1kg y vende a vecinos y jardineros'
+                            },
+                            {
+                              'emoji': '🧴',
+                              'titulo': 'Vende lixiviado',
+                              'descripcion':
+                                  'Embasa en botellas recicladas como fertilizante líquido'
+                            },
+                            {
+                              'emoji': '🪱',
+                              'titulo': 'Vende lombrices',
+                              'descripcion':
+                                  'Cuando tengas muchas, separa y vende paquetes'
+                            },
+                            {
+                              'emoji': '📱',
+                              'titulo': 'Promoción',
+                              'descripcion':
+                                  'Toma fotos bonitas y comparte en WhatsApp o Facebook'
+                            },
+                          ],
+                        )),
+                        color: const Color(0xFF43A047),
+                      ),
                       ],
                     ),
                     // ==================== MI NEGOCIO REAL ====================
@@ -1159,7 +1194,7 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                           color: const Color(0xFFFF7043),
                         ),
                         _buildOpcion(
-                          'Muestra de mi negocio',
+                          'Creación de mi negocio',
                           'Mi Lombricompostero en casa',
                           '🚩',
                           () => _irAPantalla(const RetosScreen()),

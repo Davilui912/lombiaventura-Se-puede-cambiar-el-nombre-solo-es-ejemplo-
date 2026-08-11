@@ -188,7 +188,7 @@ class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('📝 Nueva entrada'),
+        title: const Text('📝 Mi diario'),
         backgroundColor: AppTheme.verde,
       ),
       body: Container(
