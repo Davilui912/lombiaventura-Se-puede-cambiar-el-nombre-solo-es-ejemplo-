@@ -21,8 +21,8 @@ class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
   String _temperaturaSeleccionada = '🌤️ Buen clima';
 
   // ✅ Nuevos campos para moscas y mal olor
-  bool _tieneMoscas = false;
-  bool _tieneMalOlor = false;
+  bool? _tieneMoscas;
+  bool? _tieneMalOlor;
 
   // ✅ Tipo de residuo (múltiple selección)
   final List<String> _tiposResiduo = [
@@ -75,13 +75,13 @@ class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
 
   Future<void> _guardarEntrada() async {
     // ✅ Validar si tiene moscas y mostrar advertencia
-    if (_tieneMoscas) {
+    if (_tieneMoscas == true) {
       _mostrarDialogoMoscas();
       return;
     }
 
     // ✅ Validar si tiene mal olor y mostrar advertencia
-    if (_tieneMalOlor) {
+    if (_tieneMalOlor == true) {
       _mostrarDialogoMalOlor();
       return;
     }
@@ -323,12 +323,12 @@ class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
-                            color: !_tieneMoscas
+                            color: _tieneMoscas == false
                                 ? AppTheme.verde.withValues(alpha: 0.2)
                                 : Colors.grey.shade100,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: !_tieneMoscas
+                              color: _tieneMoscas == false
                                   ? AppTheme.verde
                                   : Colors.grey.shade300,
                               width: 2,
@@ -349,7 +349,7 @@ class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
                                 'No',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color: !_tieneMoscas
+                                  color: _tieneMoscas == false
                                       ? AppTheme.verde
                                       : Colors.grey.shade600,
                                 ),
@@ -369,12 +369,12 @@ class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
-                            color: _tieneMoscas
+                            color: _tieneMoscas == true
                                 ? Colors.red.withValues(alpha: 0.2)
                                 : Colors.grey.shade100,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: _tieneMoscas
+                              color: _tieneMoscas == true
                                   ? Colors.red
                                   : Colors.grey.shade300,
                               width: 2,
@@ -395,7 +395,7 @@ class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
                                 'Sí',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color: _tieneMoscas
+                                  color: _tieneMoscas == true
                                       ? Colors.red
                                       : Colors.grey.shade600,
                                 ),
@@ -407,7 +407,7 @@ class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
                     ),
                   ],
                 ),
-                if (_tieneMoscas)
+                if (_tieneMoscas == true)
                   Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: Container(
@@ -451,12 +451,12 @@ class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
-                            color: !_tieneMalOlor
+                            color: _tieneMalOlor == false
                                 ? AppTheme.verde.withValues(alpha: 0.2)
                                 : Colors.grey.shade100,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: !_tieneMalOlor
+                              color: _tieneMalOlor == false
                                   ? AppTheme.verde
                                   : Colors.grey.shade300,
                               width: 2,
@@ -477,7 +477,7 @@ class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
                                 'No',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color: !_tieneMalOlor
+                                  color: _tieneMalOlor == false
                                       ? AppTheme.verde
                                       : Colors.grey.shade600,
                                 ),
@@ -497,12 +497,12 @@ class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
-                            color: _tieneMalOlor
+                            color: _tieneMalOlor == true
                                 ? Colors.red.withValues(alpha: 0.2)
                                 : Colors.grey.shade100,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: _tieneMalOlor
+                              color: _tieneMalOlor == true
                                   ? Colors.red
                                   : Colors.grey.shade300,
                               width: 2,
@@ -523,7 +523,7 @@ class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
                                 'Sí',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color: _tieneMalOlor
+                                  color: _tieneMalOlor == true
                                       ? Colors.red
                                       : Colors.grey.shade600,
                                 ),
@@ -535,7 +535,7 @@ class _NuevaEntradaScreenState extends State<NuevaEntradaScreen> {
                     ),
                   ],
                 ),
-                if (_tieneMalOlor)
+                if (_tieneMalOlor == true)
                   Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: Container(
