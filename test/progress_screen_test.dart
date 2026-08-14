@@ -46,6 +46,21 @@ void main() {
     await Hive.openBox('historial_ventas');
   });
 
+  tearDown(() async {
+    if (Hive.isBoxOpen('actividad')) {
+      await Hive.box('actividad').close();
+    }
+    if (Hive.isBoxOpen('monedas')) {
+      await Hive.box('monedas').close();
+    }
+    if (Hive.isBoxOpen('historial_ventas')) {
+      await Hive.box('historial_ventas').close();
+    }
+    await Hive.deleteBoxFromDisk('actividad');
+    await Hive.deleteBoxFromDisk('monedas');
+    await Hive.deleteBoxFromDisk('historial_ventas');
+  });
+
   testWidgets('ProgressScreen shows the streak from stored activity data', (
     tester,
   ) async {

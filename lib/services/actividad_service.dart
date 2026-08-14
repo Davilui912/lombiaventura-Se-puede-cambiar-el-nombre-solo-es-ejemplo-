@@ -3,13 +3,15 @@ import 'package:hive_flutter/hive_flutter.dart';
 class ActividadService {
   static const String _boxName = 'actividad';
 
-  // Registrar actividad hoy
-  Future<void> registrarActividad() async {
+  Future<void> _guardarEntrada() async {
     final box = Hive.box(_boxName);
     final hoy = DateTime.now().toIso8601String().split('T')[0];
-    
-    // Guardar el día como activo
     await box.put(hoy, true);
+  }
+
+  // Registrar actividad hoy
+  Future<void> registrarActividad() async {
+    await _guardarEntrada();
   }
 
   // Obtener total de días activos
@@ -39,7 +41,7 @@ class ActividadService {
   // Obtener fase de Max según días activos
   Map<String, dynamic> obtenerFaseMax() {
     final dias = obtenerDiasActivos();
-    
+
     if (dias >= 31) {
       return {
         'fase': 5,
