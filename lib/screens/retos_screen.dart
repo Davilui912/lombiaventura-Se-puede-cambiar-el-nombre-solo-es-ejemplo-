@@ -23,6 +23,9 @@ class _RetosScreenState extends State<RetosScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      mostrarBienvenidaCurso(context);
+    });
     _cargarRetos();
   }
 
@@ -40,7 +43,7 @@ class _RetosScreenState extends State<RetosScreen> {
         source: ImageSource.camera,
         imageQuality: 80,
       );
-      
+
       if (foto != null) {
         setState(() {
           _ultimaFoto = File(foto.path);
@@ -62,7 +65,8 @@ class _RetosScreenState extends State<RetosScreen> {
       if (!esDia1) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('📅 Este reto solo está disponible el día 1 de cada mes'),
+            content:
+                Text('📅 Este reto solo está disponible el día 1 de cada mes'),
             backgroundColor: Colors.orange,
           ),
         );
@@ -129,7 +133,8 @@ class _RetosScreenState extends State<RetosScreen> {
                       Navigator.pop(ctx);
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Primero consigue lombrices y luego regresa 🪱'),
+                          content: Text(
+                              'Primero consigue lombrices y luego regresa 🪱'),
                         ),
                       );
                     },
@@ -149,14 +154,15 @@ class _RetosScreenState extends State<RetosScreen> {
 
   void _mostrarCuantasLombrices(Reto reto) {
     int cantidad = 0;
-    
+
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (ctx) => StatefulBuilder(
         builder: (context, setState) {
           return AlertDialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             title: const Text('¿Cuántas lombrices tienes?'),
             content: Column(
               mainAxisSize: MainAxisSize.min,
@@ -182,7 +188,8 @@ class _RetosScreenState extends State<RetosScreen> {
                       ),
                       child: Text(
                         '$cantidad',
-                        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold),
                       ),
                     ),
                     IconButton(
@@ -197,7 +204,9 @@ class _RetosScreenState extends State<RetosScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  cantidad == 0 ? 'Necesitas al menos 1 lombriz' : '¡Perfecto! $cantidad lombriz(es)',
+                  cantidad == 0
+                      ? 'Necesitas al menos 1 lombriz'
+                      : '¡Perfecto! $cantidad lombriz(es)',
                   style: TextStyle(
                     color: cantidad > 0 ? AppTheme.verde : Colors.grey,
                     fontWeight: FontWeight.bold,
@@ -216,14 +225,14 @@ class _RetosScreenState extends State<RetosScreen> {
                         Navigator.pop(ctx);
                         await _retosService.completarReto(reto.id);
                         _cargarRetos();
-                        
+
                         if (reto.id == 'reto_1') {
                           final recordatorioService = RecordatoriosService();
                           await recordatorioService.init();
                           recordatorioService.programarRecordatorioDiario();
                           recordatorioService.programarRecordatorioLixiviado();
                         }
-                        
+
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('🎉 ¡Reto completado!'),
@@ -294,7 +303,8 @@ class _RetosScreenState extends State<RetosScreen> {
                       ),
                       child: Text(
                         '$punos',
-                        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold),
                       ),
                     ),
                     IconButton(
@@ -309,7 +319,9 @@ class _RetosScreenState extends State<RetosScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  punos == 0 ? 'Mide los punos de humus' : '$punos puño(s) de humus',
+                  punos == 0
+                      ? 'Mide los punos de humus'
+                      : '$punos puño(s) de humus',
                   style: TextStyle(
                     color: punos > 0 ? AppTheme.verde : Colors.grey,
                   ),
@@ -392,7 +404,8 @@ class _RetosScreenState extends State<RetosScreen> {
                       ),
                       child: Text(
                         '$cucharadas',
-                        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold),
                       ),
                     ),
                     IconButton(
@@ -407,7 +420,9 @@ class _RetosScreenState extends State<RetosScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  cucharadas == 0 ? 'Mide las cucharadas de lixiviado' : '$cucharadas cucharada(s) de lixiviado',
+                  cucharadas == 0
+                      ? 'Mide las cucharadas de lixiviado'
+                      : '$cucharadas cucharada(s) de lixiviado',
                   style: TextStyle(
                     color: cucharadas > 0 ? AppTheme.verde : Colors.grey,
                   ),
@@ -512,6 +527,91 @@ class _RetosScreenState extends State<RetosScreen> {
     );
   }
 
+  // Función para mostrar el diálogo de bienvenida al negocio real
+  void mostrarBienvenidaCurso(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // obliga a presionar "OK" para cerrarlo
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Stack(
+          clipBehavior: Clip.none, // permite que el personaje sobresalga
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color.fromARGB(255, 25, 131, 188)
+                          .withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      children: [
+                        //const Text(style: TextStyle(fontSize: 30)),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            '¡Hola! Me llamo Larry el Grillo.'
+                            'Eres un pequeño explorador y he oído grandes cosas sobre ti. Dicen que sabes mucho sobre el cuidado y la alimentación de las lombrices.\n'
+                            '¡Ha llegado el momento de poner a prueba tus conocimientos! Hoy crearás tu primer negocio de lombricultura. No te preocupes, yo seré tu guía.\n'
+                            '¿Listo, mi pequeño empresario? ¡Comencemos esta gran aventura!\n\n'
+                            'Pasos para la creación de tu negocio: palomea cada paso al completarlo y envía una foto como evidencia.',
+                            style: const TextStyle(fontSize: 16, height: 1.4),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(255, 8, 204, 248),
+                        foregroundColor: Colors.black87,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: const Text(
+                        'OK',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Posicion del personaje
+            Positioned(
+              left: 0,
+              bottom: 20,
+              child: Image.asset(
+                'assets/images/personaje/grillo.png',
+                width: 110,
+                height: 110,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -578,48 +678,49 @@ class _RetosScreenState extends State<RetosScreen> {
                             LinearProgressIndicator(
                               value: _retosService.obtenerProgreso() / 100,
                               backgroundColor: Colors.grey.shade200,
-                              valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.verde),
+                              valueColor: const AlwaysStoppedAnimation<Color>(
+                                  AppTheme.verde),
                               minHeight: 10,
                               borderRadius: BorderRadius.circular(5),
                             ),
                           ],
                         ),
                       ),
-                      
+
                       const SizedBox(height: 16),
-                      
+
                       // ✅ MENSAJE INFORMATIVO ENTRE PROGRESO Y LISTA DE RETOS
-                      Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade50,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.blue.shade200),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.info_outline,
-                              color: Colors.blue,
-                              size: 22,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                'Pasos para la creación de tu negocio: palomea cada paso al completarlo y envía una foto como evidencia.',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.blue.shade800,
-                                  height: 1.4,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      
-                      const SizedBox(height: 16),
-                      
+                      // Container(
+                      //   padding: const EdgeInsets.all(14),
+                      //   decoration: BoxDecoration(
+                      //     color: Colors.blue.shade50,
+                      //     borderRadius: BorderRadius.circular(12),
+                      //     border: Border.all(color: Colors.blue.shade200),
+                      //   ),
+                      //   child: Row(
+                      //     children: [
+                      //       const Icon(
+                      //         Icons.info_outline,
+                      //         color: Colors.blue,
+                      //         size: 22,
+                      //       ),
+                      //       const SizedBox(width: 12),
+                      //       Expanded(
+                      //         child: Text(
+                      //           'Pasos para la creación de tu negocio: palomea cada paso al completarlo y envía una foto como evidencia.',
+                      //           style: TextStyle(
+                      //             fontSize: 13,
+                      //             color: Colors.blue.shade800,
+                      //             height: 1.4,
+                      //           ),
+                      //         ),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
+
+                      // const SizedBox(height: 16),
+
                       // Lista de retos
                       ListView.builder(
                         shrinkWrap: true,
@@ -650,25 +751,38 @@ class _RetosScreenState extends State<RetosScreen> {
                               title: Text(
                                 '${reto.orden}. ${reto.titulo}',
                                 style: TextStyle(
-                                  fontWeight: completado ? FontWeight.normal : FontWeight.bold,
-                                  color: completado ? Colors.grey : AppTheme.negro,
-                                  decoration: completado ? TextDecoration.lineThrough : null,
+                                  fontWeight: completado
+                                      ? FontWeight.normal
+                                      : FontWeight.bold,
+                                  color:
+                                      completado ? Colors.grey : AppTheme.negro,
+                                  decoration: completado
+                                      ? TextDecoration.lineThrough
+                                      : null,
                                 ),
                               ),
                               subtitle: Text(
-                                completado ? '¡Completado! 🎉' : reto.descripcion,
+                                completado
+                                    ? '¡Completado! 🎉'
+                                    : reto.descripcion,
                                 style: TextStyle(
-                                  color: completado ? AppTheme.verde : Colors.grey.shade600,
+                                  color: completado
+                                      ? AppTheme.verde
+                                      : Colors.grey.shade600,
                                   fontSize: 12,
                                 ),
                               ),
                               trailing: completado
-                                  ? const Icon(Icons.check_circle, color: AppTheme.verde)
+                                  ? const Icon(Icons.check_circle,
+                                      color: AppTheme.verde)
                                   : IconButton(
-                                      icon: const Icon(Icons.play_arrow, color: AppTheme.verde),
+                                      icon: const Icon(Icons.play_arrow,
+                                          color: AppTheme.verde),
                                       onPressed: () => _completarReto(reto),
                                     ),
-                              onTap: completado ? null : () => _completarReto(reto),
+                              onTap: completado
+                                  ? null
+                                  : () => _completarReto(reto),
                             ),
                           );
                         },

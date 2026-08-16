@@ -29,6 +29,9 @@ class _ModuloEducativoScreenState extends State<ModuloEducativoScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      mostrarBienvenidaCurso(context);
+    });
     _inicializarVideo();
   }
 
@@ -53,6 +56,91 @@ class _ModuloEducativoScreenState extends State<ModuloEducativoScreen> {
     super.dispose();
   }
 
+  // Función para mostrar el diálogo de bienvenida al curso
+  void mostrarBienvenidaCurso(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // obliga a presionar "OK" para cerrarlo
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Stack(
+          clipBehavior: Clip.none, // permite que el personaje sobresalga
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color.fromARGB(255, 25, 188, 90)
+                          .withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      children: [
+                        const Text('🎓', style: TextStyle(fontSize: 30)),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            '¡Bienvenido al curso de lombricomposta! 🌱\n'
+                            '¡Hola! Soy Nene, amiga de Lombrikid.'
+                            'Te acompañaré en esta ruta de aprendizaje. Lombrikid ha preparado un video especial para ti. Cuando lo termines, aparecerá una ✓ que te permitirá continuar.\n\n'
+                            '🎓 ¡Completa el curso para obtener un certificado virtual y ganar increíbles recompensas durante tu aventura! 🪙'
+                            '¡Mucho gusto en conocerte y que comience el viaje!',
+                            style: const TextStyle(fontSize: 16, height: 1.4),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(255, 43, 236, 18),
+                        foregroundColor: Colors.black87,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: const Text(
+                        'OK',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Personaje asomando en la esquina inferior izquierda.
+            Positioned(
+              left: 0,
+              bottom: 20,
+              child: Image.asset(
+                'assets/images/personaje/cochinilla.png',
+                width: 110,
+                height: 110,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,30 +154,30 @@ class _ModuloEducativoScreenState extends State<ModuloEducativoScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ✅ DESCRIPCIÓN (cuadro amarillo con gorro de graduación)
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppTheme.amarillo.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                children: [
-                  const Text('🎓', style: TextStyle(fontSize: 30)), // ✅ Cambiado a gorro
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      '¡Bienvenido al curso de lombricomposta! 🌱\n'
-                      'Mira los videos en orden y completa cada uno para avanzar. '
-                      'Al terminar un video, aparecerá una ✓ que te permitirá continuar.\n\n'
-                      '🎓 ¡Completa todo el curso y recibe tu certificado virtual y monedas! 🪙',
-                      style: const TextStyle(fontSize: 16, height: 1.4),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            
+            // Container(
+            //   padding: const EdgeInsets.all(16),
+            //   decoration: BoxDecoration(
+            //     color: AppTheme.amarillo.withValues(alpha: 0.2),
+            //     borderRadius: BorderRadius.circular(20),
+            //   ),
+            //   child: Row(
+            //     children: [
+            //       const Text('🎓', style: TextStyle(fontSize: 30)), // ✅ Cambiado a gorro
+            //       const SizedBox(width: 12),
+            //       Expanded(
+            //         child: Text(
+            //           '¡Bienvenido al curso de lombricomposta! 🌱\n'
+            //           'Mira los videos en orden y completa cada uno para avanzar. '
+            //           'Al terminar un video, aparecerá una ✓ que te permitirá continuar.\n\n'
+            //           '🎓 ¡Completa todo el curso y recibe tu certificado virtual y monedas! 🪙',
+            //           style: const TextStyle(fontSize: 16, height: 1.4),
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            // const SizedBox(height: 24),
+
             // ✅ INFORMACIÓN (con video dentro)
             const Text(
               '📖 Información',
@@ -101,7 +189,7 @@ class _ModuloEducativoScreenState extends State<ModuloEducativoScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            
+
             // ✅ VIDEO (dentro de la sección de información)
             if (widget.videoAsset != null && _isVideoInitialized) ...[
               ClipRRect(
@@ -168,7 +256,7 @@ class _ModuloEducativoScreenState extends State<ModuloEducativoScreen> {
               style: const TextStyle(fontSize: 16, height: 1.5),
             ),
             const SizedBox(height: 24),
-            
+
             // ✅ Puntos clave
             const Text(
               '✨ Puntos clave',
