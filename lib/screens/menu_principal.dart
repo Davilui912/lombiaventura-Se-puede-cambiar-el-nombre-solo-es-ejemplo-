@@ -773,74 +773,13 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                       iconImage: 'assets/images/icons/icono_aprendizaje.png',
                       index: 0,
                       opciones: [
-                        _buildOpcion(
-                          'Conoce a las lombrices',
-                          'Aprende sobre la lombriz roja californiana',
-                          '🐛',
-                          () => _irAPantalla(ModuloEducativoScreen(
-                            titulo: '🪱 Conoce a las lombrices',
-                            descripcion:
-                                'Las lombrices son pequeñas pero poderosas aliadas del planeta.',
-                            videoAsset:
-                                'assets/videos/lombriz_intro.mp4', // ✅ Aquí va el videoAsset
-                            informacion:
-                                '🐛 ¡Hola! Soy la lombriz sabia, una lombriz roja californiana. '
-                                'Somos las mejores para hacer composta porque comemos muy rápido.\n\n'
-                                '🌱 ¿CÓMO NACEMOS?\n'
-                                'Nos juntamos en pareja y compartimos una parte de nuestro cuerpo. '
-                                'Ponemos huevitos dentro de capullos ¡Cada 10 días! De cada capullo '
-                                'pueden nacer entre 2 y 5 lombrices bebés. Las bebés tardan 2 o 3 '
-                                'meses en ser adultas (lo sabrás cuando veas un anillo en nuestro cuerpo).\n\n'
-                                '🍎 ¿QUÉ COMEMOS? (¡ATENCIÓN!)\n'
-                                'NO comemos residuos frescos. Tienen que esperar unos días a que '
-                                'se fermenten. Nos encanta: cáscaras de frutas/verduras EN TROZOS '
-                                'PEQUEÑOS, restos de café, hojas secas, cartón mojado, '
-                                'cáscara de huevo triturada.\n\n'
-                                '🚫 ¡NUNCA NOS DES! Carnes, huesos, lácteos, cítricos en exceso, '
-                                'sal, aceites, plásticos. Eso nos enferma o nos puede matar.\n\n'
-                                '🏠 NUESTRO HOGAR PERFECTO\n'
-                                '• Temperatura: 15°C - 25°C (sin frío ni calor extremos)\n'
-                                '• Humedad: como una esponja escurrida (prueba del puño)\n'
-                                '• Un recipiente con drenaje para que salga el lixiviado\n'
-                                '• Malla para que no entren moscas\n\n'
-                                '💧 ¿QUÉ ES EL LIXIVIADO?\n'
-                                'Es el líquido que sale de la composta. ¡Es súper nutritivo! '
-                                'Se mezcla con 10 partes de agua y se echa a las plantas. '
-                                'Cuidado: el lixiviado de la basura común SÍ es tóxico, por eso '
-                                'separamos los residuos.\n\n'
-                                '🌟 ¿SABÍAS QUÉ?\n'
-                                '• No tenemos dientes, por eso corta nuestra comida chiquita\n'
-                                '• Podemos comer la mitad de nuestro peso cada día\n'
-                                '• Ayudamos a reducir la basura que contamina el agua y el suelo',
-                            puntosClave: [
-                              {
-                                'emoji': '🪱',
-                                'titulo': 'Lombriz californiana',
-                                'descripcion':
-                                    'La especie ideal para compostaje, come su peso en un día'
-                              },
-                              {
-                                'emoji': '🌍',
-                                'titulo': 'Viven en la tierra',
-                                'descripcion':
-                                    'Necesitan humedad y oscuridad para sobrevivir'
-                              },
-                              {
-                                'emoji': '🍎',
-                                'titulo': 'Qué comen',
-                                'descripcion':
-                                    'Restos de frutas, verduras, cáscaras de huevo y café'
-                              },
-                              {
-                                'emoji': '✨',
-                                'titulo': 'Beneficios',
-                                'descripcion':
-                                    'Producen humus, el mejor fertilizante natural'
-                              },
-                            ],
-                          )),
-                          color: const Color(0xFF43A047),
-                        ),
+                      _buildOpcion(
+                        'Curso de Lombricomposta',
+                        'Completa los 7 videos y obtén tu certificado',
+                        '🎬',
+                        () => _irAPantalla(const CursoVideosScreen()),
+                        color: const Color(0xFF43A047),
+                      ),
                         _buildOpcion(
                           '¿Qué es la lombricomposta?',
                           'Beneficios y proceso',
