@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:lombriaventura/screens/curso_videos_screen.dart';
 import 'package:lombriaventura/screens/juegos/alimenta_lombriz_cayendo.dart';
 import 'package:lombriaventura/screens/juegos/selector_nivel_alimenta.dart';
 import 'package:lombriaventura/screens/login_screen.dart';
@@ -180,8 +181,8 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 32,  // ✅ Reducido de 40 a 32
+            height: 32, // ✅ Reducido de 40 a 32
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
               color: Colors.white,
@@ -189,28 +190,31 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
             child: ClipOval(
               child: Image.asset(
                 'assets/images/logo_lombriaventura.png',
-                width: 40,
-                height: 40,
+                width: 32,
+                height: 32,
                 fit: BoxFit.contain,
                 errorBuilder: (context, error, stackTrace) {
                   return const Icon(
                     Icons.bug_report,
-                    size: 30,
+                    size: 24,
                     color: AppTheme.verde,
                   );
                 },
               ),
             ),
           ),
-          const SizedBox(width: 8),
-          const Text(
-            '¡Hola, Lombrikid!',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+          const SizedBox(width: 6), // ✅ Reducido de 8 a 6
+          Flexible(  // ✅ Envuelve el texto en Flexible para que se ajuste
+            child: Text(
+              '¡Hola, Lombrikid!',
+              style: TextStyle(
+                fontSize: 16, // ✅ Reducido de 18 a 16
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+              overflow: TextOverflow.ellipsis,
+              softWrap: false,
             ),
-            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -774,9 +778,9 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
                       index: 0,
                       opciones: [
                       _buildOpcion(
-                        'Curso de Lombricomposta',
+                        'Conoce a las lombrices',
                         'Completa los 7 videos y obtén tu certificado',
-                        '🎬',
+                        '🐛',
                         () => _irAPantalla(const CursoVideosScreen()),
                         color: const Color(0xFF43A047),
                       ),

@@ -11,7 +11,7 @@ class CursoVideosScreen extends StatefulWidget {
 }
 
 class _CursoVideosScreenState extends State<CursoVideosScreen> {
-  // ✅ Lista de 7 videos
+  // ✅ Lista de 6 videos
   final List<Map<String, String>> _videos = [
     {
       'id': 'video_1',
@@ -22,38 +22,32 @@ class _CursoVideosScreenState extends State<CursoVideosScreen> {
     {
       'id': 'video_2',
       'titulo': 'Video 2',
-      'asset': 'assets/videos/video2.mp4',
+      'asset': 'assets/videos/Escena2.mp4',
       'descripcion': '¿Qué es la lombricomposta?',
     },
     {
       'id': 'video_3',
       'titulo': 'Video 3',
-      'asset': 'assets/videos/video3.mp4',
-      'descripcion': 'Materiales necesarios',
+      'asset': 'assets/videos/Escena3.mp4',
+      'descripcion': '¿Por qué somos importantes las lombrices?',
     },
     {
       'id': 'video_4',
       'titulo': 'Video 4',
-      'asset': 'assets/videos/video4.mp4',
-      'descripcion': 'Preparando el hogar de las lombrices',
+      'asset': 'assets/videos/Escena4.mp4',
+      'descripcion': '¿Qué comemos las lombrices?',
     },
     {
       'id': 'video_5',
       'titulo': 'Video 5',
-      'asset': 'assets/videos/video5.mp4',
-      'descripcion': 'Alimentación y cuidados',
+      'asset': 'assets/videos/Escena5.mp4',
+      'descripcion': 'Cuidados de las lombrices',
     },
     {
       'id': 'video_6',
       'titulo': 'Video 6',
-      'asset': 'assets/videos/video6.mp4',
-      'descripcion': 'Cosechando humus y lixiviado',
-    },
-    {
-      'id': 'video_7',
-      'titulo': 'Video 7',
-      'asset': 'assets/videos/video7.mp4',
-      'descripcion': 'Emprendimiento con lombrices',
+      'asset': 'assets/videos/Escena6.mp4',
+      'descripcion': 'Nuestro hogar para las lombrices',
     },
   ];
 
@@ -76,75 +70,24 @@ class _CursoVideosScreenState extends State<CursoVideosScreen> {
 
   Future<void> _marcarVisto(int index) async {
     final box = await Hive.openBox('progreso_videos');
-    setState(() {
-      _vistos[index] = !_vistos[index];
-    });
-    await box.put(_videos[index]['id']!, _vistos[index]);
     
-    if (_vistos.every((v) => v == true)) {
-      _mostrarCertificado();
+    if (!_vistos[index]) {
+      setState(() {
+        _vistos[index] = true;
+      });
+      await box.put(_videos[index]['id']!, true);
+      
+      if (_vistos.every((v) => v == true)) {
+        _mostrarCertificado();
+      }
     }
   }
 
   void _mostrarCertificado() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('🎓 ¡Felicidades!', textAlign: TextAlign.center),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              '📜 Has completado todos los videos del curso.',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: AppTheme.verde.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.verde, width: 2),
-              ),
-              child: Column(
-                children: [
-                  const Text('🏆', style: TextStyle(fontSize: 40)),
-                  const SizedBox(height: 8),
-                  Text(
-                    '¡Lombrikid Experto!',
-                    style: TextStyle(
-                      color: AppTheme.verde,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'Has completado el curso de lombricomposta',
-                    style: TextStyle(fontSize: 14),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              '🎁 +50 monedas por completar el curso',
-              style: TextStyle(fontSize: 14),
-            ),
-          ],
-        ),
-        actions: [
-          ElevatedButton(
-            onPressed: () => Navigator.pop(ctx),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.verde,
-            ),
-            child: const Text('🎉 ¡Ver certificado!'),
-          ),
-        ],
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const CertificadoScreen(),
       ),
     );
   }
@@ -167,7 +110,10 @@ class _CursoVideosScreenState extends State<CursoVideosScreen> {
             ),
         ],
       ),
+      // ✅ FONDO EN EL BODY (cubre toda la pantalla)
       body: Container(
+        width: double.infinity,
+        height: double.infinity,
         decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage('assets/images/fondo.png'),
@@ -177,9 +123,9 @@ class _CursoVideosScreenState extends State<CursoVideosScreen> {
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(12),
                 child: Container(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.92),
                     borderRadius: BorderRadius.circular(20),
@@ -192,13 +138,14 @@ class _CursoVideosScreenState extends State<CursoVideosScreen> {
                     ],
                   ),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       // ✅ Progreso
                       Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: AppTheme.verde.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: AppTheme.verde),
                         ),
                         child: Column(
@@ -211,37 +158,39 @@ class _CursoVideosScreenState extends State<CursoVideosScreen> {
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: AppTheme.verde,
+                                    fontSize: 13,
                                   ),
                                 ),
                                 Text(
-                                  '$completados / $total videos',
+                                  '$completados / $total',
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: AppTheme.verde,
+                                    fontSize: 13,
                                   ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 4),
                             LinearProgressIndicator(
                               value: progreso / 100,
                               backgroundColor: Colors.grey.shade200,
                               valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.verde),
-                              minHeight: 10,
-                              borderRadius: BorderRadius.circular(5),
+                              minHeight: 6,
+                              borderRadius: BorderRadius.circular(3),
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 2),
                             Text(
                               '$progreso% completado',
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 11,
                                 color: Colors.grey.shade600,
                               ),
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 12),
 
                       // ✅ Lista de videos
                       ListView.builder(
@@ -252,11 +201,13 @@ class _CursoVideosScreenState extends State<CursoVideosScreen> {
                           final video = _videos[index];
                           final visto = _vistos[index];
                           return Card(
-                            margin: const EdgeInsets.only(bottom: 12),
+                            margin: const EdgeInsets.only(bottom: 6),
+                            elevation: 1,
                             child: ListTile(
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
                               leading: Container(
-                                width: 44,
-                                height: 44,
+                                width: 32,
+                                height: 32,
                                 decoration: BoxDecoration(
                                   color: visto ? AppTheme.verde.withValues(alpha: 0.2) : Colors.grey.shade200,
                                   shape: BoxShape.circle,
@@ -265,57 +216,78 @@ class _CursoVideosScreenState extends State<CursoVideosScreen> {
                                   child: Icon(
                                     visto ? Icons.check_circle : Icons.play_arrow,
                                     color: visto ? AppTheme.verde : Colors.grey.shade600,
+                                    size: 18,
                                   ),
                                 ),
                               ),
                               title: Text(
                                 video['titulo']!,
                                 style: TextStyle(
-                                  fontWeight: visto ? FontWeight.normal : FontWeight.bold,
+                                  fontWeight: visto ? FontWeight.normal : FontWeight.w600,
                                   decoration: visto ? TextDecoration.lineThrough : null,
                                   color: visto ? Colors.grey : AppTheme.negro,
+                                  fontSize: 13,
                                 ),
                               ),
                               subtitle: Text(
                                 video['descripcion']!,
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 10,
                                   color: Colors.grey.shade600,
                                 ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              trailing: Checkbox(
-                                value: visto,
-                                onChanged: (_) => _marcarVisto(index),
-                                activeColor: AppTheme.verde,
+                              trailing: Container(
+                                width: 24,
+                                height: 24,
+                                decoration: BoxDecoration(
+                                  color: visto ? AppTheme.verde.withValues(alpha: 0.2) : Colors.transparent,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: Icon(
+                                    visto ? Icons.check : Icons.play_arrow,
+                                    color: visto ? AppTheme.verde : Colors.grey.shade400,
+                                    size: visto ? 16 : 14,
+                                  ),
+                                ),
                               ),
                               onTap: () => _abrirVideo(index),
+                              dense: true,
                             ),
                           );
                         },
                       ),
 
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 12),
 
                       // ✅ Botón de certificado
                       if (completados == total && total > 0)
-                        ElevatedButton(
-                          onPressed: _mostrarCertificado,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.amber,
-                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: _mostrarCertificado,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.amber,
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              minimumSize: const Size(double.infinity, 40),
                             ),
-                          ),
-                          child: const Text(
-                            '🎓 Ver Certificado',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                            child: const Text(
+                              '🎓 Ver Certificado',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
                             ),
                           ),
                         ),
+                      
+                      const SizedBox(height: 4),
                     ],
                   ),
                 ),
@@ -331,6 +303,7 @@ class _CursoVideosScreenState extends State<CursoVideosScreen> {
         builder: (_) => VideoPlayerScreen(
           video: _videos[index],
           onMarkComplete: () => _marcarVisto(index),
+          yaVisto: _vistos[index],
         ),
       ),
     );
@@ -341,11 +314,13 @@ class _CursoVideosScreenState extends State<CursoVideosScreen> {
 class VideoPlayerScreen extends StatefulWidget {
   final Map<String, String> video;
   final VoidCallback onMarkComplete;
+  final bool yaVisto;
 
   const VideoPlayerScreen({
     super.key,
     required this.video,
     required this.onMarkComplete,
+    this.yaVisto = false,
   });
 
   @override
@@ -367,8 +342,18 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     _controller = VideoPlayerController.asset(widget.video['asset']!)
       ..initialize().then((_) {
         setState(() => _isInitialized = true);
-        _controller!.setLooping(true);
+        _controller!.setLooping(false);
         _controller!.play();
+        
+        if (!widget.yaVisto) {
+          _controller!.addListener(() {
+            if (_controller!.value.position >= _controller!.value.duration &&
+                _controller!.value.duration > Duration.zero &&
+                !_wasMarked) {
+              _markComplete();
+            }
+          });
+        }
       }).catchError((e) {
         print('Error al cargar video: $e');
       });
@@ -386,12 +371,16 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       widget.onMarkComplete();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('✅ ¡Video marcado como visto!'),
+          content: Text('✅ ¡Video completado!'),
           backgroundColor: AppTheme.verde,
         ),
       );
+      Future.delayed(const Duration(milliseconds: 1500), () {
+        if (mounted) {
+          Navigator.pop(context);
+        }
+      });
     }
-    Navigator.pop(context);
   }
 
   @override
@@ -401,16 +390,122 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         title: Text(widget.video['titulo']!),
         backgroundColor: AppTheme.verde,
         actions: [
-          TextButton(
-            onPressed: _markComplete,
-            child: const Text(
-              '✅ Marcar visto',
-              style: TextStyle(color: Colors.white, fontSize: 14),
+          if (widget.yaVisto)
+            Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: Row(
+                children: const [
+                  Icon(Icons.check_circle, color: Colors.white, size: 20),
+                  SizedBox(width: 4),
+                  Text(
+                    'Visto',
+                    style: TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                ],
+              ),
             ),
+        ],
+      ),
+      // ✅ FONDO EN EL BODY DEL VIDEO PLAYER
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/fondo.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Center(
+            child: _isInitialized
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: AspectRatio(
+                          aspectRatio: _controller!.value.aspectRatio,
+                          child: VideoPlayer(_controller!),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              _controller!.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                              color: AppTheme.verde,
+                              size: 36,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                if (_controller!.value.isPlaying) {
+                                  _controller!.pause();
+                                } else {
+                                  _controller!.play();
+                                }
+                              });
+                            },
+                          ),
+                          const SizedBox(width: 16),
+                          IconButton(
+                            icon: const Icon(Icons.replay, color: AppTheme.verde, size: 28),
+                            onPressed: () {
+                              _wasMarked = false;
+                              _controller!.seekTo(Duration.zero);
+                              _controller!.play();
+                            },
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        widget.yaVisto
+                            ? '✅ Ya completaste este video. ¡Míralo de nuevo si quieres!'
+                            : 'El video se marcará automáticamente cuando termine',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: widget.yaVisto ? AppTheme.verde : Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  )
+                : const Padding(
+                    padding: EdgeInsets.all(50.0),
+                    child: CircularProgressIndicator(),
+                  ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ==================== CERTIFICADO SCREEN ====================
+class CertificadoScreen extends StatelessWidget {
+  const CertificadoScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text('🎓 Certificado'),
+        backgroundColor: AppTheme.verde,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.close, color: Colors.white),
+            onPressed: () => Navigator.pop(context),
           ),
         ],
       ),
       body: Container(
+        width: double.infinity,
+        height: double.infinity,
         decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage('assets/images/fondo.png'),
@@ -418,55 +513,113 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
           ),
         ),
         child: Center(
-          child: _isInitialized
-              ? Column(
+          child: Container(
+            margin: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(30),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.15),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+              border: Border.all(color: Colors.amber.shade300, width: 3),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  '🎓',
+                  style: TextStyle(fontSize: 60),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'CERTIFICADO',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.verde,
+                    letterSpacing: 2,
+                  ),
+                ),
+                const Divider(
+                  color: AppTheme.verde,
+                  thickness: 2,
+                  indent: 40,
+                  endIndent: 40,
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'Se otorga el presente certificado a',
+                  style: TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '¡Lombrikid!',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.amber.shade800,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Por haber completado exitosamente el\nCurso de Lombricomposta',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16),
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: AppTheme.verde.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Text(
+                    '🏆 ¡Lombrikid Experto!',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.verde,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    AspectRatio(
-                      aspectRatio: _controller!.value.aspectRatio,
-                      child: VideoPlayer(_controller!),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        IconButton(
-                          icon: Icon(
-                            _controller!.value.isPlaying ? Icons.pause : Icons.play_arrow,
-                            color: AppTheme.verde,
-                            size: 36,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              if (_controller!.value.isPlaying) {
-                                _controller!.pause();
-                              } else {
-                                _controller!.play();
-                              }
-                            });
-                          },
-                        ),
-                        const SizedBox(width: 16),
-                        IconButton(
-                          icon: const Icon(Icons.replay, color: AppTheme.verde, size: 28),
-                          onPressed: () {
-                            _controller!.seekTo(Duration.zero);
-                            _controller!.play();
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Toca "Marcar visto" cuando termines el video',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
+                  children: const [
+                    Icon(Icons.star, color: Colors.amber, size: 20),
+                    Icon(Icons.star, color: Colors.amber, size: 20),
+                    Icon(Icons.star, color: Colors.amber, size: 20),
+                    Icon(Icons.star, color: Colors.amber, size: 20),
+                    Icon(Icons.star, color: Colors.amber, size: 20),
                   ],
-                )
-              : const CircularProgressIndicator(),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.verde,
+                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    '✅ Cerrar',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

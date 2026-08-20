@@ -1,30 +1,21 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter/services.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'config.dart'; 
+import 'config.dart';
 
 class GroqService {
   static const String _apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
   
-  // ✅ Usar la clave desde config.dart (para pruebas locales)
+  // ✅ Usar la clave desde config.dart
   static const String _apiKey = AppConfig.groqApiKey;
   
-  String _manualCompleto = '';
+  // ✅ Modelo activo actual
+  static const String _modeloActual = 'openai/gpt-oss-20b';
+  
   static int _preguntasHoy = 0;
   static String _ultimaFecha = '';
   
-  GroqService() {
-    _cargarManual();
-  }
-  
-  Future<void> _cargarManual() async {
-    try {
-      _manualCompleto = await rootBundle.loadString('assets/data/manual_lombrices.txt');
-    } catch (e) {
-      _manualCompleto = '';
-    }
-  }
+  GroqService();
   
   bool _puedePreguntarHoy() {
     final hoy = DateTime.now().toString().substring(0, 10);
@@ -48,7 +39,7 @@ class GroqService {
   
   Future<String> preguntarALola(String pregunta) async {
     if (pregunta.trim().isEmpty) {
-      return '¿Hola! Dime tu pregunta y te ayudaré. 🪱';
+      return '¡Hola! Dime tu pregunta y te ayudaré. 🪱';
     }
     
     if (!_puedePreguntarHoy()) {
@@ -75,21 +66,16 @@ class GroqService {
   
   Future<String> _preguntarGroq(String pregunta) async {
     final promptSistema = '''
-Eres LOLA, una lombriz roja californiana simpática y sabia.
+Eres una lombriz roja californiana simpática y sabia.
 Ayudas a niños de 6 a 12 años en la app "Lombriaventura".
 Siempre te diriges a los niños como "Lombrikid" en tus respuestas.
 
 INSTRUCCIONES:
-1. Responde SOLO sobre lombrices, lombricomposta, composta, reciclaje, plantas.
-2. Si la pregunta NO es de estos temas, responde: "🌱 ¡Uy! Esa pregunta no es de mi especialidad. Mejor pregúntame sobre lombrices."
-3. Respuestas ALEGRES, con EMOJIS, máximo 4 oraciones.
-4. Habla en PRIMERA PERSONA como Lola.
-
-MANUAL OFICIAL:
-$_manualCompleto
-
-PREGUNTA: $pregunta
-RESPUESTA DE LOLA:
+1. Responde con total naturalidad a saludos (como "hola", "buenos días"), despedidas y preguntas de cortesía.
+2. Responde también sobre lombrices, lombricomposta, composta, reciclaje, plantas, precios de lombrices, dónde comprarlas, materiales para su hábitat, cuidados generales, sobre matematicas de negocio y matematicas en general.
+3. Si la pregunta se sale completamente de estos temas o del proyecto ( deportes, videojuegos ajenos, etc.), responde amablemente: "🌱 ¡Uy! Esa pregunta se sale de mi túnel de tierra. Mejor pregúntame sobre lombrices, composta o dónde conseguirnos."
+4. Respuestas ALEGRES, con EMOJIS, máximo 4 oraciones.
+5. Habla en PRIMERA PERSONA como lombriz sabia y amigable.
 ''';
 
     final response = await http.post(
@@ -99,13 +85,13 @@ RESPUESTA DE LOLA:
         'Content-Type': 'application/json',
       },
       body: jsonEncode({
-        'model': 'llama-3.3-70b-versatile',
+        'model': _modeloActual,
         'messages': [
-          {'role': 'system', 'content': 'Eres Lola la lombriz, experta en compostaje para niños.'},
-          {'role': 'user', 'content': promptSistema},
+          {'role': 'system', 'content': promptSistema},
+          {'role': 'user', 'content': pregunta},
         ],
-        'temperature': 0.7,
-        'max_tokens': 800,
+        'temperature': 0.6,
+        'max_completion_tokens': 500,
         'top_p': 0.95,
       }),
     );
